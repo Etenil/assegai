@@ -2,3 +2,6 @@ syntax: glob
 *~
 #*#
 test.php
+.DS_Store*
+lib/atlatl*
+

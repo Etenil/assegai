@@ -21,7 +21,6 @@ namespace assegai;
  */
 
 require('atlatl/core.php');
-require('rcfile.php');
 require('dispatcher.php');
 
 ?>

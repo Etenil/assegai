@@ -30,6 +30,9 @@ class Dispatcher
 	protected $apps_path;
 	protected $apps;
 
+	protected $current_app;
+	protected $prefix;
+
 	protected $apps_routes;
 	protected $routes;
 
@@ -46,10 +49,16 @@ class Dispatcher
     protected function parseconf()
     {
 		// Loading the main configuration file first so we can get the paths.
-		$conf = array();
-		require('conf.php');
+		$conf = array(
+			'prefix' => '',
+			'apps_path' => 'apps',
+			'apps' => array(),
+			);
+		
+		require($this->root_path . '/conf.php');
 		$this->apps_path = $conf['apps_path'];
 		$this->apps = $conf['apps'];
+		$this->prefix = $conf['prefix'];
 
 		// Is this a relative path?
 		if(!preg_match('/^[A-Z]:/i', $this->apps_path)
@@ -60,16 +69,16 @@ class Dispatcher
 		// Alright. Now let's load the apps config.
 		$this->routes = array();
 		$this->app_routes = array();
-		foreach($this->apps as $app) {
-			$path = $this->apps_path . '/' . $app;
+		foreach($this->apps as $appname) {
+			$path = $this->apps_path . '/' . $appname;
 			if(!file_exists($path) || !is_dir($path)) {
 				continue;
 			}
 			$app = array();
-			@include($path . '/bootstrap.php');
-			$routes[$app] = $app['route'];
+			@include($path . '/conf.php');
+			$this->routes[$appname] = $app['route'];
 			foreach($app['route'] as $route => $callback) {
-				$this->app_routes[$route] = $app;
+				$this->app_routes[$route] = $appname;
 			}
 		}
 
@@ -77,11 +86,31 @@ class Dispatcher
     }
 
 	/**
+	 * Autoloader for controllers etc.
+	 */
+	public function autoload($classname)
+	{
+		$splitter = strpos($classname, '_');
+		if($splitter !== false) {
+			$type = substr($classname, 0, $splitter);
+			$class = substr($classname, $splitter + 1);
+
+			$paths = array('Controller' => 'controllers',
+						   'Model' => 'models',
+						   'View' => 'views');
+			$filename = $this->apps_path . '/' . $this->current_app . '/'
+				. $paths[$type] . '/' . strtolower($class) . '.php';
+
+			@include($filename);
+		}
+	}
+	
+	/**
 	 * Serves requests
 	 */
 	public function serve()
 	{
-		$server = new atlatl\Server($_SERVER);
+		$server = new \atlatl\Server($_SERVER);
 		$route_to_app = "";
 
 		$method_routes = preg_grep('%^' . $server->getMethod() . ':%',
@@ -108,8 +137,13 @@ class Dispatcher
 			throw new Exception('Not found');
 		}
 
-		$app = new Atlatl\Core('', $server);
-		$app->serve($this->routes[$app]);
+		$this->current_app = $app;
+		
+		// We register the dispatcher's autoloader
+		spl_autoload_register(array($this, 'autoload'));
+		
+		$runner = new \Atlatl\Core($this->prefix, $server);
+		$runner->serve($this->routes[$app]);
 	}
 }
 

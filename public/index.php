@@ -18,7 +18,7 @@
  * along with Assegai.  If not, see <http://www.gnu.org/licenses/>.
  */
 require('../lib/loader.php');
-$engine = new assegai\Dispatcher();
+$engine = new assegai\Dispatcher(dirname(__DIR__));
 $engine->serve();
 
 ?>

@@ -28,6 +28,7 @@ class Dispatcher
 {
     protected $root_path;
 	protected $apps_path;
+    protected $modules_path;
 	protected $apps;
 
 	protected $current_app;
@@ -52,19 +53,15 @@ class Dispatcher
 		$conf = array(
 			'prefix' => '',
 			'apps_path' => 'apps',
+            'modules_path' => 'lib/modules',
 			'apps' => array(),
 			);
-		
-		require($this->root_path . '/conf.php');
-		$this->apps_path = $conf['apps_path'];
+
+		require($this->getPath('conf.php'));
+		$this->apps_path = $this->getPath($conf['apps_path']);
+        $this->modules_path = $this->getPath($conf['modules_path']);
 		$this->apps = $conf['apps'];
 		$this->prefix = $conf['prefix'];
-
-		// Is this a relative path?
-		if(!preg_match('/^[A-Z]:/i', $this->apps_path)
-		   && $this->apps_path[0] != '/') {
-			$this->apps_path = $this->root_path . '/' . $this->apps_path;
-		}
 
 		// Alright. Now let's load the apps config.
 		$this->routes = array();
@@ -85,6 +82,20 @@ class Dispatcher
 		krsort($this->app_routes);
     }
 
+    /**
+     * Returns an absolute path.
+     */
+    protected function getPath($relpath)
+    {
+		// Is this a relative path?
+		if($relpath[0] == '/'
+           || preg_match('/^[a-z]:/i', $relpath)) {
+            return $relpath;
+        } else {
+			return $this->root_path . '/' . $relpath;
+		}
+    }
+
 	/**
 	 * Autoloader for controllers etc.
 	 */
@@ -95,16 +106,21 @@ class Dispatcher
 			$type = substr($classname, 0, $splitter);
 			$class = substr($classname, $splitter + 1);
 
-			$paths = array('Controller' => 'controllers',
-						   'Model' => 'models',
-						   'View' => 'views');
-			$filename = $this->apps_path . '/' . $this->current_app . '/'
-				. $paths[$type] . '/' . strtolower($class) . '.php';
+            $filename = "";
+            if($type == 'Module') {
+                $filename = $this->modules_path . '/' . $class . '/' . $class . '.php';
+            } else {
+                $paths = array('Controller' => 'controllers',
+                               'Model' => 'models',
+                               'View' => 'views');
+                $filename = $this->apps_path . '/' . $this->current_app . '/'
+                    . $paths[$type] . '/' . strtolower($class) . '.php';
+            }
 
-			@include($filename);
+            @include($filename);
 		}
 	}
-	
+
 	/**
 	 * Serves requests
 	 */
@@ -115,7 +131,7 @@ class Dispatcher
 
 		$method_routes = preg_grep('%^' . $server->getMethod() . ':%',
 								   $this->app_routes);
-		
+
 		foreach($this->app_routes as $route => $app) {
 			if(preg_match('%^'. $route .'%i', $server->getMethod() . ':' . $server->getRoute())) {
 				$route_to_app = $app;
@@ -138,10 +154,10 @@ class Dispatcher
 		}
 
 		$this->current_app = $app;
-		
+
 		// We register the dispatcher's autoloader
 		spl_autoload_register(array($this, 'autoload'));
-		
+
 		$runner = new \Atlatl\Core($this->prefix, $server);
 		$runner->serve($this->routes[$app]);
 	}

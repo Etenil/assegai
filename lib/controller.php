@@ -23,9 +23,11 @@ class Controller extends \atlatl\Controller
 {
     protected $app_path;
 
-    public function __construct(\atlatl\Server $server, \atlatl\Request $request)
+    public function __construct(\atlatl\ModuleContainer $modules,
+								\atlatl\Server $server,
+								\atlatl\Request $request)
     {
-        parent::__construct($server, $request);
+        parent::__construct($modules, $server, $request);
         $this->app_path = dirname(__DIR__);
     }
 

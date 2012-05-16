@@ -30,6 +30,8 @@ class Dispatcher
 	protected $apps_path;
     protected $modules_path;
 	protected $apps;
+	
+	protected $apps_conf;
 
 	protected $current_app;
 	protected $prefix;
@@ -73,7 +75,7 @@ class Dispatcher
 			}
 			$app = array();
 			@include($path . '/conf.php');
-			$this->routes[$appname] = $app['route'];
+			$this->apps_conf[$appname] = $app;
 			foreach($app['route'] as $route => $callback) {
 				$this->app_routes[$route] = $appname;
 			}
@@ -159,7 +161,19 @@ class Dispatcher
 		spl_autoload_register(array($this, 'autoload'));
 
 		$runner = new \Atlatl\Core($this->prefix, $server);
-		$runner->serve($this->routes[$app]);
+
+		// Let's load the app's modules
+		if(is_array($this->apps_conf[$app]['modules'])) {
+			foreach($this->apps_conf[$app]['modules'] as $module) {
+				$opts = NULL;
+				if(isset($this->apps_conf[$app][$module])) {
+					$opts = $this->apps_conf[$app][$module];
+				}
+				$runner->loadModule($module, $opts);
+			}
+		}
+		
+		$runner->serve($this->apps_conf[$app]['route']);
 	}
 }
 

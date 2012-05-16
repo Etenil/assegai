@@ -72,7 +72,9 @@ function path($relative)
 
 function make_app($app_name) {
     // Getting the config.
-    $conf = array();
+    $conf = array(
+        'apps_path' => 'apps',
+        );
     $success = @include(path('conf.php'));
     if(!$success) {
         error("Couldn't open `conf.php'. Are you in the framework's root?", true, 3);

@@ -3,7 +3,12 @@
 namespace assegai;
 
 /**
- * Loads the necessary files for Assegai to work.
+ * Request dispatcher.
+ *
+ * This is the main class of Assegai and a routing wrapper around
+ * Atlatl. The principle is simple; the request is routed to the
+ * correct Atlatl appliction, then the output is processed by the
+ * global settings.
  *
  * This file is part of Assegai
  *
@@ -19,11 +24,7 @@ namespace assegai;
  * You should have received a copy of the GNU General Public License
  * along with Assegai.  If not, see <http://www.gnu.org/licenses/>.
  */
+class Module extends \atlatl\Module
+{
 
-require('atlatl/core.php');
-require('dispatcher.php');
-require('controller.php');
-require('modulecontainer.php');
-require('module.php');
-
-?>
+}

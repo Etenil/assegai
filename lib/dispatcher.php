@@ -110,7 +110,8 @@ class Dispatcher
 
             $filename = "";
             if($type == 'Module') {
-                $filename = $this->modules_path . '/' . $class . '/' . $class . '.php';
+                $filename = $this->modules_path . '/' . strtolower($class) . '/' .
+					strtolower($class) . '.php';
             } else {
                 $paths = array('Controller' => 'controllers',
                                'Model' => 'models',
@@ -163,16 +164,18 @@ class Dispatcher
 		$runner = new \Atlatl\Core($this->prefix, $server);
 
 		// Let's load the app's modules
+		$container = new ModuleContainer();
 		if(is_array($this->apps_conf[$app]['modules'])) {
 			foreach($this->apps_conf[$app]['modules'] as $module) {
 				$opts = NULL;
 				if(isset($this->apps_conf[$app][$module])) {
 					$opts = $this->apps_conf[$app][$module];
 				}
-				$runner->loadModule($module, $opts);
+				$container->addModule('Module_' . $module, $opts);
 			}
 		}
-		
+
+		$runner->setModules($container);
 		$runner->serve($this->apps_conf[$app]['route']);
 	}
 }

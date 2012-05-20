@@ -165,7 +165,8 @@ class Dispatcher
 
 		// Let's load the app's modules
 		$container = new ModuleContainer();
-		if(is_array($this->apps_conf[$app]['modules'])) {
+		if(isset($this->apps_conf[$app]['modules'])
+		   && is_array($this->apps_conf[$app]['modules'])) {
 			foreach($this->apps_conf[$app]['modules'] as $module) {
 				$opts = NULL;
 				if(isset($this->apps_conf[$app][$module])) {

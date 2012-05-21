@@ -30,7 +30,7 @@ class Dispatcher
 	protected $apps_path;
     protected $modules_path;
 	protected $apps;
-	
+
 	protected $apps_conf;
 
 	protected $current_app;
@@ -131,6 +131,7 @@ class Dispatcher
 	{
 		$server = new \atlatl\Server($_SERVER);
 		$route_to_app = "";
+        $app = null;
 
 		$method_routes = preg_grep('%^' . $server->getMethod() . ':%',
 								   $this->app_routes);
@@ -165,7 +166,7 @@ class Dispatcher
 
 		// Let's load the app's modules
 		$container = new ModuleContainer();
-		if(is_array($this->apps_conf[$app]['modules'])) {
+		if(isset($this->apps_conf[$app]['modules'])) {
 			foreach($this->apps_conf[$app]['modules'] as $module) {
 				$opts = NULL;
 				if(isset($this->apps_conf[$app][$module])) {

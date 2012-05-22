@@ -20,7 +20,7 @@ namespace assegai;
  * along with Assegai.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-require('atlatl/core.php');
+require('atlatl/loader.php');
 require('dispatcher.php');
 require('controller.php');
 require('modulecontainer.php');

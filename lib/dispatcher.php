@@ -162,7 +162,7 @@ class Dispatcher
 		// We register the dispatcher's autoloader
 		spl_autoload_register(array($this, 'autoload'));
 
-		$runner = new \Atlatl\Core($this->prefix, $server);
+		$runner = new \atlatl\Core($this->prefix, $server);
 
 		// Let's load the app's modules
 		$container = new ModuleContainer();

@@ -61,19 +61,36 @@ class Controller
     }
 
     /**
-     * Loads a view.
+     * Loads a view. TO BE COMPLETED.
      */
     protected function view($view_name, array $var_list = NULL)
     {
         if($var_list === NULL) {
             $var_list = array(); // Avoids notices.
         }
-
-        // Traditional PHP template.
         $vars = (object)$var_list;
+
+        if($this->modules->preView($view_name, $var_list) === true) return false;
+        
+        // Traditional PHP template.
         ob_start();
         require($this->appPath('views/' . $view_name . '.phtml'));
+
+        if($this->modules->preView($view_name, $var_list) === true) return false;
+        
         return ob_get_clean();
+    }
+
+    /**
+     * Loads a model.
+     */
+    protected function model($model_name)
+    {
+        if($this->modules->preModel($model_name) === true) return false;
+        
+        return new $model_name($this->modules);
+        
+        if($this->modules->postModel($model_name) === true) return false;
     }
 
     /**

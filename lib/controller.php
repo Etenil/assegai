@@ -19,18 +19,50 @@ namespace assegai;
  * You should have received a copy of the GNU General Public License
  * along with Assegai.  If not, see <http://www.gnu.org/licenses/>.
  */
-class Controller extends \atlatl\Controller
+class Controller
 {
+    /** Object that contains loaded modules. */
+	protected $modules;
+    /** Server state variable. */
+	protected $server;
+    /** Current request object. */
+	protected $request;
+    /** Security provider. */
+	protected $sec;
+    /** Application path */
     protected $app_path;
 
-    public function __construct(\atlatl\ModuleContainer $modules,
-								\atlatl\Server $server,
-								\atlatl\Request $request)
-    {
-        parent::__construct($modules, $server, $request);
+    /**
+     * Controller's constructor. This is meant to be called by Core.
+     * @param ModuleContainer $modules is a container of loaded modules.
+     * @param Server $server is the current server state.
+     * @param Request $request is the current request object.
+     */
+	public function __construct(\atlatl\ModuleContainer $modules,
+                                \atlatl\Server $server,
+                                \atlatl\Request $request,
+                                \atlatl\Security $sec)
+	{
+		$this->modules = $modules;
+		$this->server = $server;
+		$this->request = $request;
+		$this->sec = $sec;
         $this->app_path = dirname(__DIR__);
+
+        // Running the user init.
+        $this->_init();
+	}
+
+    /**
+     * This is run after the constructor. Implement to have custom code run.
+     */
+    protected function _init()
+    {
     }
 
+    /**
+     * Loads a view.
+     */
     protected function view($view_name, array $var_list = NULL)
     {
         if($var_list === NULL) {
@@ -53,6 +85,44 @@ class Controller extends \atlatl\Controller
     {
         return $this->app_path . '/' . $path;
     }
+    
+    /**
+     * Tiny wrapper arround var_dump to ease debugging.
+     * @param mixed $var is the variable to be dumped
+     * @param boolean $no_html defines whether the variable contains
+     * messy HTML characters or not. The given $var will be escaped if
+     * set to false. Default is false.
+     * @return The HTML code of a human representation of the $var.
+     */
+	protected function dump($var, $no_html = false)
+	{
+		$dump = var_export($var, true);
+		if($no_html) {
+			return $dump;
+		} else {
+			return '<pre>' . htmlentities($dump) . '</pre>' . PHP_EOL;;
+		}
+	}
+
+	/**
+	 * Method executed prior to any request handling.
+	 */
+	public function preRequest()
+	{
+	}
+
+	/**
+	 * Method executed following any request handling. This method is
+	 * expected to return a Response object, which will then be sent
+	 * back to the user.
+	 * @param mixed $returned is the value that was previously returned
+	 * by the routed method.
+	 */
+	public function postRequest($returned)
+	{
+		return $returned;
+	}
 }
+
 
 ?>

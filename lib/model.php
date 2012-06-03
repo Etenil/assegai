@@ -3,7 +3,7 @@
 namespace assegai;
 
 /**
- * Loads the necessary files for Assegai to work.
+ * The basic implementation of a Model.
  *
  * This file is part of Assegai
  *
@@ -19,12 +19,30 @@ namespace assegai;
  * You should have received a copy of the GNU General Public License
  * along with Assegai.  If not, see <http://www.gnu.org/licenses/>.
  */
+class Model
+{
+    /** Modules that were loaded by the application. */
+    protected $modules;
+    
+    /**
+     * Instanciates the model.
+     * @param ModuleContainer $modules is a container of modules
+     * instanciated by the application.
+     */
+    public function __construct(ModuleContainer $modules)
+    {
+        $this->modules = $modules;
+        $this->_init();
+    }
 
-require('atlatl/loader.php');
-require('dispatcher.php');
-require('modulecontainer.php');
-require('module.php');
-require('controller.php');
-require('model.php');
+    /**
+     * Method to be implemented by the user that is called at the end
+     * of the constructor.. Avoids having to overload the constructor
+     * and care about the parent constructor's logic.
+     */
+    protected function _init()
+    {
+    }
+}
 
 ?>

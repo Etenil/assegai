@@ -67,14 +67,18 @@ class Controller
         }
         $vars = (object)$var_list;
 
-        if($this->modules->preView($this->request, $view_name, $vars) === true) return false;
+        if($hook_data = $this->modules->preView($this->request, $view_name, $vars)) {
+            return $hook_data;
+        }
 
         // Traditional PHP template.
         require($this->server->getRelAppPath('views/' . $view_name . '.phtml'));
 
         $data = ob_get_clean();
 
-        if($this->modules->postView($this->request, $view_name, $vars, $data) === true) return false;
+        if($hook_data = $this->modules->postView($this->request, $view_name, $vars, $data)) {
+            return $hook_data;
+        }
 
         return $data;
     }
@@ -84,11 +88,15 @@ class Controller
      */
     protected function model($model_name)
     {
-        if($this->modules->preModel($model_name) === true) return false;
+        if($hook_data = $this->modules->preModel($model_name)) {
+            return $hook_data;
+        }
 
         $model = new $model_name($this->modules);
 
-        if($this->modules->postModel($model_name) === true) return false;
+        if($hook_data = $this->modules->postModel($model_name) === true) {
+            return $hook_data;
+        }
 
         return $model;
     }

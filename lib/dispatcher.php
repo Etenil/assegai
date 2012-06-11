@@ -211,7 +211,7 @@ class Dispatcher
         $runner->register500($this->handler500);
 
 		// Let's load the app's modules
-		$container = new ModuleContainer();
+		$container = new ModuleContainer($server);
 		if(isset($this->apps_conf[$app]['modules'])
 		   && is_array($this->apps_conf[$app]['modules'])) {
 			foreach($this->apps_conf[$app]['modules'] as $module) {

@@ -5,8 +5,10 @@ class Module_PDO extends \assegai\Module
     /** Currently-running connections. */
     protected $connections;
 
-    function __construct($options)
+    function __construct(\assegai\Server $server, $options)
     {
+        parent::__construct($server);
+
         $this->connections = array();
 
         // Opening connections.

@@ -3,12 +3,7 @@
 namespace assegai;
 
 /**
- * Request dispatcher.
- *
- * This is the main class of Assegai and a routing wrapper around
- * Atlatl. The principle is simple; the request is routed to the
- * correct Atlatl appliction, then the output is processed by the
- * global settings.
+ * Basic module implementation.
  *
  * This file is part of Assegai
  *

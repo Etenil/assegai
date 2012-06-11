@@ -39,10 +39,52 @@ class Dispatcher
 	protected $apps_routes;
 	protected $routes;
 
+    protected $handler404;
+    protected $handler500;
+
     function __construct($root)
     {
         $this->root_path = $root;
         $this->parseconf();
+
+        if(isset($_SERVER['APPLICATION_ENV'])
+           && $_SERVER['APPLICATION_ENV'] == 'development') {
+            $this->register404(function(\Exception $e) {
+                    throw $e;
+                });
+
+            $this->register500(function(\Exception $e) {
+                    throw $e;
+                });
+        } else {
+            $this->register404(function(\Exception $e) {
+                    return new Response('404 Error - Page not found.', 404);
+                });
+
+            $this->register500(function(\Exception $e) {
+                    return new Response('500 Error - Server error.', 500);
+                });
+        }
+    }
+
+    /**
+     * Sets a new handler for 404 errors.
+     * @param callable $handler will be called in the event of a 404
+     * error. This callable must accept one Exception parameter.
+     */
+    public function register404($handler)
+    {
+        $this->handler404 = $handler;
+    }
+
+    /**
+     * Sets a new handler for 500 errors.
+     * @param callable $handler will be called in the event of a 500
+     * error. This callable must accept one Exception parameter.
+     */
+    public function register500($handler)
+    {
+        $this->handler500 = $handler;
     }
 
     /**
@@ -163,6 +205,9 @@ class Dispatcher
 		spl_autoload_register(array($this, 'autoload'));
 
 		$runner = new \atlatl\Core($this->prefix, $server);
+
+        $runner->register404($this->handler404);
+        $runner->register500($this->handler500);
 
 		// Let's load the app's modules
 		$container = new ModuleContainer();

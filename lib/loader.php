@@ -22,6 +22,7 @@ namespace assegai;
 
 require('atlatl/loader.php');
 require('dispatcher.php');
+require('response.php');
 require('modulecontainer.php');
 require('module.php');
 require('controller.php');

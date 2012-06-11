@@ -71,13 +71,13 @@ class Controller
         $vars = (object)$var_list;
 
         if($this->modules->preView($view_name, $var_list) === true) return false;
-        
+
         // Traditional PHP template.
         ob_start();
         require($this->appPath('views/' . $view_name . '.phtml'));
 
         if($this->modules->preView($view_name, $var_list) === true) return false;
-        
+
         return ob_get_clean();
     }
 
@@ -87,10 +87,12 @@ class Controller
     protected function model($model_name)
     {
         if($this->modules->preModel($model_name) === true) return false;
-        
-        return new $model_name($this->modules);
-        
+
+        $model = new $model_name($this->modules);
+
         if($this->modules->postModel($model_name) === true) return false;
+
+        return $model;
     }
 
     /**
@@ -102,7 +104,7 @@ class Controller
     {
         return $this->app_path . '/' . $path;
     }
-    
+
     /**
      * Tiny wrapper arround var_dump to ease debugging.
      * @param mixed $var is the variable to be dumped

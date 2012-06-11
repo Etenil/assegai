@@ -29,8 +29,6 @@ class Controller
 	protected $request;
     /** Security provider. */
 	protected $sec;
-    /** Application path */
-    protected $app_path;
 
     /**
      * Controller's constructor. This is meant to be called by Core.
@@ -47,7 +45,6 @@ class Controller
 		$this->server = $server;
 		$this->request = $request;
 		$this->sec = $sec;
-        $this->app_path = dirname(__DIR__);
 
         // Running the user init.
         $this->_init();
@@ -61,7 +58,7 @@ class Controller
     }
 
     /**
-     * Loads a view. TO BE COMPLETED.
+     * Loads a view.
      */
     protected function view($view_name, array $var_list = NULL)
     {
@@ -70,15 +67,16 @@ class Controller
         }
         $vars = (object)$var_list;
 
-        if($this->modules->preView($view_name, $var_list) === true) return false;
+        if($this->modules->preView($this->request, $view_name, $vars) === true) return false;
 
         // Traditional PHP template.
-        ob_start();
-        require($this->appPath('views/' . $view_name . '.phtml'));
+        require($this->server->getRelAppPath('views/' . $view_name . '.phtml'));
 
-        if($this->modules->preView($view_name, $var_list) === true) return false;
+        $data = ob_get_clean();
 
-        return ob_get_clean();
+        if($this->modules->postView($this->request, $view_name, $vars, $data) === true) return false;
+
+        return $data;
     }
 
     /**

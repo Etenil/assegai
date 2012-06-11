@@ -3,7 +3,7 @@
 namespace assegai;
 
 /**
- * Loads the necessary files for Assegai to work.
+ * Server configuration.
  *
  * This file is part of Assegai
  *
@@ -19,14 +19,25 @@ namespace assegai;
  * You should have received a copy of the GNU General Public License
  * along with Assegai.  If not, see <http://www.gnu.org/licenses/>.
  */
+class Server extends \atlatl\Server
+{
+    protected $apps_path;
 
-require('atlatl/loader.php');
-require('dispatcher.php');
-require('server.php');
-require('response.php');
-require('modulecontainer.php');
-require('module.php');
-require('controller.php');
-require('model.php');
+    public function setAppPath($val)
+    {
+        $this->apps_path = rtrim($val, '/');
+        return $this;
+    }
+
+    public function getAppPath()
+    {
+        return $this->apps_path;
+    }
+
+    public function getRelAppPath($file)
+    {
+        return $this->apps_path . '/' . $file;
+    }
+}
 
 ?>

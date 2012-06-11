@@ -171,7 +171,7 @@ class Dispatcher
 	 */
 	public function serve()
 	{
-		$server = new \atlatl\Server($_SERVER);
+		$server = new Server($_SERVER);
 		$route_to_app = "";
         $app = null;
 
@@ -204,6 +204,7 @@ class Dispatcher
 		// We register the dispatcher's autoloader
 		spl_autoload_register(array($this, 'autoload'));
 
+        $server->setAppPath($this->apps_path . '/' . $this->current_app);
 		$runner = new \atlatl\Core($this->prefix, $server);
 
         $runner->register404($this->handler404);

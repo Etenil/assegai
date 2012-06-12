@@ -21,5 +21,12 @@ namespace assegai;
  */
 class Module extends \atlatl\Module
 {
-
+    /**
+     * Whether to instanciate and attach the module upon loading.
+     * @return bool true if instanciation is needed, or false.
+     */
+    public static function instanciate()
+    {
+        return false;
+    }
 }

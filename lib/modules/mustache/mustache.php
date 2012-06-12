@@ -9,6 +9,11 @@ require('MustacheEngine.php');
  */
 class Module_Mustache extends \assegai\Module
 {
+    public static function instanciate()
+    {
+        return true;
+    }
+
     public function preView(\atlatl\Request $request, $tpl, $vars)
     {
         $tpl_path = $this->server->getRelAppPath('views/' . $tpl . '.tpl');

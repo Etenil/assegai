@@ -32,4 +32,17 @@ class ModuleContainer extends \atlatl\ModuleContainer
 			return $this->modules['Module_' . $name];
 		}
 	}
+
+    /**
+	 * Adds a module to the list.
+	 * @param string $module is the module's name to instanciate.
+     * @param array $options is an array of options to be passed to
+	 * the module's constructor. Default is none.
+	 */
+    public function addModule($module, array $options = NULL)
+    {
+        if($module::instanciate()) {
+            $this->add_to_list($module, new $module($this->server, $options));
+        }
+    }
 }

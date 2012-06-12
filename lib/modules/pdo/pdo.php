@@ -8,6 +8,11 @@ class Module_PDO extends \assegai\Module
     /** Currently-running connections. */
     protected $connections;
 
+    public static function instanciate()
+    {
+        return true;
+    }
+
     function _init($options)
     {
         $this->connections = array();
@@ -21,7 +26,8 @@ class Module_PDO extends \assegai\Module
         }
     }
 
-    function __get($name) {
+    function __get($name)
+    {
         if(isset($this->connections[$name])) {
             return $this->connections[$name];
         } else {

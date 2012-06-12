@@ -3,6 +3,8 @@
 require('MustacheEngine.php');
 
 /**
+ * @parents assegai.modules.mustache
+ *
  * Mustache templating engine module for PHP.
  */
 class Module_Mustache extends \assegai\Module

@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * @package assegai.module.pdo
+ */
 class Module_PDO extends \assegai\Module
 {
     /** Currently-running connections. */

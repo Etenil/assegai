@@ -60,7 +60,7 @@ class MustacheEngine {
 	 * Constants used for section and tag RegEx
 	 */
 	const SECTION_TYPES = '\^#\/';
-	const TAG_TYPES = '#\^\/=!<>\\{&';
+	const TAG_TYPES = '#\^\/=!<>\\{&*';
 
 	protected $_otag = '{{';
 	protected $_ctag = '}}';
@@ -120,7 +120,8 @@ class MustacheEngine {
 	 * @param array $options (default: array())
 	 * @return void
 	 */
-	public function __construct($template = null, $view = null, $partials = null, array $options = null) {
+	public function __construct($server, $template = null, $view = null, $partials = null, array $options = null) {
+        $this->server = $server;
 		if ($template !== null) $this->_template = $template;
 		if ($partials !== null) $this->_partials = $partials;
 		if ($view !== null)     $this->_context = array($view);
@@ -615,6 +616,9 @@ class MustacheEngine {
 				break;
 			case '#':
 			case '^':
+            case "*":
+                return $leading . $this->server->siteUrl($tag_name) . $trailing;
+                break;
 			case '/':
 				// remove any leftover section tags
 				return $leading . $trailing;

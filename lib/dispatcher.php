@@ -196,7 +196,7 @@ class Dispatcher
 		}
 
 		if(!$app) {
-			throw new Exception('Not found');
+			throw new \Exception('Not found');
 		}
 
 		$this->current_app = $app;

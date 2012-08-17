@@ -21,7 +21,7 @@ class Module_Mustache extends \assegai\Module
             throw new \atlatl\NoViewException("View `$tpl_path' doesn't exist");
         }
 
-        $m = new MustacheEngine();
+        $m = new MustacheEngine($this->server);
         return $m->render(file_get_contents($tpl_path), (array)$vars);
     }
 }

@@ -20,11 +20,11 @@ namespace assegai;
  * along with Assegai.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-if(file_exists('atlatl/loader.php')) {
-    require('atlatl/loader.php');
+if(file_exists(__DIR__ . '/atlatl/loader.php')) {
+    require(__DIR__ . '/atlatl/loader.php');
 }
-elseif(file_exists('atlatl.php')) {
-    require('atlatl.php');
+elseif(file_exists(__DIR__ . '/atlatl.php')) {
+    require(__DIR__ . '/atlatl.php');
 }
 else {
     throw new \Exception("Please run the build.sh script.");

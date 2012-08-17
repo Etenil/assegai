@@ -2,8 +2,10 @@
 
 # Keeping mercurial clone up to date.
 if [ -d lib/atlatl ]
+then
     hg pull lib/atlatl/
-	hg up lib/atlatl/
-else  # We work on the compiled atlatl.
-    curl http://atlatl.etenil.net/latest.gz | gzcat > lib/atlatl.php
+    hg up lib/atlatl/
+else
+    curl -s http://atlatl.etenil.net/latest.gz | gunzip - > lib/atlatl.php
 fi
+

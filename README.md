@@ -100,3 +100,38 @@ Finally, we need to create a route to this new function in conf.php like so:
 
 Now try visiting your installation with the segment */model* e.g. http://localhost/index.php/model. You should see the message "Hello, Model" displayed.
 
+### Views
+Now let's try doing the same thing we did before but by using a view instead. We'll fetch the data from our existing model, then feed it into a view and display this.
+
+We will create the view first. Create the file views/hello.phtml with the following code:
+
+    <DOCTYPE html>
+    <html>
+        <head>
+            <title>Assegai Tutorial</title>
+        </head>
+        <body>
+            <p><?=$vars->message?></p>
+        </body>
+    </html>
+
+Notice the *$vars->message* variable.
+
+Let's create another function within the controller's body like so:
+
+    function hello_view()
+    {
+        $hello = $this->model('Model_Hello');
+        return $this->view('hello', array('message' => $hello->hello()));
+    }
+
+Finally we will create a route to this new function in conf.php:
+
+    $app['route'] = array(
+        '/' => 'Controller_Hello::hello',
+        '/model' => 'Controller_Hello::hello2',
+        '/view' => 'Controller_Hello::hello_view',
+    );
+
+Try visiting the url with the segment */view*, for instance http://localhost/index.php/view and you should see the view with *Hello, Model* in place of the message variable.
+

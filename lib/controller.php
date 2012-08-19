@@ -71,6 +71,7 @@ class Controller
             return $hook_data;
         }
 
+        ob_start();
         // Traditional PHP template.
         require($this->server->getRelAppPath('views/' . $view_name . '.phtml'));
 

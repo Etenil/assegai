@@ -61,3 +61,42 @@ We still need to indicate to the framework that this controller needs to be call
          );
 
 Now you can visit your web server and should see the *Hello, World* message printed.
+
+### Using a model
+Let us now try and modify the exercise by introducing a model. Models are a powerful and convenient way to organise your code, by delegating all data management to a dedicated class.
+
+Create the file *models/hello.php* that will contain the following code:
+
+    class Model_Hello extends assegai\Model
+    {
+        function hello()
+        {
+            return 'Hello, Model';
+        }
+    }
+
+We will need to load the model from the controller now. Let's create a new function in *controllers/hello.php*:
+
+    class Controller_Test extends assegai\Controller
+    {
+        function hello()
+        {
+            return "Hello, World!";
+        }
+
+        function hello_model()
+        {
+            $hello = $this->model('Model_Hello');
+            return $hello->hello();
+        }
+    }
+
+Finally, we need to create a route to this new function in conf.php like so:
+
+    $app['route'] = array(
+        '/' => 'Controller_Hello::hello',
+        '/model' => 'Controller_Hello::hello_model',
+        );
+
+Now try visiting your installation with the segment */model* e.g. http://localhost/index.php/model. You should see the message "Hello, Model" displayed.
+

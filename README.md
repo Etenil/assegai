@@ -270,4 +270,35 @@ This will instanciate two connections that can be accessed like so:
 
 Check out the PHP documentation for PDO for more information about the connections.
 
+### Paginator
+This module provides a convenient paginator for results. The module currently only supports paginating arrays.
+
+The following functions are provided:
+
+- getPage($num) Gets the page $num
+- getCurrentPage() Returns the current page
+- count() Counts the number of elements.
+- setPage($num) Sets the paginator to page $num
+- setPageLength($length) Sets the page's length to $length. Default is 10.
+- getPageNum() Gets the current page's number
+- getPages() Returns the total number of pages available
+- getPagesList($length) Gets the list of pages surrounding the current one as an array
+
+Example of usage:
+
+    $data = range(0, 100);
+    $paginator = new Module_Paginator::fromArray($data);
+    $paginator->setPage(3);
+    foreach($paginator->getCurrentPage() as $item) {
+        echo $item;
+    }
+    foreach($paginator->getPagesList() as $page) {
+        echo $page;
+    }
+
+### ESI
+The ESI module brings ESI-compliance to *Assegai*. ESI is a standard by which fragments of a page can be cached separately and the final page reconstituded by an edge service. ESI is for instance implemented in Squid.
+
+This module doesn't really work yet. You're welcome to work on it if you have some time and motivation.
+
 

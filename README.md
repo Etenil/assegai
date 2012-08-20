@@ -135,3 +135,46 @@ Finally we will create a route to this new function in conf.php:
 
 Try visiting the url with the segment */view*, for instance http://localhost/index.php/view and you should see the view with *Hello, Model* in place of the message variable.
 
+Routing
+-------
+Assegai makes an extended use of *Atlatl*'s routing features. Routes are defined on an per-application basis and conflicting routes are overwritten by applications loaded later.
+
+Routes are regex-based. Thus it is easy to wildcard any part of a route and direct to the same handler. Capturing braces within a route are mapped as parameters to the handler. Thus one could use the following:
+
+    // Handler for route '/foo/([0-9]+)'
+    function foo($num)
+    {
+        return $num;
+    }
+
+Routes can also be defined for a specific HTTP method by prepending the desired method with columns to the route like so:
+
+    $app['route'] = array(
+        'GET:/bar' => 'Controller_Foo::bar_get',
+        'POST:/bar' => 'Controller_Foo::bar_post',
+        '/bar' => 'Controller_Foo::bar',
+    );
+
+The routes table is searched for method-specific routes first, then for generic routes if none is found.
+
+Controllers
+-----------
+Controllers are the heart of an application in Assegai. They provide access to models, views and modules.
+
+### Initialisation
+Assegai provides a basic implementation of its controllers that your controllers should extend. This implementation contains a final constructor that cannot be overloaded. You should therefore put your initialisation code within the provided *_init()* method, that is always called by the parent constructor.
+
+### Views
+The controller contains the helper method *view()* which loads a view and returns the populated contents. The *view()* helper takes the view's name as argument and an associative array of values as second argument.
+
+### Models
+Controllers have the *model()* helper function to easily load a model. This takes the model's class name as parameter and returns the instanciated model.
+
+### Modules
+Modules are loaded along with the application and the member variable *modules* provides easy access to those from a controller. See the dedicated chapter for more information.
+
+### Other helpers
+The *dump()* method allows to easily dump a value wrapped into a *pre* HTML block, thus making it readable.
+
+The *appPath()* method can be used to get the absolute path to an application-relative path. The method expects a relative path as parameter.
+

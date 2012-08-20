@@ -178,3 +178,96 @@ The *dump()* method allows to easily dump a value wrapped into a *pre* HTML bloc
 
 The *appPath()* method can be used to get the absolute path to an application-relative path. The method expects a relative path as parameter.
 
+Models
+------
+Models are objects providing abstraction to some data provider. Their role is typically to ensure data validity, storage and retrieval.
+
+Assegai leaves you free to organise your models however you like, the only method provided with the base *Model* class is *_init()*, and the member variable *$modules* to access the loaded modules.
+
+Modules
+-------
+The modules from *Atlatl* are extended by *Assegai*. They provide access to advanced features either from the provided *$modules* helper variable in the *Controller* or *Model*, or from actions on hooks to modify the framework's behaviour.
+
+Assegai comes with several modules pre-installed. The following sections will describe each of those.
+
+### ACL
+This module provides simple *Access Control Lists* support for Assegai.
+
+The lists must be declared within the application's *conf.php* file. Control lists are in fact action permissions for some roles onto resources. Roles and resources must be defined first, and then their interactions. Below is a succint example of such a list.
+
+    $app['acl'] = array(
+        'roles' => array(
+            'user' => null,
+            ),
+        'resources' => array(
+            'article' => null,
+            ),
+        'privileges' => array(
+            'user' => array(
+                'article' => array('view', 'comment'),
+            ),
+        ),
+    );
+
+Roles and resources also support inheritance. See below for an example.
+
+    $app['acl'] = array(
+        'roles' => array(
+            'user' => null,
+            'author' => array('user'),
+            ),
+        'resources' => array(
+            'article' => null,
+            'admin' => array('article'),
+            ),
+        'privileges' => array(
+            'user' => array(
+                'article' => array('view', 'comment'),
+            ),
+            'admin' => array(
+                'article' => array('edit'),
+                'admin' => array('access'),
+            ),
+        ),
+    );
+
+
+Once the lists are established, you can use the module's *isAllowed()* helper to find if a role is allowed to perform an action on a resource. Below is a small example of this.
+
+    $article = new Article();
+    $user = new User();
+
+    if($this->modules->acl->isAllowed('user', 'article', 'view')) {
+        $article->show();
+    }
+
+### Mustache
+This module replaces the standard views with [Mustache](http://mustache.github.com). Beware, this module expects the view files to have the extension *.tpl* instead of the usual *.phtml*.
+
+For more information on the template engine's syntax, look at the official documentation on the project's website.
+
+### PDO
+This provides abstraction for PDO database connections.
+
+Database connections must be defined within the application's *conf.php* file like so:
+
+    $app['pdo'] = array(
+        'myNiceConnection' => array(
+            'dsn' => 'mysql:host=localhost;dbname=somedb',
+            'username' => 'root',
+            'password' => 'somepassword!',
+        ),
+        'conn2' => array(
+            'dsn' => 'mysql:host=localhost;dbname=otherdb',
+            'username' => 'root',
+            'password' => 'somepassword!',
+        ),
+    );
+
+This will instanciate two connections that can be accessed like so:
+
+    $this->modules->pdo->myNiceConnection->exec('INSERT INTO test VALUES('1', '2', '3')');
+
+Check out the PHP documentation for PDO for more information about the connections.
+
+

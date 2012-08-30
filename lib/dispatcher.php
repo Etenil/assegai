@@ -42,9 +42,10 @@ class Dispatcher
     protected $handler404;
     protected $handler500;
 
-    function __construct($root)
+    function __construct($root, $conf = false)
     {
         $this->root_path = $root;
+        $this->conf_path = ($conf? $conf : $this->getPath('conf.php'));
         $this->parseconf();
 
         if(isset($_SERVER['APPLICATION_ENV'])
@@ -101,7 +102,7 @@ class Dispatcher
 			'apps' => array(),
 			);
 
-		require($this->getPath('conf.php'));
+		require($this->conf_path);
 		$this->apps_path = $this->getPath($conf['apps_path']);
         $this->modules_path = $this->getPath($conf['modules_path']);
 		$this->apps = $conf['apps'];

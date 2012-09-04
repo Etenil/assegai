@@ -33,6 +33,14 @@ class Module_Paginator extends \assegai\Module
     }
 
     /**
+     * Instanciates a paginator from the provided model.
+     */
+    static function fromModel(IPaginatorProvider $data)
+    {
+        return new self(new PaginatorArrayProvider($data));
+    }
+
+    /**
      * Gets the desired page.
      * @param int $pagenum is the page number of the required page.
      * @return array an array of mixed objects depending on what the provider is.

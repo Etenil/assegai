@@ -3,7 +3,7 @@
 namespace assegai;
 
 /**
- * Loads the necessary files for Assegai to work.
+ * Controller interface for Assegai.
  *
  * This file is part of Assegai
  *
@@ -19,24 +19,22 @@ namespace assegai;
  * You should have received a copy of the GNU General Public License
  * along with Assegai.  If not, see <http://www.gnu.org/licenses/>.
  */
+interface IController
+{
+	/**
+	 * Method executed prior to any request handling.
+	 */
+	public function preRequest();
 
-if(file_exists(__DIR__ . '/atlatl/loader.php')) {
-    require(__DIR__ . '/atlatl/loader.php');
-}
-elseif(file_exists(__DIR__ . '/atlatl.php')) {
-    require(__DIR__ . '/atlatl.php');
-}
-else {
-    throw new \Exception("Please run the build.sh script.");
+	/**
+	 * Method executed following any request handling. This method is
+	 * expected to return a Response object, which will then be sent
+	 * back to the user.
+	 * @param mixed $returned is the value that was previously returned
+	 * by the routed method.
+	 */
+	public function postRequest($returned);
 }
 
-require('dispatcher.php');
-require('server.php');
-require('response.php');
-require('modulecontainer.php');
-require('module.php');
-require('icontroller.php');
-require('controller.php');
-require('model.php');
 
 ?>

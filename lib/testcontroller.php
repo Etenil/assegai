@@ -19,9 +19,30 @@ namespace assegai;
  * You should have received a copy of the GNU General Public License
  * along with Assegai.  If not, see <http://www.gnu.org/licenses/>.
  */
-class Controller implements IController
+class TestController extends \PHPUnit_Framework_TestCase implements IController
 {
-    /** Object that contains loaded modules. */
+    public function setUp()
+    {
+        $this->request = new \atlatl\Request(array(), array());
+        $this->server = new Server($_SERVER);
+        $this->sec = new \atlatl\Security();
+
+        $app = array();
+        include(APP_PATH . 'conf.php');
+
+        $this->modules = new ModuleContainer($this->server);
+        if(isset($app['modules'])) {
+            foreach($app['modules'] as $module) {
+                $opts = NULL;
+                if(isset($app[$module])) {
+                    $opts = $app[$module];
+                }
+                $this->modules->addModule('Module_' . $module, $opts);
+            }
+        }
+    }
+
+    // Copy-paste stuff from Controller here.
 	protected $modules;
     /** Server state variable. */
 	protected $server;
@@ -29,26 +50,6 @@ class Controller implements IController
 	protected $request;
     /** Security provider. */
 	protected $sec;
-
-    /**
-     * Controller's constructor. This is meant to be called by Core.
-     * @param ModuleContainer $modules is a container of loaded modules.
-     * @param Server $server is the current server state.
-     * @param Request $request is the current request object.
-     */
-	public function __construct(\atlatl\ModuleContainer $modules,
-                                \atlatl\Server $server,
-                                \atlatl\Request $request,
-                                \atlatl\Security $sec)
-	{
-		$this->modules = $modules;
-		$this->server = $server;
-		$this->request = $request;
-		$this->sec = $sec;
-
-        // Running the user init.
-        $this->_init();
-	}
 
     /**
      * This is run after the constructor. Implement to have custom code run.

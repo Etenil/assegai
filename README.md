@@ -184,6 +184,33 @@ Models are objects providing abstraction to some data provider. Their role is ty
 
 Assegai leaves you free to organise your models however you like, the only method provided with the base *Model* class is *_init()*, and the member variable *$modules* to access the loaded modules.
 
+Unit Tests
+----------
+Assegai supports unit testing your applications and provides the necessary glue code to have PHPUnit run nicely.
+
+In order to test your code, you'll need to have PHPUnit installed and to create a *phpunit.xml* and a bootstrap file within the tests folder.
+
+The *phpunit.xml* is typically like so:
+
+    <phpunit bootstrap="./bootstrap.php" colors="true">
+        <testsuite name="Unit">
+            <directory>./</directory>
+        </testsuite>
+    </phpunit>
+
+And the bootstrap code written in a *bootstrap.php* file like so:
+
+    <?php
+    define('APP_PATH', dirname(__DIR__) . '/');
+    define('ROOT_PATH', dirname(dirname(dirname(__DIR__))) . '/');
+    require(ROOT_PATH . 'lib/testloader.php');
+
+You might need to update the definitions of APP_PATH and ROOT_PATH so as to match your real settings.
+
+You can then run your tests with the command:
+
+    phpunit -c phpunit.xml
+
 Modules
 -------
 The modules from *Atlatl* are extended by *Assegai*. They provide access to advanced features either from the provided *$modules* helper variable in the *Controller* or *Model*, or from actions on hooks to modify the framework's behaviour.
@@ -300,5 +327,3 @@ Example of usage:
 The ESI module brings ESI-compliance to *Assegai*. ESI is a standard by which fragments of a page can be cached separately and the final page reconstituded by an edge service. ESI is for instance implemented in Squid.
 
 This module doesn't really work yet. You're welcome to work on it if you have some time and motivation.
-
-

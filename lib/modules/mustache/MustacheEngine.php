@@ -867,7 +867,12 @@ class MustacheEngine {
 	protected function _getPartial($tag_name) {
 		if ((is_array($this->_partials) || $this->_partials instanceof ArrayAccess) && isset($this->_partials[$tag_name])) {
 			return $this->_partials[$tag_name];
-		}
+		} else {
+            $partial_file = $this->server->getRelAppPath('views/' . $tag_name . '.tpl');
+            if(file_exists($partial_file)) {
+                return file_get_contents($partial_file);
+            }
+        }
 
 		if ($this->_throwsException(MustacheException::UNKNOWN_PARTIAL)) {
 			throw new MustacheException('Unknown partial: ' . $tag_name, MustacheException::UNKNOWN_PARTIAL);

@@ -172,7 +172,7 @@ class Dispatcher
 	 */
 	public function serve()
 	{
-		$server = new Server($_SERVER);
+		$server = new Server($_SERVER, $this->prefix);
 		$route_to_app = "";
         $app = null;
 
@@ -196,11 +196,11 @@ class Dispatcher
 			}
 		}
 
-		if(!$app) {
+		if(!$route_to_app) {
 			throw new \Exception('Not found');
 		}
 
-		$this->current_app = $app;
+		$this->current_app = $route_to_app;
 
 		// We register the dispatcher's autoloader
 		spl_autoload_register(array($this, 'autoload'));
@@ -213,19 +213,19 @@ class Dispatcher
 
 		// Let's load the app's modules
 		$container = new ModuleContainer($server);
-		if(isset($this->apps_conf[$app]['modules'])
-		   && is_array($this->apps_conf[$app]['modules'])) {
-			foreach($this->apps_conf[$app]['modules'] as $module) {
+		if(isset($this->apps_conf[$this->current_app]['modules'])
+		   && is_array($this->apps_conf[$this->current_app]['modules'])) {
+			foreach($this->apps_conf[$this->current_app]['modules'] as $module) {
 				$opts = NULL;
-				if(isset($this->apps_conf[$app][$module])) {
-					$opts = $this->apps_conf[$app][$module];
+				if(isset($this->apps_conf[$this->current_app][$module])) {
+					$opts = $this->apps_conf[$this->current_app][$module];
 				}
 				$container->addModule('Module_' . $module, $opts);
 			}
 		}
 
 		$runner->setModules($container);
-		$runner->serve($this->apps_conf[$app]['route']);
+		$runner->serve($this->apps_conf[$this->current_app]['route']);
 	}
 }
 

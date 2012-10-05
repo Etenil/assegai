@@ -146,20 +146,30 @@ class Dispatcher
 	 */
 	public function autoload($classname)
 	{
-		$splitter = strpos($classname, '_');
-		if($splitter !== false) {
-			$type = substr($classname, 0, $splitter);
-			$class = substr($classname, $splitter + 1);
+        $first_split = strpos($classname, '_');
+        if($first_split) {
+            $token = substr($classname, 0, $first_split);
 
             $filename = "";
-            if($type == 'Module') {
+
+            if($token == 'Module') {
+                $class = substr($classname, strlen($token) + 1);
                 $filename = $this->modules_path . '/' . strtolower($class) . '/' .
 					strtolower($class) . '.php';
-            } else {
+            }
+            else if(substr_count($classname, '_') >= 2) {
+                $app_splitter = strpos($classname, '_');
+                $type_splitter = strpos($classname, '_', $app_splitter + 1);
+
+                $app = substr($classname, 0, $app_splitter);
+                $type = substr($classname, $app_splitter + 1,
+                               $type_splitter - $app_splitter - 1);
+                $class = substr($classname, $type_splitter + 1);
+
                 $paths = array('Controller' => 'controllers',
                                'Model' => 'models',
                                'View' => 'views');
-                $filename = $this->apps_path . '/' . $this->current_app . '/'
+                $filename = $this->apps_path . '/' . strtolower($app) . '/'
                     . $paths[$type] . '/' . strtolower($class) . '.php';
             }
 

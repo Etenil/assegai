@@ -213,6 +213,10 @@ class MustacheEngine {
 		$otag_orig = $this->_otag;
 		$ctag_orig = $this->_ctag;
 
+        // Including server properties in the view
+        //$view = array_merge($this->server->getAll(), $view);
+        $view['baseUrl'] = $this->server->siteUrl('');
+
 		if ($view) {
 			$this->_context = array($view);
 		} else if (empty($this->_context)) {

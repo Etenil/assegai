@@ -25,6 +25,13 @@ class Rest_Controller extends \assegai\Controller
 //    const REST_XML = 2;
 
     protected $rest_type = self::REST_JSON;
+    protected $post;
+
+    protected function _init()
+    {
+        // Storing the whole POST content here.
+        $this->post = file_get_contents('php://input');
+    }
 
     public function postRequest($returned)
     {

@@ -16,6 +16,19 @@ To install Assegai, you will either need to retrieve the latest package from the
 
 Decompress the package or clone the repository on your web server. Your document root should point to the *public* folder of assegai.
 
+Naming Convention
+-----------------
+Assegai encourages the use of multiple specialised apps that can share models in order to implement websites. Based on this, the controllers and models follow a particular naming convention that lets Assegai's auto-loader find and require the correct files.
+
+Classes need to be named like so:
+
+    <App>_<Type>_<Name>
+
+For instance:
+
+    Myapp_Model_TestCode
+
+
 Basic Configuration
 -------------------
 Even though Assegai has default configuration options, it will not work unless a configuration file is created. Simply create the file *conf.php* in the framework's root.
@@ -46,7 +59,7 @@ This will create the file-system tree for your application. The default applicat
 
 Let's write a controller first. Controllers execute actions and coordinate models and views in order to produce the desired output. Create the file *hello.php* within the *controllers* directory and put the following code:
 
-    class Controller_Test extends assegai\Controller
+    class Hello_Controller_Test extends assegai\Controller
     {
         function hello()
         {
@@ -57,7 +70,7 @@ Let's write a controller first. Controllers execute actions and coordinate model
 We still need to indicate to the framework that this controller needs to be called when visiting the website. This is done by adding the following contents to the application's *conf.php* file.
 
     $conf['route'] = array(
-         '/' => 'Controller_Hello::hello',
+         '/' => 'Hello_Controller_Hello::hello',
          );
 
 Now you can visit your web server and should see the *Hello, World* message printed.
@@ -67,7 +80,7 @@ Let us now try and modify the exercise by introducing a model. Models are a powe
 
 Create the file *models/hello.php* that will contain the following code:
 
-    class Model_Hello extends assegai\Model
+    class Hello_Model_Hello extends assegai\Model
     {
         function hello()
         {
@@ -77,7 +90,7 @@ Create the file *models/hello.php* that will contain the following code:
 
 We will need to load the model from the controller now. Let's create a new function in *controllers/hello.php*:
 
-    class Controller_Test extends assegai\Controller
+    class Hello_Controller_Test extends assegai\Controller
     {
         function hello()
         {
@@ -94,8 +107,8 @@ We will need to load the model from the controller now. Let's create a new funct
 Finally, we need to create a route to this new function in conf.php like so:
 
     $app['route'] = array(
-        '/' => 'Controller_Hello::hello',
-        '/model' => 'Controller_Hello::hello_model',
+        '/' => 'Hello_Controller_Hello::hello',
+        '/model' => 'Hello_Controller_Hello::hello_model',
         );
 
 Now try visiting your installation with the segment */model* e.g. http://localhost/index.php/model. You should see the message "Hello, Model" displayed.
@@ -121,16 +134,16 @@ Let's create another function within the controller's body like so:
 
     function hello_view()
     {
-        $hello = $this->model('Model_Hello');
+        $hello = $this->model('Hello_Model_Hello');
         return $this->view('hello', array('message' => $hello->hello()));
     }
 
 Finally we will create a route to this new function in conf.php:
 
     $app['route'] = array(
-        '/' => 'Controller_Hello::hello',
-        '/model' => 'Controller_Hello::hello2',
-        '/view' => 'Controller_Hello::hello_view',
+        '/' => 'Hello_Controller_Hello::hello',
+        '/model' => 'Hello_Controller_Hello::hello2',
+        '/view' => 'Hello_Controller_Hello::hello_view',
     );
 
 Try visiting the url with the segment */view*, for instance http://localhost/index.php/view and you should see the view with *Hello, Model* in place of the message variable.

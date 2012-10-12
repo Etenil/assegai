@@ -2,24 +2,35 @@
 
 function test_autoload($classname)
 {
-    $splitter = strpos($classname, '_');
-    if($splitter !== false) {
-        $type = substr($classname, 0, $splitter);
-        $class = substr($classname, $splitter + 1);
+    $first_split = strpos($classname, '_');
+        if($first_split) {
+            $token = substr($classname, 0, $first_split);
 
-        $filename = "";
-        if($type == 'Module') {
-            $filename = ROOT_PATH . 'lib/modules/' . strtolower($class) . '/' .
-                strtolower($class) . '.php';
-        } else {
-            $paths = array('Controller' => 'controllers',
-                           'Model' => 'models',
-                           'View' => 'views');
-            $filename = APP_PATH . '/' . $paths[$type] . '/' . strtolower($class) . '.php';
-        }
+            $filename = "";
 
-        @include($filename);
-    }
+            if($token == 'Module') {
+                $class = substr($classname, strlen($token) + 1);
+                $filename = ROOT_PATH . 'lib/modules/' . strtolower($class) . '/' .
+					strtolower($class) . '.php';
+            }
+            else if(substr_count($classname, '_') >= 2) {
+                $app_splitter = strpos($classname, '_');
+                $type_splitter = strpos($classname, '_', $app_splitter + 1);
+
+                $app = substr($classname, 0, $app_splitter);
+                $type = substr($classname, $app_splitter + 1,
+                               $type_splitter - $app_splitter - 1);
+                $class = substr($classname, $type_splitter + 1);
+
+                $paths = array('Controller' => 'controllers',
+                               'Model' => 'models',
+                               'View' => 'views');
+                $filename = APPS_PATH . strtolower($app) . '/'
+                    . $paths[$type] . '/' . strtolower($class) . '.php';
+            }
+
+            include($filename);
+		}
 }
 
 spl_autoload_register('test_autoload');

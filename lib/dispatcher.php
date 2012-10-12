@@ -173,7 +173,7 @@ class Dispatcher
                     . $paths[$type] . '/' . strtolower($class) . '.php';
             }
 
-            @include($filename);
+            include($filename);
 		}
 	}
 

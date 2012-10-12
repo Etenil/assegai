@@ -28,7 +28,7 @@ class TestController extends \PHPUnit_Framework_TestCase implements IController
         $this->sec = new \atlatl\Security();
 
         $app = array();
-        include(APP_PATH . 'conf.php');
+        include(APPS_PATH . APP_NAME . '/conf.php');
 
         $this->modules = new ModuleContainer($this->server);
         if(isset($app['modules'])) {

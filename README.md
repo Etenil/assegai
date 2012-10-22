@@ -53,7 +53,8 @@ This will create the file-system tree for your application. The default applicat
     apps
     `- hello
        |- conf.php
-       |- constrollers
+       |- controllers
+       |- exceptions
        |- models
        `- views
 

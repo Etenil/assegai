@@ -23,6 +23,9 @@ class Server extends \atlatl\Server
 {
     protected $apps_path;
 
+    public $main;
+    public $app;
+
     public function setAppPath($val)
     {
         $this->apps_path = rtrim($val, '/');
@@ -37,6 +40,16 @@ class Server extends \atlatl\Server
     public function getRelAppPath($file)
     {
         return $this->apps_path . '/' . $file;
+    }
+
+    public function setMainConf(Config $main_conf)
+    {
+        $this->main = $main_conf;
+    }
+
+    public function setAppConf(Config $app_conf)
+    {
+        $this->app = $app_conf;
     }
 }
 

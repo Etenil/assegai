@@ -26,7 +26,7 @@ Classes need to be named like so:
 
 For instance:
 
-    Myapp_Model_TestCode
+    Myapp_Model_demoCode
 
 
 Basic Configuration
@@ -59,7 +59,7 @@ This will create the file-system tree for your application. The default applicat
 
 Let's write a controller first. Controllers execute actions and coordinate models and views in order to produce the desired output. Create the file *hello.php* within the *controllers* directory and put the following code:
 
-    class Hello_Controller_Test extends assegai\Controller
+    class Hello_Controller_demo extends assegai\Controller
     {
         function hello()
         {
@@ -90,7 +90,7 @@ Create the file *models/hello.php* that will contain the following code:
 
 We will need to load the model from the controller now. Let's create a new function in *controllers/hello.php*:
 
-    class Hello_Controller_Test extends assegai\Controller
+    class Hello_Controller_demo extends assegai\Controller
     {
         function hello()
         {
@@ -170,6 +170,15 @@ Routes can also be defined for a specific HTTP method by prepending the desired 
 
 The routes table is searched for method-specific routes first, then for generic routes if none is found.
 
+Configuration
+-------------
+Framework and application configurations are readily accessible as part of the server property. You can access them like so:
+
+    $this->server->main->get('apps');
+    $this->server->app->get('my_very_important_setting');
+
+Those configuration dictionary simply wrap the parsed configuration files, so you can define your own settings easily.
+
 Controllers
 -----------
 Controllers are the heart of an application in Assegai. They provide access to models, views and modules.
@@ -196,6 +205,14 @@ Models
 Models are objects providing abstraction to some data provider. Their role is typically to ensure data validity, storage and retrieval.
 
 Assegai leaves you free to organise your models however you like, the only method provided with the base *Model* class is *_init()*, and the member variable *$modules* to access the loaded modules.
+
+Exceptions
+----------
+Applications come with an *exceptions* folder. This folder is meant to contain Exception classes that may be thrown anywhere in your application and handled.
+
+The naming convention for exceptions is simply:
+
+    <App>_Exception_<name>
 
 Unit Tests
 ----------
@@ -306,7 +323,7 @@ Database connections must be defined within the application's *conf.php* file li
 
 This will instanciate two connections that can be accessed like so:
 
-    $this->modules->pdo->myNiceConnection->exec('INSERT INTO test VALUES('1', '2', '3')');
+    $this->modules->pdo->myNiceConnection->exec('INSERT INTO demo VALUES('1', '2', '3')');
 
 Check out the PHP documentation for PDO for more information about the connections.
 

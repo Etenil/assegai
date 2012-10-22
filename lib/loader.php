@@ -30,6 +30,7 @@ else {
     throw new \Exception("Please run the build.sh script.");
 }
 
+require('config.php');
 require('dispatcher.php');
 require('server.php');
 require('response.php');

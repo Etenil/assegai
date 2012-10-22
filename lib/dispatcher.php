@@ -31,6 +31,7 @@ class Dispatcher
     protected $modules_path;
 	protected $apps;
 
+    protected $main_conf;
 	protected $apps_conf;
 
 	protected $current_app;
@@ -103,10 +104,12 @@ class Dispatcher
 			);
 
 		require($this->conf_path);
-		$this->apps_path = $this->getPath($conf['apps_path']);
-        $this->modules_path = $this->getPath($conf['modules_path']);
-		$this->apps = $conf['apps'];
-		$this->prefix = $conf['prefix'];
+        $this->main_conf = Config::fromArray($conf);
+
+		$this->apps_path = $this->getPath($this->main_conf->get('apps_path'));
+        $this->modules_path = $this->getPath($this->main_conf->get('modules_path'));
+		$this->apps = $this->main_conf->get('apps');
+		$this->prefix = $this->main_conf->get('prefix');
 
 		// Alright. Now let's load the apps config.
 		$this->routes = array();
@@ -118,7 +121,7 @@ class Dispatcher
 			}
 			$app = array();
 			@include($path . '/conf.php');
-			$this->apps_conf[$appname] = $app;
+			$this->apps_conf[$appname] = Config::fromArray($app);
 			foreach($app['route'] as $route => $callback) {
 				$this->app_routes[$route] = $appname;
 			}
@@ -213,6 +216,9 @@ class Dispatcher
 
 		$this->current_app = $route_to_app;
 
+        $server->setMainConf($this->main_conf);
+        $server->setAppConf($this->apps_conf[$this->current_app]);
+
 		// We register the dispatcher's autoloader
 		spl_autoload_register(array($this, 'autoload'));
 
@@ -224,19 +230,19 @@ class Dispatcher
 
 		// Let's load the app's modules
 		$container = new ModuleContainer($server);
-		if(isset($this->apps_conf[$this->current_app]['modules'])
-		   && is_array($this->apps_conf[$this->current_app]['modules'])) {
-			foreach($this->apps_conf[$this->current_app]['modules'] as $module) {
+		if($this->apps_conf[$this->current_app]->get('modules')
+		   && is_array($this->apps_conf[$this->current_app]->get('modules'))) {
+			foreach($this->apps_conf[$this->current_app]->get('modules') as $module) {
 				$opts = NULL;
-				if(isset($this->apps_conf[$this->current_app][$module])) {
-					$opts = $this->apps_conf[$this->current_app][$module];
+				if($this->apps_conf[$this->current_app]->get($module)) {
+					$opts = $this->apps_conf[$this->current_app]->get($module);
 				}
 				$container->addModule('Module_' . $module, $opts);
 			}
 		}
 
 		$runner->setModules($container);
-		$runner->serve($this->apps_conf[$this->current_app]['route']);
+		$runner->serve($this->apps_conf[$this->current_app]->get('route'));
 	}
 }
 

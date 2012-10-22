@@ -167,6 +167,7 @@ class Dispatcher
                 $class = substr($classname, $type_splitter + 1);
 
                 $paths = array('Controller' => 'controllers',
+                               'Exception' => 'exceptions',
                                'Model' => 'models',
                                'View' => 'views');
                 $filename = $this->apps_path . '/' . strtolower($app) . '/'

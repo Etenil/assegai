@@ -95,6 +95,7 @@ function make_app($app_name) {
     mkdir($app_path . '/models');
     mkdir($app_path . '/views');
     mkdir($app_path . '/tests');
+    mkdir($app_path . '/exceptions');
     file_put_contents($app_path . '/conf.php', '<?php' . PHP_EOL
                       . '// App configuration file' . PHP_EOL
                       . '//$app["modules"] = array("ctemplate");' . PHP_EOL);

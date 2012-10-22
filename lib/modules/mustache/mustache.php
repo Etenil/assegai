@@ -3,7 +3,7 @@
 require('MustacheEngine.php');
 
 /**
- * @parents assegai.modules.mustache
+ * @package assegai.modules.mustache
  *
  * Mustache templating engine module for PHP.
  */

@@ -33,6 +33,7 @@ else {
 require('config.php');
 require('dispatcher.php');
 require('server.php');
+require('request.php');
 require('response.php');
 require('modulecontainer.php');
 require('module.php');

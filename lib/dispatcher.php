@@ -29,6 +29,7 @@ class Dispatcher
     protected $root_path;
 	protected $apps_path;
     protected $modules_path;
+    protected $custom_modules_path;
 	protected $apps;
 
     protected $main_conf;
@@ -108,6 +109,7 @@ class Dispatcher
 
 		$this->apps_path = $this->getPath($this->main_conf->get('apps_path'));
         $this->modules_path = $this->getPath($this->main_conf->get('modules_path'));
+        $this->custom_modules_path = $this->main_conf->get('user_modules');
 		$this->apps = $this->main_conf->get('apps');
 		$this->prefix = $this->main_conf->get('prefix');
 
@@ -157,8 +159,19 @@ class Dispatcher
 
             if($token == 'Module') {
                 $class = substr($classname, strlen($token) + 1);
-                $filename = $this->modules_path . '/' . strtolower($class) . '/' .
-					strtolower($class) . '.php';
+
+                // Trying user modules.
+                $filename = '';
+                if($this->custom_modules_path) {
+                    $filename = $this->custom_modules_path . '/' . strtolower($class) . '/' .
+                        strtolower($class) . '.php';
+                }
+
+                // Falling back on default module path.
+                if(!file_exists($filename)) {
+                    $filename = $this->modules_path . '/' . strtolower($class) . '/' .
+                        strtolower($class) . '.php';
+                }
             }
             else if(substr_count($classname, '_') >= 2) {
                 $app_splitter = strpos($classname, '_');

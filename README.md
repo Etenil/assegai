@@ -428,7 +428,8 @@ To validate specific indices of an array, use dot notation, i.e.
       ->required('The nested field is required.')
       ->validate('field.nested');
 
-    // ensure we have the first two numeric indices of $_POST['links'][]
+    // ensure we have the first two numeric
+    // indices of $_POST['links'][]
     $validator
       ->required('This field is required')
       ->validate('links.0');

@@ -102,7 +102,7 @@ class Request extends \atlatl\Request
     /**
      * Returns all unescaped post data as an array.
      */
-    function allPost()
+    function unsafeAllPost()
     {
         return parent::allPost();
     }
@@ -110,7 +110,7 @@ class Request extends \atlatl\Request
     /**
      * Returns all unescaped get data as an array.
      */
-    function allGet()
+    function unsafeAllGet()
     {
         return parent::allGet();
     }

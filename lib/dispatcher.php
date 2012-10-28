@@ -157,6 +157,9 @@ class Dispatcher
 	 */
 	public function serve()
 	{
+        // We register the dispatcher's autoloader
+		spl_autoload_register(array($this, 'autoload'));
+
 		$server = new Server($_SERVER, $this->prefix);
         $runner = new \atlatl\Core($this->prefix, $server);
 		$route_to_app = "";
@@ -165,18 +168,34 @@ class Dispatcher
         /* Dealing with the error handlers.*/
         if($this->main_conf->get('handler40x')) {
             $handler = $this->main_conf->get('handler40x');
-            $runner->register40x(function($e) use($handler) {
+            $runner->register40x(function($e) use($handler, $server) {
                     list($class, $method) = explode('::', $handler);
-                    $controller = new $class();
-                    $class->$method();
+                    $controller = new $class(new ModuleContainer($server),
+                                             $server, new Request($_GET, $_POST,
+                                                                  new \atlatl\Security()),
+                                             new \atlatl\Security());
+                    $page = $controller->$method($e);
+                    if(is_string($page)) {
+                        return new Response($page);
+                    } else {
+                        return $page;
+                    }
                 });
         }
         if($this->main_conf->get('handler50x')) {
             $handler = $this->main_conf->get('handler50x');
-            $runner->register50x(function($e) use($handler) {
+            $runner->register50x(function($e) use($handler, $server) {
                     list($class, $method) = explode('::', $handler);
-                    $controller = new $class();
-                    $class->$method();
+                    $controller = new $class(new ModuleContainer($server),
+                                             $server, new Request($_GET, $_POST,
+                                                                  new \atlatl\Security()),
+                                             new \atlatl\Security());
+                    $page = $controller->$method($e);
+                    if(is_string($page)) {
+                        return new Response($page);
+                    } else {
+                        return $page;
+                    }
                 });
         }
 
@@ -208,10 +227,6 @@ class Dispatcher
 
         $server->setMainConf($this->main_conf);
         $server->setAppConf($this->apps_conf[$this->current_app]);
-
-		// We register the dispatcher's autoloader
-		spl_autoload_register(array($this, 'autoload'));
-
         $server->setAppPath($this->apps_path . '/' . $this->current_app);
 
 		// Let's load the app's modules

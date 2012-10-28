@@ -181,6 +181,9 @@ class Dispatcher
                         return $page;
                     }
                 });
+        } else {
+            // Default
+            $runner->register40x(array($this, 'errorhandler'));
         }
         if($this->main_conf->get('handler50x')) {
             $handler = $this->main_conf->get('handler50x');
@@ -197,6 +200,8 @@ class Dispatcher
                         return $page;
                     }
                 });
+        } else {
+            $runner->register40x(array($this, 'errorhandler'));
         }
 
 		$method_routes = preg_grep('%^' . $server->getMethod() . ':%',
@@ -245,6 +250,16 @@ class Dispatcher
 		$runner->setModules($container);
 		$runner->serve($this->apps_conf[$this->current_app]->get('route'));
 	}
+
+    function errorhandler($e)
+    {
+        if(isset($_SERVER['APPLICATION_ENV'])
+           && $_SERVER['APPLICATION_ENV'] == 'development') {
+            throw $e;
+        } else {
+            return new Response($e->getCode() . " Error!", $e->getCode());
+        }
+    }
 }
 
 ?>

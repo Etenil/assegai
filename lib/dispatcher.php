@@ -238,8 +238,8 @@ class Dispatcher
         $server->setAppPath($this->apps_path . '/' . $this->current_app);
 		$runner = new \atlatl\Core($this->prefix, $server);
 
-        $runner->register404($this->handler404);
-        $runner->register500($this->handler500);
+        $runner->register40x($this->handler404);
+        $runner->register50x($this->handler500);
 
 		// Let's load the app's modules
 		$container = new ModuleContainer($server);

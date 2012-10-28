@@ -41,53 +41,11 @@ class Dispatcher
 	protected $apps_routes;
 	protected $routes;
 
-    protected $handler404;
-    protected $handler500;
-
     function __construct($root, $conf = false)
     {
         $this->root_path = $root;
         $this->conf_path = ($conf? $conf : $this->getPath('conf.php'));
         $this->parseconf();
-
-        if(isset($_SERVER['APPLICATION_ENV'])
-           && $_SERVER['APPLICATION_ENV'] == 'development') {
-            $this->register404(function(\Exception $e) {
-                    throw $e;
-                });
-
-            $this->register500(function(\Exception $e) {
-                    throw $e;
-                });
-        } else {
-            $this->register404(function(\Exception $e) {
-                    return new Response('404 Error - Page not found.', 404);
-                });
-
-            $this->register500(function(\Exception $e) {
-                    return new Response('500 Error - Server error.', 500);
-                });
-        }
-    }
-
-    /**
-     * Sets a new handler for 404 errors.
-     * @param callable $handler will be called in the event of a 404
-     * error. This callable must accept one Exception parameter.
-     */
-    public function register404($handler)
-    {
-        $this->handler404 = $handler;
-    }
-
-    /**
-     * Sets a new handler for 500 errors.
-     * @param callable $handler will be called in the event of a 500
-     * error. This callable must accept one Exception parameter.
-     */
-    public function register500($handler)
-    {
-        $this->handler500 = $handler;
     }
 
     /**
@@ -200,8 +158,27 @@ class Dispatcher
 	public function serve()
 	{
 		$server = new Server($_SERVER, $this->prefix);
+        $runner = new \atlatl\Core($this->prefix, $server);
 		$route_to_app = "";
         $app = null;
+
+        /* Dealing with the error handlers.*/
+        if($this->main_conf->get('handler40x')) {
+            $handler = $this->main_conf->get('handler40x');
+            $runner->register40x(function($e) use($handler) {
+                    list($class, $method) = explode('::', $handler);
+                    $controller = new $class();
+                    $class->$method();
+                });
+        }
+        if($this->main_conf->get('handler50x')) {
+            $handler = $this->main_conf->get('handler50x');
+            $runner->register50x(function($e) use($handler) {
+                    list($class, $method) = explode('::', $handler);
+                    $controller = new $class();
+                    $class->$method();
+                });
+        }
 
 		$method_routes = preg_grep('%^' . $server->getMethod() . ':%',
 								   $this->app_routes);
@@ -236,10 +213,6 @@ class Dispatcher
 		spl_autoload_register(array($this, 'autoload'));
 
         $server->setAppPath($this->apps_path . '/' . $this->current_app);
-		$runner = new \atlatl\Core($this->prefix, $server);
-
-        $runner->register40x($this->handler404);
-        $runner->register50x($this->handler500);
 
 		// Let's load the app's modules
 		$container = new ModuleContainer($server);

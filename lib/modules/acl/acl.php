@@ -59,6 +59,11 @@ class Module_Acl extends \assegai\Module
         $this->resources  = $options['resources'];
         $this->privileges = $options['privileges'];
     }
+    
+    public static function instanciate()
+    {
+		return true;
+	}
 
     protected function isAllowedSingle($role, $resource, $privilege)
     {

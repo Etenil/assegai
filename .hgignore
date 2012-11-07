@@ -4,4 +4,5 @@ syntax: glob
 .DS_Store*
 lib/atlatl*
 *.orig
+nbproject*
 

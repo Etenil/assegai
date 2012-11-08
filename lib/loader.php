@@ -31,6 +31,7 @@ else {
 }
 
 require('config.php');
+require('utils.php');
 require('dispatcher.php');
 require('server.php');
 require('request.php');

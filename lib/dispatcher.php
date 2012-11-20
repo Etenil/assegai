@@ -28,6 +28,7 @@ class Dispatcher
 {
     protected $root_path;
 	protected $apps_path;
+    protected $models_path;
     protected $modules_path;
     protected $custom_modules_path;
 	protected $apps;
@@ -58,6 +59,7 @@ class Dispatcher
 		$conf = array(
 			'prefix' => '',
 			'apps_path' => 'apps',
+            'models_path' => 'models',
             'modules_path' => 'lib/modules',
 			'apps' => array(),
             'modules' => array(),
@@ -66,6 +68,7 @@ class Dispatcher
 		require($this->conf_path);
 
 		$this->apps_path = $this->getPath($conf['apps_path']);
+        $this->models_path = $this->getPath($conf['models_path']);
         $this->modules_path = $this->getPath($conf['modules_path']);
         $this->custom_modules_path = isset($conf['user_modules']) ? $conf['user_modules'] : false;
 		$this->apps = $conf['apps'];
@@ -151,6 +154,12 @@ class Dispatcher
                     $filename = $this->modules_path . '/' . strtolower($class) . '/' .
                         strtolower($class) . '.php';
                 }
+            }
+            else if($token == 'Model') {
+                $class = substr($classname, strlen($token) + 1);
+                $class = str_replace('_', '/', $class);
+
+                $filename = $this->models_path . '/' . strtolower($class) . '.php';
             }
             else if(substr_count($classname, '_') >= 2) {
                 $app_splitter = strpos($classname, '_');

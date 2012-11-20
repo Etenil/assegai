@@ -23,7 +23,7 @@ class Model
 {
     /** Modules that were loaded by the application. */
     protected $modules;
-    
+
     /**
      * Instanciates the model.
      * @param ModuleContainer $modules is a container of modules
@@ -42,6 +42,14 @@ class Model
      */
     protected function _init()
     {
+    }
+
+    /**
+     * Easy loading of another module.
+     */
+    protected function model($model_name)
+    {
+        return new $model_name($this->modules);
     }
 }
 

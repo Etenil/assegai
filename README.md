@@ -91,7 +91,7 @@ Create the file *models/hello.php* that will contain the following code:
 
 We will need to load the model from the controller now. Let's create a new function in *controllers/hello.php*:
 
-    class Hello_Controller_demo extends assegai\Controller
+    class Hello_Controller_Demo extends assegai\Controller
     {
         function hello()
         {
@@ -194,7 +194,7 @@ The controller contains the helper method *view()* which loads a view and return
 Controllers have the *model()* helper function to easily load a model. This takes the model's class name as parameter and returns the instanciated model.
 
 ### Modules
-Modules are loaded along with the application and the member variable *modules* provides easy access to those from a controller. See the dedicated chapter for more information.
+Modules are shared among applications and the member variable *modules* provides easy access to those from a controller. See the dedicated chapter for more information.
 
 ### Other helpers
 The *dump()* method allows to easily dump a value wrapped into a *pre* HTML block, thus making it readable.
@@ -206,6 +206,21 @@ Models
 Models are objects providing abstraction to some data provider. Their role is typically to ensure data validity, storage and retrieval.
 
 Assegai leaves you free to organise your models however you like, the only method provided with the base *Model* class is *_init()*, and the member variable *$modules* to access the loaded modules.
+
+### Application models
+Each application can have its own models within its *models* folder. These models follow the naming convention
+
+    <application>_Model_<model>
+
+### Shared models
+If your website is small enough that you only need one application, then you might want to use models only within your application. However, in case of a non-trivial website, it usually becomes more comfortable to use shared models.
+
+Shared models all reside in a single folder determined by the *models_path* configuration, by default a *models* folder within assegai's root. They can be loaded easily by any application.
+
+Typically, you will end up having quite a few models within your shared folder. Depending on how you organise them, you might have several classes for a single model. For this reason, the naming convention for shared models is a little different, the underscore characters are used as separator to determine where to find the model's source file. This way, you can organise your models within folders.
+
+    Model_Poll_Negative_Mapper
+    models/poll/negative/mapper.php
 
 Exceptions
 ----------
@@ -245,6 +260,8 @@ You can then run your tests with the command:
 Modules
 -------
 The modules from *Atlatl* are extended by *Assegai*. They provide access to advanced features either from the provided *$modules* helper variable in the *Controller* or *Model*, or from actions on hooks to modify the framework's behaviour.
+
+Modules are global in *Assegai*, although you can declare them within applications'configuration as well as the main configuration. If the current application contains configuration for a loaded module, this configuration will be given priority other that of the global configuration file.
 
 Assegai comes with several modules pre-installed. The following sections will describe each of those.
 

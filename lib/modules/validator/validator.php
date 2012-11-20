@@ -453,7 +453,7 @@ class Module_Validator
      * @param string $message
      * @return FormValidator
      */
-    public function date($message = null)
+    public function date($message = null, $format = null, $separator = '')
     {
         $this->setRule(__FUNCTION__, function($val, $args)
                        {
@@ -692,7 +692,7 @@ class Module_Validator
      * @param string $label
      * @return bool
      */
-    public function validate($key, $recursive = false, $label = '')
+    public function validate($key, $label = '')
     {
         // set up field name for error message
         $this->fields[$key] = (empty($label)) ? 'Field with the name of "' . $key . '"' : $label;
@@ -703,7 +703,7 @@ class Module_Validator
         $val = $this->_getVal($key);
 
         // validate the piece of data
-        $this->_validate($key, $val, $recursive);
+        $this->_validate($key, $val);
 
         // reset rules
         $this->rules = array();
@@ -719,41 +719,35 @@ class Module_Validator
      * @param mixed $val
      * @return bool
      */
-    protected function _validate($key, $val, $recursive = false)
+    protected function _validate($key, $val)
     {
-        if ($recursive && is_array($val)) {
-            // run validations on each element of the array
-            foreach($val as $index => $item) {
-                if (!$this->_validate($key, $item, $recursive)) {
-                    // halt validation for this value.
+        // try each rule function
+        foreach ($this->rules as $rule => $is_true) {
+            if ($is_true) {
+                $function = $this->functions[$rule];
+                $args = $this->arguments[$rule]; // Arguments of rule
+
+                $valid = true;
+                if(is_array($val)) {
+                    foreach($val as $v) {
+                        $valid = $valid && (empty($args)) ? $function($v) : $function($v, $args);
+                    }
+                } else {
+                    $valid = (empty($args)) ? $function($val) : $function($val, $args);
+                }
+
+                if ($valid === FALSE) {
+                    $this->registerError($rule, $key);
+
+                    $this->rules = array();  // reset rules
+                    $this->filters = array();
                     return FALSE;
                 }
             }
-            return TRUE;
-
-        } else {
-
-            // try each rule function
-            foreach ($this->rules as $rule => $is_true) {
-                if ($is_true) {
-                    $function = $this->functions[$rule];
-                    $args = $this->arguments[$rule]; // Arguments of rule
-
-                    $valid = (empty($args)) ? $function($val) : $function($val, $args);
-
-                    if ($valid === FALSE) {
-                        $this->registerError($rule, $key);
-
-                        $this->rules = array();  // reset rules
-                        $this->filters = array();
-                        return FALSE;
-                    }
-                }
-            }
-
-			$this->validData[$key] = $val;
-            return TRUE;
         }
+
+        $this->validData[$key] = $val;
+        return TRUE;
     }
 
     /**

@@ -60,16 +60,16 @@ class Dispatcher
 			'apps_path' => 'apps',
             'modules_path' => 'lib/modules',
 			'apps' => array(),
+            'modules' => array(),
 			);
 
 		require($this->conf_path);
-        $this->main_conf = Config::fromArray($conf);
 
-		$this->apps_path = $this->getPath($this->main_conf->get('apps_path'));
-        $this->modules_path = $this->getPath($this->main_conf->get('modules_path'));
-        $this->custom_modules_path = $this->main_conf->get('user_modules');
-		$this->apps = $this->main_conf->get('apps');
-		$this->prefix = $this->main_conf->get('prefix');
+		$this->apps_path = $this->getPath($conf['apps_path']);
+        $this->modules_path = $this->getPath($conf['modules_path']);
+        $this->custom_modules_path = isset($conf['user_modules']) ? $conf['user_modules'] : false;
+		$this->apps = $conf['apps'];
+		$this->prefix = $conf['prefix'];
 
 		// Alright. Now let's load the apps config.
 		$this->routes = array();
@@ -81,11 +81,32 @@ class Dispatcher
 			}
 			$app = array();
 			@include($path . '/conf.php');
+
+            // Let's merge in the modules, for backwards compatibility.
+            if(isset($app['modules'])) {
+                foreach($app['modules'] as $module) {
+                    if(!in_array($module, $conf['modules'])) {
+                        $conf['modules'][] = $module;
+                    }
+                    if(isset($app[$module])) {
+                        if(isset($conf[$module])) {
+                            $conf[$module] = array_merge($conf[$module], $app[$module]);
+                        } else {
+                            $conf[$module] = $app[$module];
+                        }
+
+                        unset($app[$module]);
+                    }
+                }
+            }
+
 			$this->apps_conf[$appname] = Config::fromArray($app);
 			foreach($app['route'] as $route => $callback) {
 				$this->app_routes[$route] = $appname;
 			}
 		}
+
+        $this->main_conf = Config::fromArray($conf);
 
 		krsort($this->app_routes);
     }
@@ -233,15 +254,14 @@ class Dispatcher
         $server->setMainConf($this->main_conf);
         $server->setAppConf($this->apps_conf[$this->current_app]);
         $server->setAppPath($this->apps_path . '/' . $this->current_app);
-
 		// Let's load the app's modules
 		$container = new ModuleContainer($server);
-		if($this->apps_conf[$this->current_app]->get('modules')
-		   && is_array($this->apps_conf[$this->current_app]->get('modules'))) {
-			foreach($this->apps_conf[$this->current_app]->get('modules') as $module) {
+		if($this->main_conf->get('modules')
+		   && is_array($this->main_conf->get('modules'))) {
+            foreach($this->main_conf->get('modules') as $module) {
 				$opts = NULL;
-				if($this->apps_conf[$this->current_app]->get($module)) {
-					$opts = $this->apps_conf[$this->current_app]->get($module);
+				if($this->main_conf->get($module)) {
+					$opts = $this->main_conf->get($module);
 				}
 				$container->addModule('Module_' . $module, $opts);
 			}

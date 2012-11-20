@@ -127,7 +127,7 @@ class Module_Paginator extends \assegai\Module
     {
          // Pages in range
         $pagenum = $this->getPageNum();
-        $pagecount  = $this->count();
+        $pagecount  = $this->getPages();
 
         if($length > $pagecount) {
             $length = $pagecount;

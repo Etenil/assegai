@@ -90,15 +90,9 @@ class Dispatcher
                 foreach($app['modules'] as $module) {
                     if(!in_array($module, $conf['modules'])) {
                         $conf['modules'][] = $module;
-                    }
-                    if(isset($app[$module])) {
-                        if(isset($conf[$module])) {
-                            $conf[$module] = array_merge($conf[$module], $app[$module]);
-                        } else {
+                        if(isset($app[$module])) {
                             $conf[$module] = $app[$module];
                         }
-
-                        unset($app[$module]);
                     }
                 }
             }
@@ -270,7 +264,12 @@ class Dispatcher
             foreach($this->main_conf->get('modules') as $module) {
 				$opts = NULL;
 				if($this->main_conf->get($module)) {
-					$opts = $this->main_conf->get($module);
+                    // We give priority to the app's module configuration.
+                    if($this->apps_conf[$this->current_app]->get($module)) {
+                        $opts = $this->apps_conf[$this->current_app]->get($module);
+                    } else {
+                        $opts = $this->main_conf->get($module);
+                    }
 				}
 				$container->addModule('Module_' . $module, $opts);
 			}

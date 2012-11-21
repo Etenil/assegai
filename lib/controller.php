@@ -73,6 +73,12 @@ class Controller implements IController
             return $hook_data;
         }
 
+        // Little hack to access urls easier.
+        $serv = $this->server;
+        $url = function($url) use($serv) {
+            return $serv->siteUrl($url);
+        };
+
         ob_start();
         // Traditional PHP template.
         require($this->server->getRelAppPath('views/' . $view_name . '.phtml'));

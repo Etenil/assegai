@@ -168,15 +168,16 @@ class Module_Paginator extends \assegai\Module
     public function setGetParams($params)
     {
         // We consider the array is a GET array.
-        if(is_array($params)) {
-            $get = array();
-            foreach($params as $varname => $varval) {
-                $get[] = "$varname=$varval";
-            }
-            $this->getparams = implode('&', $get);
-        } else {
-            $this->getparams = $params;
+        if(!is_array($params)) {
+            $params = explode('&', str_replace('?', '', $params));
         }
+
+        $get = array();
+        foreach($params as $varname => $varval) {
+            if($varname = 'p') continue; // We don't want to specify the page twice!
+            $get[] = "$varname=$varval";
+        }
+        $this->getparams = implode('&', $get);
     }
 
     /**

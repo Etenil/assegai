@@ -174,7 +174,7 @@ class Module_Paginator extends \assegai\Module
 
         $get = array();
         foreach($params as $varname => $varval) {
-            if($varname = 'p') continue; // We don't want to specify the page twice!
+            if($varname == 'p') continue; // We don't want to specify the page twice!
             $get[] = "$varname=$varval";
         }
         $this->getparams = implode('&', $get);

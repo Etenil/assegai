@@ -184,11 +184,11 @@ class Module_Paginator extends \assegai\Module
      * Displays or returns the HTML list of pages.
      * @param $return returns the html when true. Default is false.
      */
-    function render($return = false)
+    function render($class = '', $id = '', $return = false)
     {
         $link = $this->link . ($this->getparams ? '?'.$this->getparams.'&' : '?');
         ?>
-        <div class="pagesNav">
+        <div <?=($id? $id : 'id="'.$id."'")?> <?=($class? 'class="'.$class.'"' : '')?>>
 	        <a class="start" href="<?=$link?>p=1" title="Start">&nbsp;</a>
 	        <a class="back" href="<?=$link?>p=<?=max($this->getPageNum() - 1, 1)?>"
 		        title="Back">&nbsp;</a>

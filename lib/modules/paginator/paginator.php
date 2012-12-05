@@ -17,6 +17,9 @@ class Module_Paginator extends \assegai\Module
     protected $pagenum;
     protected $pagelength;
 
+    protected $link;
+    protected $getparams;
+
     public function __construct(IPaginatorProvider $provider)
     {
         $this->provider = $provider;
@@ -149,5 +152,54 @@ class Module_Paginator extends \assegai\Module
         }
 
         return range($lowerbound, $upperbound);
+    }
+
+    /**
+     * Sets the link URL used in the paginator.
+     */
+    public function setLink($url)
+    {
+        $this->link = $url;
+    }
+
+    /**
+     * Sets the get parameters for the links.
+     */
+    public function setGetParams($params)
+    {
+        // We consider the array is a GET array.
+        if(is_array($params)) {
+            $get = array();
+            foreach($params as $varname => $varval) {
+                $get[] = "$varname=$varval";
+            }
+            $this->getparams = implode('&', $get);
+        } else {
+            $this->getparams = $params;
+        }
+    }
+
+    /**
+     * Displays or returns the HTML list of pages.
+     * @param $return returns the html when true. Default is false.
+     */
+    function render($return = false)
+    {
+        $link = $this->link . ($this->getparams ? '?'.$this->getparams.'&' : '?');
+        ?>
+        <div class="pagesNav">
+	        <a class="start" href="<?=$link?>p=1" title="Start">&nbsp;</a>
+	        <a class="back" href="<?=$link?>p=<?=max($this->getPageNum() - 1, 1)?>"
+		        title="Back">&nbsp;</a>
+	        <?foreach($this->getPagesList() as $page):?>
+	            <a class="number<?=($page == $this->getPageNum()? ' selected' : '')?>"
+                    href="<?=$link?>p=<?=$page?>" title="Back"><?=$page?></a>
+	        <?endforeach?>
+	        <a class="next" href="<?=$link?>p=<?=min($this->getPageNum() + 1, $this->getPages())?>"
+                title="Back">&nbsp;</a>
+	        <a class="end" href="<?=$link?>p=<?=$this->getPages()?>"
+                title="End">&nbsp;</a>
+        </div>
+        <?php
     }
 }

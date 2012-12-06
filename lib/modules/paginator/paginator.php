@@ -188,7 +188,7 @@ class Module_Paginator extends \assegai\Module
     {
         $link = $this->link . ($this->getparams ? '?'.$this->getparams.'&' : '?');
         ?>
-        <div <?=($id? $id : 'id="'.$id."'")?> <?=($class? 'class="'.$class.'"' : '')?>>
+        <div <?=(($id != '')? 'id="'.$id.'"' : '')?> <?=(($class != '')? 'class="'.$class.'"' : '')?>>
 	        <a class="start" href="<?=$link?>p=1" title="Start">&nbsp;</a>
 	        <a class="back" href="<?=$link?>p=<?=max($this->getPageNum() - 1, 1)?>"
 		        title="Back">&nbsp;</a>

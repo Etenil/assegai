@@ -16,7 +16,7 @@ class BuiltinService implements Service
         if($email->getContentType()) $params[] = "Content-Type: ".$email->getContentType();
 
         // Now sending.
-        return mail($email->getRecipient(), $email->getSubject(), $mail->getBody(), implode("\n\r", $params));
+        return mail($email->getRecipient(), $email->getSubject(), $email->getBody(), implode("\n\r", $params));
     }
 }
 

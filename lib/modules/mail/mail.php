@@ -12,6 +12,7 @@ require(__DIR__ . '/service.php');
 class Module_Mail extends \assegai\Module
 {
     protected $svc;
+    protected $default_sender;
     
     public static function instanciate()
     {
@@ -20,6 +21,8 @@ class Module_Mail extends \assegai\Module
 
     function _init($options)
     {
+        $this->default_sender = $options['sender'];
+        
         $classfile = __DIR__ . "/services/builtin.php"; // Default
         $classname = "\\assegai\\module\\mail\\BuiltinService";
         
@@ -40,11 +43,16 @@ class Module_Mail extends \assegai\Module
     // Just a nice wrapper to get an email object.
     public function newEmail()
     {
-        return new \assegai\module\mail\Email();
+        $e = new \assegai\module\mail\Email();
+        if($this->default_sender) {
+            $e->setSender($this->default_sender);
+        }
+        
+        return $e;
     }
 
     // Sends an email through the loaded service.
-    public function send(Email $email)
+    public function send(\assegai\module\mail\Email $email)
     {
         return $this->svc->send($email);
     }

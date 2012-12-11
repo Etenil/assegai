@@ -9,13 +9,13 @@ class SesService implements Service
 {
     function __construct($options)
     {
-        CFRuntime::init($options['key'], $options['secret_key'],
-                        $options['account_id'], $options['assoc_id']);
+        \CFRuntime::init($options['key'], $options['secret_key'],
+                         $options['account_id'], $options['assoc_id']);
     }
     
     function send(Email $email)
     {
-        $email = new AmazonSES();
+        $email = new \AmazonSES();
         $dest = array();
         $opt = array();
         $msg = array();

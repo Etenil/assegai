@@ -1,5 +1,8 @@
 <?php
 
+require(__DIR__ . '/email.php');
+require(__DIR__ . '/service.php');
+
 /**
  * @package assegai.modules.mail
  *
@@ -15,17 +18,17 @@ class Module_Mail extends \assegai\Module
         return true;
     }
 
-    protected function _init($options)
+    function _init($options)
     {
         $classfile = __DIR__ . "/services/builtin.php"; // Default
         $classname = "\\assegai\\module\\mail\\BuiltinService";
         
         if(isset($options['service'])) { // We use the standard email service
             if(file_exists(__DIR__."/services/".$options['service']."/".$options['service'].".php")) {
-                $classfile = __DIR__."/services/".$options['service']."/".$options['service'].".php"
+                $classfile = __DIR__."/services/".$options['service']."/".$options['service'].".php";
             }
             else if(file_exists(__DIR__."/services/".$options['service'].".php")) {
-                $classfile = __DIR__."/services/".$options['service'].".php"
+                $classfile = __DIR__."/services/".$options['service'].".php";
             }
             $classname = "\\assegai\\module\\mail\\" . ucwords($options['service']) . "Service";
         }

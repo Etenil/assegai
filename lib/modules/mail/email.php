@@ -1,6 +1,6 @@
 <?php
 
-namespace assegai\module\mail
+namespace assegai\module\mail;
 
 /**
  * An email object.

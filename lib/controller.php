@@ -78,6 +78,9 @@ class Controller implements IController
         $url = function($url) use($serv) {
             return $serv->siteUrl($url);
         };
+        $clean = function($val, $placeholder='-') {
+            return \atlatl\Utils::cleanFilename($val, $placeholder);
+        };
 
         ob_start();
         // Traditional PHP template.

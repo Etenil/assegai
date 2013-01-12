@@ -1,0 +1,49 @@
+{
+    "hash": "391e94e8435bb80537d0959c1f5e4e2f",
+    "packages": [
+        {
+            "name": "etenil/atlatl",
+            "version": "0.1",
+            "source": {
+                "type": "hg",
+                "url": "http://pikacode.com/etenil/atlatl",
+                "reference": "0.1"
+            },
+            "require": {
+                "php": ">=5.3.0"
+            },
+            "time": "2013-01-12 21:48:14",
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "license": [
+                "GPL-3.0+"
+            ],
+            "authors": [
+                {
+                    "name": "Guillaume 'Etenil' Pasquet",
+                    "email": "boss@etenil.net",
+                    "homepage": "http://blog.etenil.net"
+                }
+            ],
+            "description": "A tiny and very simple micro-framework",
+            "homepage": "http://pikacode.com/etenil/atlatl",
+            "keywords": [
+                "framework",
+                "micro",
+                "gluephp"
+            ]
+        }
+    ],
+    "packages-dev": null,
+    "aliases": [
+
+    ],
+    "minimum-stability": "stable",
+    "stability-flags": [
+
+    ]
+}

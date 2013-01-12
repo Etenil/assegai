@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Assegai - Error</title>
+    <link rel="stylesheet" type="text/css" href="css/default.css" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  </head>
+  <body>
+    <div id="pagewrapper">
+      <header>
+        <h1>Assegai</h1>
+        <h3>The easy framework</h3>
+      </header>
+
+      <div id="content">
+        <h2>An error occured!</h2>
+        <p>
+          Something wrong happened while running your code.
+          The following error was encountered:
+        </p>
+        <pre><?=$e->getMessage()?></pre>
+
+        <p>Trace:</p>
+        <pre><?=$printtrace($e)?></pre>
+      </div>
+
+      <footer>
+        <p>
+          Powered by <a href="http://assegai.etenil.net">Assegai</a>.
+        </p>
+      </footer>
+    </div>
+  </body>
+</html>

@@ -20,14 +20,23 @@ namespace assegai;
  * along with Assegai.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-if(file_exists(__DIR__ . '/atlatl/loader.php')) {
-    require(__DIR__ . '/atlatl/loader.php');
-}
-elseif(file_exists(__DIR__ . '/atlatl.php')) {
-    require(__DIR__ . '/atlatl.php');
-}
-else {
-    throw new \Exception("Please run the build.sh script.");
+// Attempting to load the composer-loaded stuff from vendor/etenil/atlatl/loader.php
+if(!class_exists("\\atlatl\\Utils")) {
+    // Right, Maybe that's a stand-alone install and we need to load composer ourselves.
+    if(file_exists(dirname(__DIR__) . '/vendor/autoload.php')) {
+        require(dirname(__DIR__) . '/vendor/autoload.php');
+    }
+    // OK, maybe it's within the current folder like in old times...
+    else if(file_exists(__DIR__ . '/atlatl/loader.php')) {
+        require(__DIR__ . '/atlatl/loader.php');
+    }
+    // Finally it might be all packaged into a single file in lib.
+    elseif(file_exists(__DIR__ . '/atlatl.php')) {
+        require(__DIR__ . '/atlatl.php');
+    }
+    else {
+        throw new \Exception("Please install the atlatl dependency.");
+    }
 }
 
 require('config.php');

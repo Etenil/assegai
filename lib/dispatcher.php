@@ -67,7 +67,9 @@ class Dispatcher
             'modules' => array(),
 			);
 
-		require($this->conf_path);
+        if(file_exists($this->conf_path)) {
+            require($this->conf_path);
+        }
 
 		$this->apps_path = $this->getPath($conf['apps_path']);
         $this->models_path = $this->getPath($conf['models_path']);
@@ -190,6 +192,19 @@ class Dispatcher
 	 */
 	public function serve()
 	{
+        try {
+            $this->doserve();
+        }
+        catch(\Exception $e) {
+            $this->errorhandler($e);
+        }
+    }
+
+    /**
+     * Actually does the job of serving pages.
+     */
+    protected function doserve()
+    {
         // We register the dispatcher's autoloader
 		spl_autoload_register(array($this, 'autoload'));
 
@@ -292,7 +307,29 @@ class Dispatcher
     {
         if(isset($_SERVER['APPLICATION_ENV'])
            && $_SERVER['APPLICATION_ENV'] == 'development') {
-            throw $e;
+            $printtrace = function($error) {
+                $trace = $error->getTrace();
+                $formatted_trace = array();
+                for($i = 0; $i < count($trace); $i++) {
+                    $line = '';
+                    if(true || strpos($trace[$i]['class'], 'assegai\\') === false) {
+                        $line = "$i - ";
+                        if($trace[$i]['class']) {
+                            $line.= "at " . $trace[$i]['class'] . "::";
+                        }
+                        if($trace[$i]['function']) {
+                            $line.= $trace[$i]['function'] . "() ";
+                        }
+                        $line.= sprintf("in %s on line %s",
+                                        $trace[$i]['file'],
+                                        $trace[$i]['line']);
+                    }
+                    $formatted_trace[] = $line;
+                }
+
+                return implode(PHP_EOL, $formatted_trace);
+            };
+            require('errorview.phtml');
         } else {
             return new Response($e->getCode() . " Error!", $e->getCode());
         }

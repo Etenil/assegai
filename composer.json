@@ -20,7 +20,7 @@
     ],
 	"require": {
 		"etenil/atlatl": "0.1"
-	}
+	},
     "autoload": {
 	    "files": ["lib/loader.php"]
 	}

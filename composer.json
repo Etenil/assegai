@@ -1,6 +1,6 @@
 {
 	"name": "etenil/assegai",
-    "A full MVC framework for PHP.",
+    "description": "A full MVC framework for PHP.",
     "keywords": ["framework"],
     "homepage": "http://pikacode.com/etenil/atlatl",
     "type": "library",

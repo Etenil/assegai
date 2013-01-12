@@ -43,9 +43,9 @@ class Dispatcher
 	protected $apps_routes;
 	protected $routes;
 
-    function __construct($root, $conf = false)
+    function __construct($root = null, $conf = false)
     {
-        $this->root_path = $root;
+        $this->root_path = dirname(__DIR__);
         $this->conf_path = ($conf? $conf : $this->getPath('conf.php'));
         $this->parseconf();
     }

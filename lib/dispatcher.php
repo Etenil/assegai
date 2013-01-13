@@ -249,7 +249,7 @@ class Dispatcher
                     }
                 });
         } else {
-            $runner->register40x(array($this, 'errorhandler'));
+            $runner->register50x(array($this, 'errorhandler'));
         }
 
 		$method_routes = preg_grep('%^' . $server->getMethod() . ':%',

@@ -17,8 +17,14 @@
  * You should have received a copy of the GNU General Public License
  * along with Assegai.  If not, see <http://www.gnu.org/licenses/>.
  */
-require('../lib/loader.php');
-$engine = new assegai\Dispatcher(dirname(__DIR__));
+
+if(file_exists(dirname(__DIR__) . '/vendor/autoload.php')) {
+    require(dirname(__DIR__) . '/vendor/autoload.php');
+} else {
+    require('../lib/loader.php');
+}
+
+$engine = new assegai\Dispatcher();
 $engine->serve();
 
 ?>

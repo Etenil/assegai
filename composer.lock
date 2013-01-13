@@ -1,5 +1,5 @@
 {
-    "hash": "d8c140bd992e98f1d10e96e6271592d9",
+    "hash": "85ec78b611984f1a26e4ed22e45f4ccb",
     "packages": [
         {
             "name": "etenil/atlatl",
@@ -12,7 +12,7 @@
             "require": {
                 "php": ">=5.3.0"
             },
-            "time": "2013-01-13 00:14:07",
+            "time": "2013-01-13 00:34:26",
             "type": "library",
             "autoload": {
                 "classmap": [
@@ -36,6 +36,51 @@
                 "micro",
                 "gluephp"
             ]
+        },
+        {
+            "name": "gabordemooij/redbean",
+            "version": "dev-RedBeanPHP3_3_X",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Etenil/redbean",
+                "reference": "448ef2c77a28bbdc319d70a2cb4cd6b3d8357b26"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Etenil/redbean/zipball/448ef2c77a28bbdc319d70a2cb4cd6b3d8357b26",
+                "reference": "448ef2c77a28bbdc319d70a2cb4cd6b3d8357b26",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.2.0"
+            },
+            "time": "2013-01-13 15:25:44",
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "RedBean_": ""
+                }
+            },
+            "license": [
+                "BSD"
+            ],
+            "authors": [
+                {
+                    "name": "Gabor de Mooij",
+                    "email": "gabordemooij@gmail.com",
+                    "homepage": "http://www.redbeanphp.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Easy ORM for PHP",
+            "homepage": "http://github.com/gabordemooij/redbean",
+            "keywords": [
+                "ORM",
+                "Object Relational Mapping"
+            ],
+            "support": {
+                "source": "https://github.com/Etenil/redbean/tree/RedBeanPHP3_3_X"
+            }
         }
     ],
     "packages-dev": null,
@@ -43,7 +88,7 @@
 
     ],
     "minimum-stability": "stable",
-    "stability-flags": [
-
-    ]
+    "stability-flags": {
+        "gabordemooij/redbean": 20
+    }
 }

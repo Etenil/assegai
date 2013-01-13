@@ -16,10 +16,15 @@
         {
             "type": "vcs",
             "url": "http://pikacode.com/etenil/atlatl"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/Etenil/redbean"
         }
     ],
 	"require": {
-		"etenil/atlatl": "0.1"
+		"etenil/atlatl": "0.1",
+        "gabordemooij/redbean": "dev-RedBeanPHP3_3_X"
 	},
     "autoload": {
 	    "files": ["lib/loader.php"]

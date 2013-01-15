@@ -99,7 +99,7 @@ class Module_Acl extends \assegai\Module
                 }
                 elseif(($role_n < count($roles) - 1 || $res_n < count($resources) - 1)) {
                     $perm = $this->isAllowedDig($roles[$role_n], $resources[$res_n],
-                                                $privilege, false);
+                                                $privilege, true);
                     if($perm != self::ACL_UNDEF) {
                         return $perm;
                     }

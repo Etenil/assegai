@@ -1,5 +1,13 @@
 <?php
 
+class AssegaiRedBeanFormatter implements RedBean_IModelFormatter
+{
+    public function formatModel($model)
+    {
+        return 'RBModel_' . $model;
+    }
+}
+
 class Module_Redbean extends \assegai\Module
 {
     public static function instanciate()
@@ -9,6 +17,10 @@ class Module_Redbean extends \assegai\Module
 
     function _init($options)
     {
+        // Setting up the formatter to avoid conflict with Model_.
+        $formatter = new AssegaiRedBeanFormatter();
+        RedBean_ModelHelper::setModelFormatter($formatter);
+
         // Opening connection.
         RedBean_Facade::setup($options['dsn'], $options['user'], $options['pass']);
         RedBean_Facade::dontUseDefaultModelPrefix();

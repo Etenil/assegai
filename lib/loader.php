@@ -25,6 +25,10 @@ if(!class_exists("\\atlatl\\Utils")) {
     if(file_exists(__DIR__ . '/atlatl/loader.php')) {
         require(__DIR__ . '/atlatl/loader.php');
     }
+    // Or we're installed with composer.
+    if(file_exists(dirname(__DIR__) . '/vendor/autoload.php')) {
+        require(dirname(__DIR__) . '/vendor/autoload.php');
+    }
     // Finally it might be all packaged into a single file in lib.
     elseif(file_exists(__DIR__ . '/atlatl.php')) {
         require(__DIR__ . '/atlatl.php');

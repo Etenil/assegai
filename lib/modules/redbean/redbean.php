@@ -22,8 +22,7 @@ class Module_Redbean extends \assegai\Module
         RedBean_ModelHelper::setModelFormatter($formatter);
 
         // Opening connection.
-        RedBean_Facade::setup($options['dsn'], $options['user'], $options['pass']);
-        RedBean_Facade::dontUseDefaultModelPrefix();
+        RedBean_Facade::setup($options['dsn'], @$options['user'], @$options['pass']);
     }
 
     function __destruct()

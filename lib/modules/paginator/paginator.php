@@ -138,10 +138,15 @@ class Module_Paginator extends \assegai\Module
 
         $delta = ceil($length / 2);
 
-        if ($pagenum - $delta > $pagecount - $length) {
+        if($pagenum <= 1) {
+            $lowerbound = 1;
+            $upperbound = 1;
+        }
+        else if($pagenum - $delta > $pagecount - $length) {
             $lowerbound = $pagecount - $length + 1;
             $upperbound = $pagecount;
-        } else {
+        }
+        else {
             if ($pagenum - $delta < 0) {
                 $delta = $pagenum;
             }

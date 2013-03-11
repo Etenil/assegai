@@ -257,7 +257,7 @@ class Dispatcher
 		$method_routes = preg_grep('%^' . $server->getMethod() . ':%',
 								   $this->app_routes);
 
-		foreach($this->app_routes as $route => $app) {
+		foreach($method_routes as $route => $app) {
 			if(preg_match('%^'. $route .'%i', $server->getMethod() . ':' . $server->getRoute())) {
 				$route_to_app = $app;
 				break;

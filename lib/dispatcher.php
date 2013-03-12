@@ -197,6 +197,9 @@ class Dispatcher
         try {
             $this->doserve();
         }
+        catch(\atlatl\HTTPNotFoundError $e) {
+            $this->notfoundhandler($e);
+        }
         catch(\Exception $e) {
             $this->errorhandler($e);
         }
@@ -233,7 +236,7 @@ class Dispatcher
                 });
         } else {
             // Default
-            $runner->register40x(array($this, 'errorhandler'));
+            $runner->register40x(array($this, 'notfoundhandler'));
         }
         if($this->main_conf->get('handler50x')) {
             $handler = $this->main_conf->get('handler50x');
@@ -275,7 +278,7 @@ class Dispatcher
 		}
 
 		if(!$route_to_app) {
-			throw new \Exception('Not found');
+			throw new \atlatl\HTTPNotFoundError('Not found');
 		}
 
 		$this->current_app = $route_to_app;
@@ -303,6 +306,17 @@ class Dispatcher
 
 		$runner->setModules($container);
 		$runner->serve($this->apps_conf[$this->current_app]->get('route'));
+	}
+
+	function notfoundhandler($e)
+	{
+        if(isset($_SERVER['APPLICATION_ENV'])
+            && $_SERVER['APPLICATION_ENV'] == 'development') {
+            $server = new Server($_SERVER, $this->prefix);
+            require('notfoundview.phtml');
+        } else {
+            return new Response('Not found!', 404);
+        }
 	}
 
     function errorhandler($e)

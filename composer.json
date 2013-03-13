@@ -19,8 +19,8 @@
         }
     ],
 	"require": {
-		"etenil/atlatl": "0.1",
-        "gabordemooij/redbean": "3.3.6"
+		"etenil/atlatl": "1.x",
+        "gabordemooij/redbean": "3.3.x"
 	},
     "autoload": {
 	    "files": ["lib/loader.php"]

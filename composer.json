@@ -12,12 +12,6 @@
             "homepage": "http://blog.etenil.net"
         }
     ],
-    "repositories": [
-        {
-            "type": "vcs",
-            "url": "http://pikacode.com/etenil/atlatl"
-        }
-    ],
 	"require": {
 		"etenil/atlatl": "1.x",
         "gabordemooij/redbean": "3.3.x"

@@ -1,7 +1,7 @@
 Assegai
 =======
 
-VERSION 1.0
+VERSION dev
 UPDATED 13 March 2013
 
 Introduction

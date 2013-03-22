@@ -1,18 +1,17 @@
 {
-    "hash": "3db1a17822b9e8c12dc6cb18dafc2885",
+    "hash": "31256e33d0c4be7eeca28b64bd4724ed",
     "packages": [
         {
             "name": "etenil/atlatl",
-            "version": "v1.0",
+            "version": "dev-default",
             "source": {
                 "type": "hg",
                 "url": "http://pikacode.com/etenil/atlatl",
-                "reference": "v1.0"
+                "reference": "192d87fcbbbe"
             },
             "require": {
                 "php": ">=5.3.0"
             },
-            "time": "2013-03-13 21:05:47",
             "type": "library",
             "autoload": {
                 "classmap": [
@@ -34,60 +33,26 @@
             "homepage": "http://pikacode.com/etenil/atlatl",
             "keywords": [
                 "framework",
-                "micro",
-                "gluephp"
-            ]
-        },
-        {
-            "name": "gabordemooij/redbean",
-            "version": "v3.3.6",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/gabordemooij/redbean.git",
-                "reference": "v3.3.6"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://github.com/gabordemooij/redbean/archive/v3.3.6.zip",
-                "reference": "v3.3.6",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.2.0"
-            },
-            "time": "2012-11-16 22:41:24",
-            "type": "library",
-            "autoload": {
-                "psr-0": {
-                    "RedBean_": ""
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "BSD"
+                "gluephp",
+                "micro"
             ],
-            "authors": [
-                {
-                    "name": "Gabor de Mooij",
-                    "email": "gabordemooij@gmail.com",
-                    "homepage": "http://www.redbeanphp.com",
-                    "role": "Developer"
-                }
-            ],
-            "description": "Easy ORM for PHP",
-            "homepage": "http://github.com/gabordemooij/redbean",
-            "keywords": [
-                "orm",
-                "Object Relational Mapping"
-            ]
+            "time": "2013-03-13 21:07:10"
         }
     ],
-    "packages-dev": null,
+    "packages-dev": [
+
+    ],
     "aliases": [
 
     ],
     "minimum-stability": "stable",
-    "stability-flags": [
+    "stability-flags": {
+        "etenil/atlatl": 20
+    },
+    "platform": [
+
+    ],
+    "platform-dev": [
 
     ]
 }

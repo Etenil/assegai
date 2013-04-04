@@ -23,6 +23,36 @@ namespace assegai;
 class Response extends \atlatl\Response
 {
     /**
+     * Backwards-compatible constructor, for people who have not
+     * migrated to the DI yet.
+     */
+    function __construct($body = '', $status_code = 200,
+        $content_type = 'text/html; charset=UTF-8',
+        array $cookies = null, array $session = null)
+    {
+        if(!$session) {
+            // PHP 5.4+ first.
+            if((function_exists('session_status')
+                    && session_status() == PHP_SESSION_ACTIVE)
+                || isset($_SESSION)) {
+                $session = $_SESSION;
+            }
+            else if(session_id() && isset($_SESSION)) {
+                $session = $_SESSION;
+            }
+            else {
+                $session = array();
+            }
+        }
+
+        if(!$cookies) {
+            $cookies = $_COOKIE;
+        }
+
+        parent::__construct($body, $status_code, $content_type, $cookies, $session);
+    }
+    
+    /**
      * Appends some data to the body.
      *
      * This function accepts placeholders in the form {1}, {2},

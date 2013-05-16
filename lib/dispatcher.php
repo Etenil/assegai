@@ -227,7 +227,10 @@ class Dispatcher
                                              $server, new Request($_GET, $_POST,
                                                                   new \atlatl\Security()),
                                              new \atlatl\Security());
+                    $controller->preRequest();
                     $page = $controller->$method($e);
+                    $controller->postRequest($page);
+
                     if(is_string($page)) {
                         return new Response($page);
                     } else {
@@ -246,7 +249,10 @@ class Dispatcher
                                              $server, new Request($_GET, $_POST,
                                                                   new \atlatl\Security()),
                                              new \atlatl\Security());
+                    $controller->preRequest();
                     $page = $controller->$method($e);
+                    $controller->postRequest($page);
+
                     if(is_string($page)) {
                         return new Response($page);
                     } else {

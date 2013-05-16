@@ -223,11 +223,32 @@ class Dispatcher
             $handler = $this->main_conf->get('handler40x');
             $runner->register40x(function($e) use($handler, $server) {
                     list($class, $method) = explode('::', $handler);
-                    $controller = new $class(new ModuleContainer($server),
-                                             $server, new Request($_GET, $_POST,
-                                                                  new \atlatl\Security()),
-                                             new \atlatl\Security());
+
+                    // If the controller's name conforms to conventions, then we can get the app name.
+                    list($app_name, $token, $controller_name) = explode('_', strtolower($class));
+                    if($token == 'controller') {
+                        try {
+                            $modules = $dispatcher->loadAppModules($server, $app_name);
+                        }
+                        catch(\Exception $e) {
+                            $modules = new ModuleContainer($server);
+                        }
+                    } else {
+                        $modules = new ModuleContainer($server);
+                    }
+
+                    $controller = new $class(
+                        $modules,
+                        $server,
+                        new Request(
+                            $_GET,
+                            $_POST,
+                            new \atlatl\Security()),
+                        new \atlatl\Security());
+                    $controller->preRequest();
                     $page = $controller->$method($e);
+                    $controller->postRequest($page);
+
                     if(is_string($page)) {
                         return new Response($page);
                     } else {
@@ -240,13 +261,35 @@ class Dispatcher
         }
         if($this->main_conf->get('handler50x')) {
             $handler = $this->main_conf->get('handler50x');
-            $runner->register50x(function($e) use($handler, $server) {
+            $dispatcher = $this;
+            $runner->register50x(function($e) use($dispatcher, $handler, $server) {
                     list($class, $method) = explode('::', $handler);
-                    $controller = new $class(new ModuleContainer($server),
-                                             $server, new Request($_GET, $_POST,
-                                                                  new \atlatl\Security()),
-                                             new \atlatl\Security());
+
+                    // If the controller's name conforms to conventions, then we can get the app name.
+                    list($app_name, $token, $controller_name) = explode('_', strtolower($class));
+                    if($token == 'controller') {
+                        try {
+                            $modules = $dispatcher->loadAppModules($server, $app_name);
+                        }
+                        catch(\Exception $e) {
+                            $modules = new ModuleContainer($server);
+                        }
+                    } else {
+                        $modules = new ModuleContainer($server);
+                    }
+
+                    $controller = new $class(
+                        $modules,
+                        $server,
+                        new Request(
+                            $_GET,
+                            $_POST,
+                            new \atlatl\Security()),
+                        new \atlatl\Security());
+                    $controller->preRequest();
                     $page = $controller->$method($e);
+                    $controller->postRequest($page);
+
                     if(is_string($page)) {
                         return new Response($page);
                     } else {
@@ -287,6 +330,13 @@ class Dispatcher
         $server->setAppConf($this->apps_conf[$this->current_app]);
         $server->setAppPath($this->apps_path . '/' . $this->current_app);
 		// Let's load the app's modules
+        $container = $this->loadAppModules($server, $this->current_app);
+
+		$runner->setModules($container);
+		$runner->serve($this->apps_conf[$this->current_app]->get('route'));
+	}
+
+    function loadAppModules(\atlatl\Server $server, $app) {
 		$container = new ModuleContainer($server);
 		if($this->main_conf->get('modules')
 		   && is_array($this->main_conf->get('modules'))) {
@@ -294,8 +344,8 @@ class Dispatcher
 				$opts = NULL;
 				if($this->main_conf->get($module)) {
                     // We give priority to the app's module configuration.
-                    if($this->apps_conf[$this->current_app]->get($module)) {
-                        $opts = $this->apps_conf[$this->current_app]->get($module);
+                    if($this->apps_conf[$app]->get($module)) {
+                        $opts = $this->apps_conf[$app]->get($module);
                     } else {
                         $opts = $this->main_conf->get($module);
                     }
@@ -304,9 +354,8 @@ class Dispatcher
 			}
 		}
 
-		$runner->setModules($container);
-		$runner->serve($this->apps_conf[$this->current_app]->get('route'));
-	}
+        return $container;
+    }
 
 	function notfoundhandler($e)
 	{

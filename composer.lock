@@ -1,13 +1,23 @@
 {
-    "hash": "31256e33d0c4be7eeca28b64bd4724ed",
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
+    ],
+    "hash": "2229d4e7105da1a66665a94b9bdd6d3d",
     "packages": [
         {
             "name": "etenil/atlatl",
-            "version": "dev-default",
+            "version": "dev-master",
             "source": {
-                "type": "hg",
-                "url": "http://pikacode.com/etenil/atlatl",
-                "reference": "192d87fcbbbe"
+                "type": "git",
+                "url": "https://github.com/Etenil/atlatl.git",
+                "reference": "f59020d85714c1ef8a821b4c9bd33c0c3baaefc9"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Etenil/atlatl/zipball/f59020d85714c1ef8a821b4c9bd33c0c3baaefc9",
+                "reference": "f59020d85714c1ef8a821b4c9bd33c0c3baaefc9",
+                "shasum": ""
             },
             "require": {
                 "php": ">=5.3.0"
@@ -36,7 +46,7 @@
                 "gluephp",
                 "micro"
             ],
-            "time": "2013-03-13 21:07:10"
+            "time": "2013-05-26 13:49:35"
         }
     ],
     "packages-dev": [

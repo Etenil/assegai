@@ -23,7 +23,7 @@ class Config
         $conf = array();
         require($path);
 
-        $this->settings = $conf;
+        return self::fromArray($conf);
     }
 
     public function addArray(array $definitions)

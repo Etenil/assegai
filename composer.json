@@ -13,7 +13,7 @@
         }
     ],
 	"require": {
-		"etenil/atlatl": "dev-default"
+		"etenil/atlatl": "dev-master"
 	},
     "autoload": {
 	    "files": ["lib/loader.php"]

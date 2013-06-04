@@ -75,21 +75,47 @@ class Controller implements IController
 
         // Little hack to access urls easier.
         $serv = $this->server;
+        $parent_tpl = false;
         $url = function($url) use($serv) {
             return $serv->siteUrl($url);
         };
+
+        $startblock = function() {
+            ob_start();
+        };
+
+        $endblock = function($name) use(&$var_list) {
+            $var_list[$name] = ob_get_clean();
+        };
+
+        $inherit = function($template) use(&$parent_tpl) {
+            $parent_tpl = $template;
+        };
+        
         $clean = function($val, $placeholder='-') {
             return \atlatl\Utils::cleanFilename($val, $placeholder);
         };
 
+        $template_path = false;
+
         ob_start();
+
+        $template_path = $this->server->getRelAppPath('views/' . $view_name . '.phtml');
+        if(!file_exists($template_path)) {
+            $template_path = $view_name;
+        }
+        
         // Traditional PHP template.
-        require($this->server->getRelAppPath('views/' . $view_name . '.phtml'));
+        require($template_path);
 
         $data = ob_get_clean();
 
         if($hook_data = $this->modules->postView($this->request, $view_name, $vars, $data)) {
             return $hook_data;
+        }
+
+        if($parent_tpl) {
+            return $this->view($parent_tpl, $var_list);
         }
 
         return $data;

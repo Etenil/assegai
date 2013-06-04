@@ -73,19 +73,23 @@ class Controller implements IController
             return $hook_data;
         }
 
-        // Little hack to access urls easier.
         $serv = $this->server;
         $parent_tpl = false;
+        $current_block = false;
+
+        // Little hack to access urls easier.
         $url = function($url) use($serv) {
             return $serv->siteUrl($url);
         };
 
-        $startblock = function() {
+        $startblock = function($name) use(&$current_block) {
+            $current_block = $name;
             ob_start();
         };
 
-        $endblock = function($name) use(&$var_list) {
-            $var_list[$name] = ob_get_clean();
+        $endblock = function() use(&$var_list, &$current_block) {
+            $var_list[$current_block] = ob_get_clean();
+            $current_block = false;
         };
 
         $inherit = function($template) use(&$parent_tpl) {
@@ -102,7 +106,7 @@ class Controller implements IController
 
         $template_path = $this->server->getRelAppPath('views/' . $view_name . '.phtml');
         if(!file_exists($template_path)) {
-            $template_path = $view_name;
+            $template_path = $this->server->main->get('templates_path') . '/' . $view_name . '.phtml';
         }
         
         // Traditional PHP template.

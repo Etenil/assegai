@@ -301,11 +301,11 @@ class Dispatcher
         }
 
 		$method_routes = preg_grep('%^' . $server->getMethod() . ':%',
-								   $this->app_routes);
+								   array_keys($this->app_routes));
 
-		foreach($method_routes as $route => $app) {
+		foreach($method_routes as $route) {
 			if(preg_match('%^'. $route .'%i', $server->getMethod() . ':' . $server->getRoute())) {
-				$route_to_app = $app;
+				$route_to_app = $this->app_routes[$route];
 				break;
 			}
 		}

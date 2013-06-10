@@ -24,7 +24,7 @@ namespace assegai;
  * You should have received a copy of the GNU General Public License
  * along with Assegai.  If not, see <http://www.gnu.org/licenses/>.
  */
-class Dispatcher
+class Dispatcher extends \atlatl\Core
 {
     protected $root_path;
 	protected $apps_path;
@@ -45,6 +45,7 @@ class Dispatcher
 
     function __construct($conf = false)
     {
+        parent::__construct('', new Server($_SERVER));
         $this->root_path = dirname(__DIR__);
         $this->conf_path = ($conf? $conf : $this->getPath('conf.php'));
         $this->parseconf();
@@ -78,6 +79,7 @@ class Dispatcher
         $this->custom_modules_path = isset($conf['user_modules']) ? $conf['user_modules'] : false;
 		$this->apps = $conf['apps'];
 		$this->prefix = $conf['prefix'];
+        $this->server->setPrefix($this->prefix);
 
 		// Alright. Now let's load the apps config.
 		$this->routes = array();
@@ -192,10 +194,14 @@ class Dispatcher
 	/**
 	 * Serves requests
 	 */
-	public function serve()
+	public function serve(array $urls = null)
 	{
         try {
-            $this->doserve();
+            // We register the dispatcher's autoloader
+            spl_autoload_register(array($this, 'autoload'));
+            $this->sethandlers();
+            $result = $this->doserve();
+            $this->display($result);
         }
         catch(\atlatl\HTTPNotFoundError $e) {
             $this->notfoundhandler($e);
@@ -206,138 +212,90 @@ class Dispatcher
     }
 
     /**
+     * Prepares the error handlers.
+     */
+    protected function sethandlers() {
+        if($this->main_conf->get('handler40x')) {
+            $this->register40x($this->makeErrorHandler(
+                $this->server, $this->main_conf->get('handler40x')));
+        } else {
+            $this->register40x(array($this, 'notfoundhandler'));
+        }
+        if($this->main_conf->get('handler50x')) {
+            $this->register50x($this->makeErrorHandler(
+                $this->server, $this->main_conf->get('handler50x')));
+        } else {
+            $this->register50x(array($this, 'notfoundhandler'));
+        }
+    }
+
+    /**
+     * Generates an error-handling closure.
+     */
+    protected function makeErrorHandler($handler) {
+        $dispatcher = $this;
+        $server = $this->server;
+        return function($e) use($dispatcher, $handler, $server) {
+            list($class, $method) = explode('::', $handler);
+
+            // If the controller's name conforms to conventions, then we can get the app name.
+            list($app_name, $token, $controller_name) = explode('_', strtolower($class));
+            if($token == 'controller') {
+                try {
+                    $modules = $dispatcher->loadAppModules($server, $app_name);
+                }
+                catch(\Exception $e) {
+                    $modules = new ModuleContainer($server);
+                }
+            } else {
+                $modules = new ModuleContainer($server);
+            }
+
+            $controller = new $class(
+                $modules,
+                $server,
+                new Request(
+                    $_GET,
+                    $_POST,
+                    new \atlatl\Security()),
+                new \atlatl\Security());
+            $controller->preRequest();
+            $page = $controller->$method($e);
+            $controller->postRequest($page);
+
+            if(is_string($page)) {
+                return new Response($page);
+            } else {
+                return $page;
+            }
+        };
+    }
+
+    /**
      * Actually does the job of serving pages.
      */
     protected function doserve()
     {
-        // We register the dispatcher's autoloader
-		spl_autoload_register(array($this, 'autoload'));
-
-		$server = new Server($_SERVER, $this->prefix);
-        $runner = new \atlatl\Core($this->prefix, $server);
 		$route_to_app = "";
         $app = null;
 
-        /* Dealing with the error handlers.*/
-        if($this->main_conf->get('handler40x')) {
-            $handler = $this->main_conf->get('handler40x');
-            $runner->register40x(function($e) use($handler, $server) {
-                    list($class, $method) = explode('::', $handler);
+        $proto = $this->route($this->app_routes);
+        $this->current_app = $proto['call'];
 
-                    // If the controller's name conforms to conventions, then we can get the app name.
-                    list($app_name, $token, $controller_name) = explode('_', strtolower($class));
-                    if($token == 'controller') {
-                        try {
-                            $modules = $dispatcher->loadAppModules($server, $app_name);
-                        }
-                        catch(\Exception $e) {
-                            $modules = new ModuleContainer($server);
-                        }
-                    } else {
-                        $modules = new ModuleContainer($server);
-                    }
-
-                    $controller = new $class(
-                        $modules,
-                        $server,
-                        new Request(
-                            $_GET,
-                            $_POST,
-                            new \atlatl\Security()),
-                        new \atlatl\Security());
-                    $controller->preRequest();
-                    $page = $controller->$method($e);
-                    $controller->postRequest($page);
-
-                    if(is_string($page)) {
-                        return new Response($page);
-                    } else {
-                        return $page;
-                    }
-                });
-        } else {
-            // Default
-            $runner->register40x(array($this, 'notfoundhandler'));
-        }
-        if($this->main_conf->get('handler50x')) {
-            $handler = $this->main_conf->get('handler50x');
-            $dispatcher = $this;
-            $runner->register50x(function($e) use($dispatcher, $handler, $server) {
-                    list($class, $method) = explode('::', $handler);
-
-                    // If the controller's name conforms to conventions, then we can get the app name.
-                    list($app_name, $token, $controller_name) = explode('_', strtolower($class));
-                    if($token == 'controller') {
-                        try {
-                            $modules = $dispatcher->loadAppModules($server, $app_name);
-                        }
-                        catch(\Exception $e) {
-                            $modules = new ModuleContainer($server);
-                        }
-                    } else {
-                        $modules = new ModuleContainer($server);
-                    }
-
-                    $controller = new $class(
-                        $modules,
-                        $server,
-                        new Request(
-                            $_GET,
-                            $_POST,
-                            new \atlatl\Security()),
-                        new \atlatl\Security());
-                    $controller->preRequest();
-                    $page = $controller->$method($e);
-                    $controller->postRequest($page);
-
-                    if(is_string($page)) {
-                        return new Response($page);
-                    } else {
-                        return $page;
-                    }
-                });
-        } else {
-            $runner->register50x(array($this, 'errorhandler'));
-        }
-
-		$method_routes = preg_grep('%^' . $server->getMethod() . ':%',
-								   $this->app_routes);
-
-		foreach($method_routes as $route => $app) {
-			if(preg_match('%^'. $route .'%i', $server->getMethod() . ':' . $server->getRoute())) {
-				$route_to_app = $app;
-				break;
-			}
-		}
-
-		// Trying generic.
-		if(!$route_to_app) {
-			foreach($this->app_routes as $route => $app) {
-				if(preg_match('%^' . $route . '%i', $server->getRoute())) {
-					$route_to_app = $app;
-					break;
-				}
-			}
-		}
-
-		if(!$route_to_app) {
-			throw new \atlatl\HTTPNotFoundError('Not found');
-		}
-
-		$this->current_app = $route_to_app;
-
-        $server->setMainConf($this->main_conf);
-        $server->setAppConf($this->apps_conf[$this->current_app]);
-        $server->setAppPath($this->apps_path . '/' . $this->current_app);
+        $this->server->setMainConf($this->main_conf);
+        $this->server->setAppConf($this->apps_conf[$this->current_app]);
+        $this->server->setAppPath($this->apps_path . '/' . $this->current_app);
 		// Let's load the app's modules
-        $container = $this->loadAppModules($server, $this->current_app);
+        $container = $this->loadAppModules($this->current_app);
 
-		$runner->setModules($container);
-		$runner->serve($this->apps_conf[$this->current_app]->get('route'));
+		$this->setModules($container);
+        
+        $call = $this->route($this->apps_conf[$this->current_app]->get('route'));
+		return $this->process($call);
 	}
 
-    function loadAppModules(\atlatl\Server $server, $app) {
-		$container = new ModuleContainer($server);
+    function loadAppModules($app) {
+		$container = new ModuleContainer($this->server);
 		if($this->main_conf->get('modules')
 		   && is_array($this->main_conf->get('modules'))) {
             foreach($this->main_conf->get('modules') as $module) {
@@ -361,7 +319,7 @@ class Dispatcher
 	{
         if(isset($_SERVER['APPLICATION_ENV'])
             && $_SERVER['APPLICATION_ENV'] == 'development') {
-            $server = new Server($_SERVER, $this->prefix);
+            $server = $this->server;
             require('notfoundview.phtml');
         } else {
             return new Response('Not found!', 404);

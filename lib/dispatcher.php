@@ -196,19 +196,36 @@ class Dispatcher extends \atlatl\Core
 	 */
 	public function serve(array $urls = null)
 	{
+        $response = null;
+
         try {
             // We register the dispatcher's autoloader
             spl_autoload_register(array($this, 'autoload'));
             $this->sethandlers();
-            $result = $this->doserve();
-            $this->display($result);
+            $response = $this->doserve();
+        }
+        catch(\atlatl\HttpRedirect $r) {
+            $response = \atlatl\Injector::give('Response');
+            $response->setHeader('Location', $r->getUrl());
+        }
+        catch(\atlatl\HTTPClientError $e) {
+            $response = call_user_func($this->error40x, $e);
+        }
+        catch(\atlatl\HTTPServerError $e) {
+            $response = call_user_func($this->error50x, $e);
         }
         catch(\atlatl\HTTPNotFoundError $e) {
-            $this->notfoundhandler($e);
+            $response = call_user_func($this->error40x, $e);
+        }
+        // Generic HTTP status response.
+        catch(\atlatl\HTTPStatus $s) {
+            $response = \atlatl\Injector::give('Response', $s->getMessage(), $s->getCode());
         }
         catch(\Exception $e) {
-            $this->errorhandler($e);
+            $response = call_user_func($this->error50x, $e);
         }
+
+        $this->display($response);
     }
 
     /**

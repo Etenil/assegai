@@ -44,9 +44,7 @@ class Controller implements IController
 		$this->modules = $modules;
 		$this->server = $server;
         $this->sec = $sec;
-		$this->request = new Request($request->allGet(),
-                                     $request->allPost(),
-                                     $this->sec);
+        $this->request = $request;
 
         // Running the user init.
         $this->_init();

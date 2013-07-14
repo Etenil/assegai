@@ -274,7 +274,9 @@ class Dispatcher extends \atlatl\Core
                 new Request(
                     $_GET,
                     $_POST,
-                    new \atlatl\Security()),
+                    new \atlatl\Security(),
+                    $_SESSION,
+                    $_COOKIE),
                 new \atlatl\Security());
             $controller->preRequest();
             $page = $controller->$method($e);

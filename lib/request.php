@@ -30,11 +30,11 @@ class Request extends \atlatl\Request
      * @param $post is a POST associative array.
      * @param $sec is an instance of atlatl's security class: \atlatl\Security.
      */
-    function __construct(array $get, array $post, \atlatl\Security $sec)
+    function __construct(array $get, array $post, \atlatl\Security $sec, $session, $cookies)
     {
         $this->sec = $sec;
 
-        parent::__construct($get, $post);
+        parent::__construct($get, $post, $session, $cookies);
     }
 
     /**

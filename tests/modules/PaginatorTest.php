@@ -1,6 +1,5 @@
 <?php
 
-require_once('../lib/loader.php');
 require('../lib/modules/paginator/paginator.php');
 
 class PaginatorTest extends \centrifuge\Test

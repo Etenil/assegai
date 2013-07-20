@@ -1,6 +1,5 @@
 <?php
 
-require_once('../lib/loader.php');
 require_once('../lib/modules/acl/acl.php');
 
 class AclTest extends \centrifuge\Test

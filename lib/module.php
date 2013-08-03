@@ -29,4 +29,8 @@ class Module extends \atlatl\Module
     {
         return false;
     }
+
+    public function model($name) {
+        return new $name($this->modules);
+    }
 }

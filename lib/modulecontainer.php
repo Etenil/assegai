@@ -42,7 +42,7 @@ class ModuleContainer extends \atlatl\ModuleContainer
     public function addModule($module, array $options = NULL)
     {
         if($module::instanciate()) {
-            $this->add_to_list($module, new $module($this->server, $options));
+            $this->add_to_list($module, new $module($this->server, $this, $options));
         }
     }
 }

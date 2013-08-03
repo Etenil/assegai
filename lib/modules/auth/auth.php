@@ -40,8 +40,8 @@ class Module_Auth extends \assegai\Module
             $this->group_mapper = $this->group_model . 'Mapper';
         }
 
-        $this->users = new $this->user_mapper();
-        $this->groups = new $this->group_mapper();
+        $this->users = $this->model($this->user_mapper);
+        $this->groups = $this->model($this->group_mapper);
     }
 
     public static function instanciate()

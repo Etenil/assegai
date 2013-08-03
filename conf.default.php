@@ -1,0 +1,6 @@
+<?php
+
+$conf['apps'] = [
+    'myniceapp',
+];
+

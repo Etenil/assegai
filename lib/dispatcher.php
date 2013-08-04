@@ -233,16 +233,14 @@ class Dispatcher extends \atlatl\Core
      */
     protected function sethandlers() {
         if($this->main_conf->get('handler40x')) {
-            $this->register40x($this->makeErrorHandler(
-                $this->server, $this->main_conf->get('handler40x')));
+            $this->register40x($this->makeErrorHandler($this->main_conf->get('handler40x')));
         } else {
             $this->register40x(array($this, 'notfoundhandler'));
         }
         if($this->main_conf->get('handler50x')) {
-            $this->register50x($this->makeErrorHandler(
-                $this->server, $this->main_conf->get('handler50x')));
+            $this->register50x($this->makeErrorHandler($this->main_conf->get('handler50x')));
         } else {
-            $this->register50x(array($this, 'notfoundhandler'));
+            $this->register50x(array($this, 'errorhandler'));
         }
     }
 

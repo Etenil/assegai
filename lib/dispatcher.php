@@ -302,6 +302,9 @@ class Dispatcher extends \atlatl\Core
         $this->server->setMainConf($this->main_conf);
         $this->server->setAppConf($this->apps_conf[$this->current_app]);
         $this->server->setAppPath($this->apps_path . '/' . $this->current_app);
+        if($this->apps_conf[$this->current_app]->get('use_session')) {
+          session_start();
+        }
 		// Let's load the app's modules
         $container = $this->loadAppModules($this->current_app);
 

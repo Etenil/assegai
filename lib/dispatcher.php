@@ -264,7 +264,7 @@ class Dispatcher extends \atlatl\Core
             list($app_name, $token, $controller_name) = explode('_', strtolower($class));
             if($token == 'controller') {
                 try {
-                    $modules = $dispatcher->loadAppModules($server, $app_name);
+                    $modules = $dispatcher->loadAppModules($app_name);
                 }
                 catch(\Exception $e) {
                     $modules = new ModuleContainer($server);

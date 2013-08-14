@@ -149,6 +149,34 @@ Finally we will create a route to this new function in conf.php:
 
 Try visiting the url with the segment */view*, for instance http://localhost/index.php/view and you should see the view with *Hello, Model* in place of the message variable.
 
+#### View helpers
+View helpers are convenient functions that return or output some HTML and are used to format and display data within the view. Consider the following:
+
+    <?php $h->form->input('text', 'foobar') ?>
+    => <input type="text" name="foobar" id="foobar"/>
+
+You might think of implementing this function like this:
+
+    function input($type, $name) {
+        echo "<input type=\"$type\" name=\"$name\" id=\"$name\"/>";
+    }
+
+Helpers are not loaded by default; the view must declare the necessary helpers that it uses like this:
+
+    <?php $load_helper('form'); ?>
+
+At the moment, Assegai does not provide any helper. You can easily implement your own though.
+
+Helpers are always accessible to all your applications and are declared as part of classes within the *helpers_path* folder (by default a folder called *helpers* in the project root).
+
+A helper class must follow the usual convention and be named *Helper_SomeName*. It's a good idea to package related helpers together. Here's an example:
+
+    class Helpers_Form {
+        function input($type, $name) {
+            echo "<input type=\"$type\" name=\"$name\" id=\"$name\"/>";
+        }
+    }
+
 Routing
 -------
 Assegai makes an extended use of *Atlatl*'s routing features. Routes are defined on an per-application basis and conflicting routes are overwritten by applications loaded later.

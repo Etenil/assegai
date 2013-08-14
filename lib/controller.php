@@ -60,12 +60,13 @@ class Controller implements IController
     /**
      * Loads a view.
      */
-    protected function view($view_name, array $var_list = NULL)
+    protected function view($view_name, array $var_list = NULL, array $block_list = NULL)
     {
         if($var_list === NULL) {
             $var_list = array(); // Avoids notices.
         }
         $vars = (object)$var_list;
+        $blocks = (object)$block_list;
 
         if($hook_data = $this->modules->preView($this->request, $view_name, $vars)) {
             return $hook_data;
@@ -74,10 +75,16 @@ class Controller implements IController
         $serv = $this->server;
         $parent_tpl = false;
         $current_block = false;
+        $helpers = new \stdClass();
 
         // Little hack to access urls easier.
         $url = function($url) use($serv) {
             return $serv->siteUrl($url);
+        };
+
+        $load_helper = function($helper_name) use(&$helpers) {
+            $classname = 'Helper_' . ucwords($helper_name);
+            $helpers->$helper_name = new $classname();
         };
 
         $startblock = function($name) use(&$current_block) {
@@ -85,8 +92,8 @@ class Controller implements IController
             ob_start();
         };
 
-        $endblock = function() use(&$var_list, &$current_block) {
-            $var_list[$current_block] = ob_get_clean();
+        $endblock = function() use(&$block_list, &$current_block) {
+            $block_list[$current_block] = ob_get_clean();
             $current_block = false;
         };
 
@@ -99,6 +106,9 @@ class Controller implements IController
         };
 
         $template_path = false;
+
+        // Shorthands
+        $h = &$helpers;
 
         ob_start();
 
@@ -117,7 +127,7 @@ class Controller implements IController
         }
 
         if($parent_tpl) {
-            return $this->view($parent_tpl, $var_list);
+            return $this->view($parent_tpl, $var_list, $block_list);
         }
 
         return $data;

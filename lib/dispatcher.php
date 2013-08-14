@@ -62,6 +62,7 @@ class Dispatcher extends \atlatl\Core
 			'prefix' => '',
 			'apps_path' => 'apps',
             'models_path' => 'models',
+            'helpers_path' => 'helpers',
             'exceptions_path' => 'exceptions',
             'modules_path' => 'lib/modules',
 			'apps' => array(),
@@ -74,6 +75,7 @@ class Dispatcher extends \atlatl\Core
 
 		$this->apps_path = $this->getPath($conf['apps_path']);
         $this->models_path = $this->getPath($conf['models_path']);
+        $this->helpers_path = $this->getPath($conf['helpers_path']);
         $this->exceptions_path = $this->getPath($conf['exceptions_path']);
         $this->modules_path = $this->getPath($conf['modules_path']);
         $this->custom_modules_path = isset($conf['user_modules']) ? $conf['user_modules'] : false;
@@ -137,7 +139,6 @@ class Dispatcher extends \atlatl\Core
         $first_split = strpos($classname, '_');
         if($first_split) {
             $token = substr($classname, 0, $first_split);
-
             $filename = "";
 
             if($token == 'Module') {
@@ -161,6 +162,12 @@ class Dispatcher extends \atlatl\Core
                 $class = str_replace('_', '/', $class);
 
                 $filename = $this->models_path . '/' . strtolower($class) . '.php';
+            }
+            else if($token == 'Helper') {
+                $class = substr($classname, strlen($token) + 1);
+                $class = str_replace('_', '/', $class);
+
+                $filename = $this->helpers_path . '/' . strtolower($class) . '.php';
             }
             else if($token == 'Exception') {
                 $class = substr($classname, strlen($token) + 1);

@@ -45,7 +45,7 @@ class Dispatcher extends \atlatl\Core
 
     function __construct($conf = false)
     {
-        parent::__construct('', new Server($_SERVER));
+        parent::__construct('', new Server($_SERVER), new Request($_GET, $_POST, new \atlatl\Security(), array(), array()));
         $this->root_path = dirname(__DIR__);
         $this->conf_path = ($conf? $conf : $this->getPath('conf.php'));
         $this->parseconf();

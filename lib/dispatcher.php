@@ -45,7 +45,7 @@ class Dispatcher extends \atlatl\Core
 
     function __construct($conf = false)
     {
-        parent::__construct('', new Server($_SERVER), new Request($_GET, $_POST, new \atlatl\Security(), array(), array()));
+        parent::__construct('', new Server($_SERVER), new Request($_GET, $_POST, new \atlatl\Security(), array(), $_COOKIE));
         $this->root_path = dirname(__DIR__);
         $this->conf_path = ($conf? $conf : $this->getPath('conf.php'));
         $this->parseconf();
@@ -311,6 +311,7 @@ class Dispatcher extends \atlatl\Core
         $this->server->setAppPath($this->apps_path . '/' . $this->current_app);
         if($this->apps_conf[$this->current_app]->get('use_session')) {
           session_start();
+          $this->request = new Request($_GET, $_POST, new \atlatl\Security(), $_SESSION, $_COOKIE);
         }
 		// Let's load the app's modules
         $container = $this->loadAppModules($this->current_app);

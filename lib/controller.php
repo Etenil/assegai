@@ -84,7 +84,7 @@ class Controller implements IController
 
         $load_helper = function($helper_name) use(&$helpers) {
             $classname = 'Helper_' . ucwords($helper_name);
-            $helpers->$helper_name = new $classname();
+            $helpers->$helper_name = new $classname($this->modules, $this->server, $this->request, $this->sec);
         };
 
         $startblock = function($name) use(&$current_block) {

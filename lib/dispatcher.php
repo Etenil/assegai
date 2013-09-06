@@ -192,7 +192,7 @@ class Dispatcher extends \atlatl\Core
                     . $paths[$type] . '/' . strtolower($class) . '.php';
             }
 
-            if($filename) {
+            if($filename && file_exists($filename)) {
                 include($filename);
             }
 		}

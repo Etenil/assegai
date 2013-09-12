@@ -89,7 +89,7 @@ class Controller implements IController
         };
 
         $load_helper = function($helper_name) use(&$helpers, &$me) {
-            return $me->helper($helper_name);
+            $helpers->{$helper_name} = $me->helper($helper_name);
         };
 
         $startblock = function($name) use(&$current_block) {

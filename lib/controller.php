@@ -57,6 +57,11 @@ class Controller implements IController
     {
     }
 
+    function helper($helper_name) {
+        $classname = 'Helper_' . ucwords($helper_name);
+        return new $classname($this->modules, $this->server, $this->request, $this->security);
+    }
+
     /**
      * Loads a view.
      */
@@ -73,9 +78,7 @@ class Controller implements IController
         }
 
         $serv = $this->server;
-        $mods = $this->modules;
-        $req = $this->request;
-        $sec = $this->security;
+        $me = $this;
         $parent_tpl = false;
         $current_block = false;
         $helpers = new \stdClass();
@@ -85,9 +88,8 @@ class Controller implements IController
             return $serv->siteUrl($url);
         };
 
-        $load_helper = function($helper_name) use(&$helpers, &$mods, $serv, &$req, $sec) {
-            $classname = 'Helper_' . ucwords($helper_name);
-            $helpers->$helper_name = new $classname($mods, $serv, $req, $sec);
+        $load_helper = function($helper_name) use(&$helpers, &$me) {
+            return $me->helper($helper_name);
         };
 
         $startblock = function($name) use(&$current_block) {

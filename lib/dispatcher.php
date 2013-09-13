@@ -365,7 +365,7 @@ class Dispatcher
                 $modules,
                 $server,
                 new Request(
-                    $this->server->getRoute(),
+                    $server->getRoute(),
                     $_GET,
                     $_POST,
                     new \assegai\Security(),

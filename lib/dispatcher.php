@@ -24,8 +24,20 @@ namespace assegai;
  * You should have received a copy of the GNU General Public License
  * along with Assegai.  If not, see <http://www.gnu.org/licenses/>.
  */
-class Dispatcher extends \atlatl\Core
+class Dispatcher
 {
+    /** Server object. */
+	protected $server;
+    /** Request being handled. */
+	protected $request;
+    /** Container of modules. */
+	protected $modules;
+
+    /** Callable variable that handles client errors. */
+    protected $error40x;
+    /** Callable variable that handles server errors. */
+    protected $error50x;
+
     protected $root_path;
 	protected $apps_path;
     protected $models_path;
@@ -45,8 +57,24 @@ class Dispatcher extends \atlatl\Core
 
     function __construct($conf = false)
     {
-        parent::__construct('', new Server($_SERVER), new Request($_GET, $_POST, new \atlatl\Security(), array(), $_COOKIE));
         $this->root_path = dirname(__DIR__);
+
+        $this->server = new Server($_SERVER);
+        //$this->server = Injector::give('Server', $_SERVER);
+
+        $this->request = new Request($_GET, $_POST, new \assegai\Security(), array(), $_COOKIE);
+        //$this->request = Injector::give('Request', $_GET, $_POST, (isset($_SESSION) ? $_SESSION : array()), $_COOKIE);
+
+        $this->register40x(function(\Exception $e) {
+            return Injector::give('Response', '404 Error - Page not found.', 404);
+        });
+
+        $this->register50x(function(\Exception $e) {
+            return Injector::give('Response', '500 Error - Server error.', 500);
+        });
+
+        $this->modules = Injector::give('ModuleContainer', $this->server);
+
         $this->conf_path = ($conf? $conf : $this->getPath('conf.php'));
         $this->parseconf();
     }
@@ -211,28 +239,47 @@ class Dispatcher extends \atlatl\Core
             $this->sethandlers();
             $response = $this->doserve();
         }
-        catch(\atlatl\HttpRedirect $r) {
-            $response = \atlatl\Injector::give('Response');
+        catch(\assegai\HttpRedirect $r) {
+            $response = \assegai\Injector::give('Response');
             $response->setHeader('Location', $r->getUrl());
         }
-        catch(\atlatl\HTTPClientError $e) {
+        catch(\assegai\HTTPClientError $e) {
             $response = call_user_func($this->error40x, $e);
         }
-        catch(\atlatl\HTTPServerError $e) {
+        catch(\assegai\HTTPServerError $e) {
             $response = call_user_func($this->error50x, $e);
         }
-        catch(\atlatl\HTTPNotFoundError $e) {
+        catch(\assegai\HTTPNotFoundError $e) {
             $response = call_user_func($this->error40x, $e);
         }
         // Generic HTTP status response.
-        catch(\atlatl\HTTPStatus $s) {
-            $response = \atlatl\Injector::give('Response', $s->getMessage(), $s->getCode());
+        catch(\assegai\HTTPStatus $s) {
+            $response = \assegai\Injector::give('Response', $s->getMessage(), $s->getCode());
         }
         catch(\Exception $e) {
             $response = call_user_func($this->error50x, $e);
         }
 
         $this->display($response);
+    }
+
+    /**
+     * Processes the returned object from a handler.
+     */
+    protected function display($response) {
+        // TODO get rid of backwards compat here.
+        if($response->alteredSession()) {
+            $this->request->setAllSession($response->getAllSession());
+        }
+        if($response->alteredCookies()) {
+            $this->request->setAllCookies($response->getAllCookies());
+        }
+        $this->request->commitSessionAndCookies();
+        if(is_object($response)) {
+            $response->compile();
+        } else {
+            echo $response;
+        }
     }
 
     /**
@@ -279,10 +326,10 @@ class Dispatcher extends \atlatl\Core
                 new Request(
                     $_GET,
                     $_POST,
-                    new \atlatl\Security(),
+                    new \assegai\Security(),
                     $_SESSION,
                     $_COOKIE),
-                new \atlatl\Security());
+                new \assegai\Security());
             $controller->preRequest();
             $page = $controller->$method($e);
             $controller->postRequest($page);
@@ -293,6 +340,138 @@ class Dispatcher extends \atlatl\Core
                 return $page;
             }
         };
+    }
+
+    /**
+     * Does the actual URL routing.
+     *
+     * The main method of the Core class.
+     *
+     * @param   array    	$urls  	    The regex-based url to class mapping
+     * @throws  NoHandlerException      Thrown if corresponding class is not found
+     * @throws  NoRouteException        Thrown if no match is found
+     * @throws  BadMethodCallException  Thrown if a corresponding GET,POST is not found
+     *
+     */
+    protected function route(array $urls) {
+        $path = $this->server->getRoute();
+
+        $call = false;        // This will store the controller and method to call
+        $matches = array();   // And this the extracted parameters.
+
+        // First we search for specific method routes.
+        $method_routes = preg_grep('/^' . $this->server->getMethod() . ':/i', array_keys($urls));
+        foreach($method_routes as $route) {
+            $method = $this->server->getMethod() . ':';
+            $clean_route = substr($route, strlen($method));
+            if(preg_match('%^'. $clean_route .'/?$%i',
+                          $this->server->getRoute(), $matches)) {
+                $call = $urls[$route];
+				break;
+            }
+        }
+
+        // Do we need to try generic routes?
+        if(!$call) {
+            foreach($urls as $regex => $proto) {
+                if(preg_match('%^'. $regex .'/?$%i',
+                              $this->server->getRoute(), $matches)) {
+                    $call = $proto;
+					break;
+                }
+            }
+        }
+
+
+        // If we don't have a call at this point, that's a 404.
+        if(!$call) {
+            throw new NoRouteException("URL, ".$this->server->getWholeRoute().", not found.");
+        }
+
+        return array('call' => $call, 'params' => $matches);
+    }
+
+    /**
+     * Processes a route call, something like `stuff::thing' or just a function name
+     * or even a closure.
+     */
+    protected function process($proto) {
+        /* We're accepting different types of handler declarations. It can be
+         * anything PHP defines as a 'callable', or in the form class::method. */
+        $class = '';
+        $method = '';
+        $call = $proto['call'];
+        $matches = $proto['params'];
+
+        if(is_string($call) && preg_match('/^.+::.+$/', trim($call))) {
+            list($class, $method) = explode('::', $call);
+        }
+        else if(is_array($call)) {
+            $class = $call[0];
+            $method = $call[1];
+        }
+        else if(is_callable($call)) {
+            $method = $call;
+        }
+
+        $response = null;
+
+        $this->modules->runMethod('preProcess', array(
+            'request' => $this->request,
+            'proto' => $proto,
+            'response' => $response,
+        ));
+
+        if(!$class) { // Just a function call (or a closure?). Less hooks obviously.
+            // Mounting system stuff into an object and generating the parameters.
+            $params = array_merge(array((object)array(
+                              'modules' => $this->modules,
+                              'server'  => $this->server,
+                              'request' => $this->request,
+                              'sec'     => Injector::give('Security'))),
+                      array_slice($matches, 1));
+            $response = call_user_func_array($method, $params);
+        }
+        else if(class_exists($class)) {
+            $obj = new $class($this->modules, $this->server,
+                              $this->request, new Security());
+
+            if(method_exists($obj, 'preRequest'))
+                $obj->preRequest();
+
+            if(method_exists($obj, $method)) {
+                $response = call_user_func_array(array($obj, $method),
+												 array_slice($matches, 1));
+                if(method_exists($obj, 'postRequest'))
+                    $response = $obj->postRequest($response);
+            } else {
+                throw new \BadMethodCallException("Method, $method, not supported.");
+            }
+        } else {
+            throw new NoHandlerException("Class, $class, not found.");
+        }
+
+        // Cleaning up the response...
+        if(gettype($response) == 'string') {
+            $response = Injector::give('Response', $response);
+        }
+        else if($response === null) {
+            $response = Injector::give('Response');
+        }
+        else if(gettype($response) != 'object'
+                || (gettype($response) == 'object'
+                    && (get_class($response) != 'assegai\Response'
+                        && !is_subclass_of($response, 'assegai\Response')))) {
+            throw new IllegalResponseException('Unknown response.');
+        }
+
+        $this->modules->runMethod('postProcess', array(
+            'request' => $this->request,
+            'proto' => $proto,
+            'response' => $response
+        ));
+
+        return $response;
     }
 
     /**
@@ -311,7 +490,7 @@ class Dispatcher extends \atlatl\Core
         $this->server->setAppPath($this->apps_path . '/' . $this->current_app);
         if($this->apps_conf[$this->current_app]->get('use_session')) {
           session_start();
-          $this->request = new Request($_GET, $_POST, new \atlatl\Security(), $_SESSION, $_COOKIE);
+          $this->request = new Request($_GET, $_POST, new \assegai\Security(), $_SESSION, $_COOKIE);
         }
 		// Let's load the app's modules
         $container = $this->loadAppModules($this->current_app);
@@ -385,6 +564,77 @@ class Dispatcher extends \atlatl\Core
             return new Response($e->getCode() . " Error!", $e->getCode());
         }
     }
+
+    /**
+     * Sets a new handler for 404 errors.
+     * @param callable $handler will be called in the event of a 404
+     * error. This callable must accept one Exception parameter.
+     */
+    public function register40x($handler)
+    {
+        $this->error40x = $handler;
+    }
+
+    /**
+     * Sets a new handler for 50x errors.
+     * @param callable $handler will be called in the event of a 500
+     * error. This callable must accept one Exception parameter.
+     */
+    public function register50x($handler)
+    {
+        $this->error50x = $handler;
+    }
+
+    /**
+     * Wrapper that converts PHP errors to exceptions and passes them
+     * to the standard error50x handler.
+     */
+    public function php_error_handler($errno, $errstr, $errfile, $errline)
+    {
+        $e = new \Exception($errstr, $errno);
+        call_user_func($this->error50x, $e);
+    }
+
+    /**
+     * Instanciates a new module and adds it to the collection.
+     * @param string $module is the module's name.
+     * @param array $options is an array of options passed to the
+     * module's constructor.
+     */
+	public function loadModule($module, $options = NULL)
+	{
+		$this->modules->addModule($module, $options);
+	}
+
+    /**
+     * Replaces the current modules container by the provided one.
+     * @param ModuleContainer $container is a container of modules.
+     */
+	public function setModules(ModuleContainer $container)
+	{
+		$this->modules = $container;
+	}
+
+    /**
+     * Changes the URL prefix to work from.
+     * @param string $prefix is the URL prefix to use, for instance "/glue".
+     * @return this object (you can make a call chain).
+     */
+    public function setPrefix($prefix)
+    {
+        // We ensure that the prefix is properly formatted. It
+        // must start with a '/' and end without one.
+        if($prefix != "") {
+            if($prefix[0] != '/') {
+                $prefix = '/' . $prefix;
+            }
+            if($prefix[strlen($prefix) - 1] == '/') {
+                $prefix = substr($prefix, 0, strlen($prefix) - 1);
+            }
+        }
+
+        $this->prefix = $prefix;
+        return $this;
+    }
 }
 
-?>

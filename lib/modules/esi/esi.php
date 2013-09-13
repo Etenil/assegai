@@ -43,9 +43,9 @@ class Module_Esi extends \assegai\Module
             $response = new \assegai\Response($response);
         }
         else if(gettype($response) != 'object'
-                || (get_class($response) != 'atlatl\\Response'
-                    && is_subclass_of($response) != 'atlatl\\Response')) {
-            throw new \atlatl\IllegalResponseException('Unknown response.');
+                || (get_class($response) != 'assegai\\Response'
+                    && is_subclass_of($response) != 'assegai\\Response')) {
+            throw new \assegai\IllegalResponseException('Unknown response.');
         }
 
         if($this->emulate) {

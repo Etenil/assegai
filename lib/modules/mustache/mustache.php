@@ -14,11 +14,11 @@ class Module_Mustache extends \assegai\Module
         return true;
     }
 
-    public function preView(\atlatl\Request $request, $tpl, $vars)
+    public function preView(\assegai\Request $request, $tpl, $vars)
     {
         $tpl_path = $this->server->getRelAppPath('views/' . $tpl . '.tpl');
         if(!file_exists($tpl_path)) {
-            throw new \atlatl\NoViewException("View `$tpl_path' doesn't exist");
+            throw new \assegai\NoViewException("View `$tpl_path' doesn't exist");
         }
 
         $m = new MustacheEngine($this->server);

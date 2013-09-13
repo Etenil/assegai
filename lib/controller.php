@@ -36,14 +36,14 @@ class Controller implements IController
      * @param Server $server is the current server state.
      * @param Request $request is the current request object.
      */
-	public function __construct(\atlatl\ModuleContainer $modules,
-                                \atlatl\Server $server,
-                                \atlatl\Request $request,
-                                \atlatl\Security $sec)
+	public function __construct(\assegai\ModuleContainer $modules,
+                                \assegai\Server $server,
+                                \assegai\Request $request,
+                                \assegai\Security $security)
 	{
 		$this->modules = $modules;
 		$this->server = $server;
-        $this->sec = $sec;
+        $this->sec = $security;
         $this->request = $request;
 
         // Running the user init.
@@ -107,7 +107,7 @@ class Controller implements IController
         };
         
         $clean = function($val, $placeholder='-') {
-            return \atlatl\Utils::cleanFilename($val, $placeholder);
+            return \assegai\Utils::cleanFilename($val, $placeholder);
         };
 
         $template_path = false;

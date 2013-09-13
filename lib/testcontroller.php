@@ -23,9 +23,9 @@ class TestController extends \PHPUnit_Framework_TestCase implements IController
 {
     public function setUp()
     {
-        $this->request = new \atlatl\Request(array(), array());
+        $this->request = new \assegai\Request(array(), array());
         $this->server = new Server($_SERVER);
-        $this->sec = new \atlatl\Security();
+        $this->sec = new \assegai\Security();
 
         $app = array();
         include(APPS_PATH . APP_NAME . '/conf.php');

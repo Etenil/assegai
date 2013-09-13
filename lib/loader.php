@@ -19,35 +19,17 @@ namespace assegai;
  * You should have received a copy of the GNU General Public License
  * along with Assegai.  If not, see <http://www.gnu.org/licenses/>.
  */
-
-if(!class_exists("\\atlatl\\Utils")) {
-    // OK, maybe it's within the current folder like in old times...
-    if(file_exists(__DIR__ . '/atlatl/loader.php')) {
-        require(__DIR__ . '/atlatl/loader.php');
-    }
-    // Or we're installed with composer.
-    if(file_exists(dirname(__DIR__) . '/vendor/autoload.php')) {
-        require(dirname(__DIR__) . '/vendor/autoload.php');
-    }
-    // Finally it might be all packaged into a single file in lib.
-    elseif(file_exists(__DIR__ . '/atlatl.php')) {
-        require(__DIR__ . '/atlatl.php');
-    }
-    else {
-        throw new \Exception("Please install the atlatl dependency.");
+function coreload($classname) {
+    $matches = array();
+    if(preg_match('/^\\\\?assegai\\\\(.+)$/', $classname, $matches)) {
+        $classname = $matches[1];
+        $dirpath = dirname(__FILE__);
+        $potential_file = $dirpath . '/' . strtolower($classname) . '.php';
+        if(file_exists($potential_file)) {
+            require($potential_file);
+        }
     }
 }
 
-require('config.php');
-require('utils.php');
-require('dispatcher.php');
-require('server.php');
-require('request.php');
-require('response.php');
-require('modulecontainer.php');
-require('module.php');
-require('icontroller.php');
-require('controller.php');
-require('model.php');
+spl_autoload_register('\assegai\coreload');
 
-?>

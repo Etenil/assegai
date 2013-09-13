@@ -87,12 +87,12 @@ class Module_Auth extends \assegai\Module
         }
     }
 
-    public function login(\atlatl\Request $request, $user) {
+    public function login(\assegai\Request $request, $user) {
         $request->setSession('auth_username', $user->getUsername());
         $this->user = $user;
     }
 
-    public function logout(\atlatl\Request $request) {
+    public function logout(\assegai\Request $request) {
         $request->setSession('auth_username', null);
     }
 

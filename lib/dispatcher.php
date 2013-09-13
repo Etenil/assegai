@@ -62,7 +62,7 @@ class Dispatcher
         $this->server = new Server($_SERVER);
         //$this->server = Injector::give('Server', $_SERVER);
 
-        $this->request = new Request($_GET, $_POST, new \assegai\Security(), array(), $_COOKIE);
+        $this->request = new Request($this->server->getRoute(), $_GET, $_POST, new \assegai\Security(), array(), $_COOKIE);
         //$this->request = Injector::give('Request', $_GET, $_POST, (isset($_SESSION) ? $_SESSION : array()), $_COOKIE);
 
         $this->register40x(function(\Exception $e) {
@@ -227,17 +227,26 @@ class Dispatcher
 	}
 
 	/**
-	 * Serves requests
+	 * Serves requests.
+     *
+     * @param $request is a Request object to handle. If left out, the request will
+     *      be generated from the environment.
+     * @param $return_response: whether to process the response or to return it. Default
+     * to process (false).
 	 */
-	public function serve(array $urls = null)
+	public function serve(Request $request = null, $return_response = false)
 	{
+        if(!$request) {
+            $request = $this->request;
+        }
+
         $response = null;
 
         try {
             // We register the dispatcher's autoloader
             spl_autoload_register(array($this, 'autoload'));
             $this->sethandlers();
-            $response = $this->doserve();
+            $response = $this->doserve($request);
         }
         catch(\assegai\HttpRedirect $r) {
             $response = \assegai\Injector::give('Response');
@@ -260,19 +269,51 @@ class Dispatcher
             $response = call_user_func($this->error50x, $e);
         }
 
-        $this->display($response);
+        if($return_response) {
+            return array(
+                'request' => $request,
+                'response' => $response,
+            );
+        } else {
+            return $this->display($request, $response);
+        }
+    }
+
+    /**
+     * Simulates or forces a HTTP request. This is a temporary hack that
+     * permits using Assegai within something else or to run it as a CLI
+     * app.
+     */
+    public function execute($url = '',
+                            array $get = array(),
+                            array $post = array(),
+                            array $session = array(),
+                            array $cookies = array()) {
+        $request = new Request($url, $get, $post, new Security(), $session, $cookies);
+        $result = $this->serve($request, true);
+
+        $answer = new \StdClass(); 
+        $answer->session = $result['request']->getAllSession();
+        $answer->cookies = $result['request']->getAllCookies();
+        if(is_object($result['response'])) {
+            $answer->result = $result['response']->getBody();
+        } else {
+            $answer->result = $response;
+        }
+
+        return $answer;
     }
 
     /**
      * Processes the returned object from a handler.
      */
-    protected function display($response) {
+    protected function display(Request $request, $response) {
         // TODO get rid of backwards compat here.
         if($response->alteredSession()) {
-            $this->request->setAllSession($response->getAllSession());
+            $request->setAllSession($response->getAllSession());
         }
         if($response->alteredCookies()) {
-            $this->request->setAllCookies($response->getAllCookies());
+            $request->setAllCookies($response->getAllCookies());
         }
         $this->request->commitSessionAndCookies();
         if(is_object($response)) {
@@ -324,6 +365,7 @@ class Dispatcher
                 $modules,
                 $server,
                 new Request(
+                    $this->server->getRoute(),
                     $_GET,
                     $_POST,
                     new \assegai\Security(),
@@ -353,8 +395,8 @@ class Dispatcher
      * @throws  BadMethodCallException  Thrown if a corresponding GET,POST is not found
      *
      */
-    protected function route(array $urls) {
-        $path = $this->server->getRoute();
+    protected function route(Request $request, array $urls) {
+        $path = $request->getRoute();
 
         $call = false;        // This will store the controller and method to call
         $matches = array();   // And this the extracted parameters.
@@ -365,7 +407,7 @@ class Dispatcher
             $method = $this->server->getMethod() . ':';
             $clean_route = substr($route, strlen($method));
             if(preg_match('%^'. $clean_route .'/?$%i',
-                          $this->server->getRoute(), $matches)) {
+                          $path, $matches)) {
                 $call = $urls[$route];
 				break;
             }
@@ -375,7 +417,7 @@ class Dispatcher
         if(!$call) {
             foreach($urls as $regex => $proto) {
                 if(preg_match('%^'. $regex .'/?$%i',
-                              $this->server->getRoute(), $matches)) {
+                              $path, $matches)) {
                     $call = $proto;
 					break;
                 }
@@ -395,7 +437,7 @@ class Dispatcher
      * Processes a route call, something like `stuff::thing' or just a function name
      * or even a closure.
      */
-    protected function process($proto) {
+    protected function process($proto, $request) {
         /* We're accepting different types of handler declarations. It can be
          * anything PHP defines as a 'callable', or in the form class::method. */
         $class = '';
@@ -417,7 +459,7 @@ class Dispatcher
         $response = null;
 
         $this->modules->runMethod('preProcess', array(
-            'request' => $this->request,
+            'request' => $request,
             'proto' => $proto,
             'response' => $response,
         ));
@@ -427,14 +469,14 @@ class Dispatcher
             $params = array_merge(array((object)array(
                               'modules' => $this->modules,
                               'server'  => $this->server,
-                              'request' => $this->request,
+                              'request' => $request,
                               'sec'     => Injector::give('Security'))),
                       array_slice($matches, 1));
             $response = call_user_func_array($method, $params);
         }
         else if(class_exists($class)) {
             $obj = new $class($this->modules, $this->server,
-                              $this->request, new Security());
+                              $request, new Security());
 
             if(method_exists($obj, 'preRequest'))
                 $obj->preRequest();
@@ -466,7 +508,7 @@ class Dispatcher
         }
 
         $this->modules->runMethod('postProcess', array(
-            'request' => $this->request,
+            'request' => $request,
             'proto' => $proto,
             'response' => $response
         ));
@@ -477,12 +519,12 @@ class Dispatcher
     /**
      * Actually does the job of serving pages.
      */
-    protected function doserve()
+    protected function doserve(Request $request)
     {
 		$route_to_app = "";
         $app = null;
 
-        $proto = $this->route($this->app_routes);
+        $proto = $this->route($request, $this->app_routes);
         $this->current_app = $proto['call'];
 
         $this->server->setMainConf($this->main_conf);
@@ -490,15 +532,15 @@ class Dispatcher
         $this->server->setAppPath($this->apps_path . '/' . $this->current_app);
         if($this->apps_conf[$this->current_app]->get('use_session')) {
           session_start();
-          $this->request = new Request($_GET, $_POST, new \assegai\Security(), $_SESSION, $_COOKIE);
+          $request = new Request($this->server->getRoute(), $_GET, $_POST, new \assegai\Security(), $_SESSION, $_COOKIE);
         }
 		// Let's load the app's modules
         $container = $this->loadAppModules($this->current_app);
 
 		$this->setModules($container);
         
-        $call = $this->route($this->apps_conf[$this->current_app]->get('route'));
-		return $this->process($call);
+        $call = $this->route($request, $this->apps_conf[$this->current_app]->get('route'));
+		return $this->process($call, $request);
 	}
 
     function loadAppModules($app) {

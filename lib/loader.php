@@ -19,6 +19,7 @@ namespace assegai;
  * You should have received a copy of the GNU General Public License
  * along with Assegai.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 function coreload($classname) {
     $matches = array();
     if(preg_match('/^\\\\?assegai\\\\(.+)$/', $classname, $matches)) {
@@ -32,4 +33,7 @@ function coreload($classname) {
 }
 
 spl_autoload_register('\assegai\coreload');
+
+// We must force-load the exceptions for the moment.
+require(dirname(__FILE__) . '/exceptions.php');
 

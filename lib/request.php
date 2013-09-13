@@ -22,6 +22,8 @@ namespace assegai;
 
 class Request
 {
+    /** Requested route. */
+    protected $route;
     /** Stores the GET variables. */
 	protected $getvars;
     /** Stores the POST variables. */
@@ -39,13 +41,18 @@ class Request
      * @param $post is a POST associative array.
      * @param $sec is an instance of assegai's security class: \assegai\Security.
      */
-    function __construct(array $get, array $post, \assegai\Security $sec, $session, $cookies)
+    function __construct($route, array $get, array $post, \assegai\Security $sec, $session, $cookies)
     {
+        $this->route = $route;
         $this->sec = $sec;
 		$this->getvars = $get;
 		$this->postvars = $post;
         $this->sessionvars = $session;
         $this->cookievars = $cookies;
+    }
+
+    public function getRoute() {
+        return $this->route;
     }
 
 	/**
@@ -185,8 +192,16 @@ class Request
         return $this;
     }
 
+    public function getAllSession() {
+        return $this->sessionvars;
+    }
+
     public function setAllSession(array $session) {
         $this->sessionvars = $session;
+    }
+
+    public function getAllCookies() {
+        return $this->sessionvars;
     }
 
     public function setAllCookies(array $cookies) {

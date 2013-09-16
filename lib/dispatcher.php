@@ -62,7 +62,7 @@ class Dispatcher
         $this->server = new Server($_SERVER);
         //$this->server = Injector::give('Server', $_SERVER);
 
-        $this->request = new Request($this->server->getRoute(), $_GET, $_POST, new \assegai\Security(), array(), $_COOKIE);
+        $this->request = new Request($this->server->getRoute(), $_GET, $_POST, new \assegai\Security(), null, $_COOKIE);
         //$this->request = Injector::give('Request', $_GET, $_POST, (isset($_SESSION) ? $_SESSION : array()), $_COOKIE);
 
         $this->register40x(function(\Exception $e) {
@@ -252,14 +252,14 @@ class Dispatcher
             $response = \assegai\Injector::give('Response');
             $response->setHeader('Location', $r->getUrl());
         }
+        catch(\assegai\HTTPNotFoundError $e) {
+            $response = call_user_func($this->error40x, $e);
+        }
         catch(\assegai\HTTPClientError $e) {
             $response = call_user_func($this->error40x, $e);
         }
         catch(\assegai\HTTPServerError $e) {
             $response = call_user_func($this->error50x, $e);
-        }
-        catch(\assegai\HTTPNotFoundError $e) {
-            $response = call_user_func($this->error40x, $e);
         }
         // Generic HTTP status response.
         catch(\assegai\HTTPStatus $s) {
@@ -315,7 +315,7 @@ class Dispatcher
         if($response->alteredCookies()) {
             $request->setAllCookies($response->getAllCookies());
         }
-        $this->request->commitSessionAndCookies();
+        $request->commitSessionAndCookies();
         if(is_object($response)) {
             $response->compile();
         } else {
@@ -369,7 +369,7 @@ class Dispatcher
                     $_GET,
                     $_POST,
                     new \assegai\Security(),
-                    $_SESSION,
+                    null,
                     $_COOKIE),
                 new \assegai\Security());
             $controller->preRequest();

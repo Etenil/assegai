@@ -352,10 +352,11 @@ class Request
     }
 
     function commitSessionAndCookies() {
-        $_SESSION = $this->sessionvars;
+        if(is_array($this->sessionvars)) { // Let's not alter the session if not started.
+            $_SESSION = $this->sessionvars;
+        }
         $_COOKIE = $this->cookievars;
     }
-
 }
 
 ?>

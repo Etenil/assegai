@@ -246,7 +246,7 @@ class Dispatcher
             // We register the dispatcher's autoloader
             spl_autoload_register(array($this, 'autoload'));
             $this->sethandlers();
-            $response = $this->doserve($request);
+            $result = $this->doserve($request);
         }
         catch(\assegai\HttpRedirect $r) {
             $response = \assegai\Injector::give('Response');
@@ -270,12 +270,9 @@ class Dispatcher
         }
 
         if($return_response) {
-            return array(
-                'request' => $request,
-                'response' => $response,
-            );
+            return $result;
         } else {
-            return $this->display($request, $response);
+            return $this->display($result['request'], $result['response']);
         }
     }
 
@@ -477,7 +474,7 @@ class Dispatcher
         else if(class_exists($class)) {
             $obj = new $class($this->modules, $this->server,
                               $request, new Security());
-
+            
             if(method_exists($obj, 'preRequest'))
                 $obj->preRequest();
 
@@ -513,7 +510,7 @@ class Dispatcher
             'response' => $response
         ));
 
-        return $response;
+        return array('response' => $response, 'request' => $request);
     }
 
     /**
@@ -533,7 +530,9 @@ class Dispatcher
         if($this->apps_conf[$this->current_app]->get('use_session')) {
           session_start();
           $request = new Request($this->server->getRoute(), $_GET, $_POST, new \assegai\Security(), $_SESSION, $_COOKIE);
+          $this->request = $request;
         }
+
 		// Let's load the app's modules
         $container = $this->loadAppModules($this->current_app);
 

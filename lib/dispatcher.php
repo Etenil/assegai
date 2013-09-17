@@ -249,24 +249,28 @@ class Dispatcher
             $result = $this->doserve($request);
         }
         catch(\assegai\HttpRedirect $r) {
-            $response = \assegai\Injector::give('Response');
+            $result = array(
+                'request' => $request,
+                'response' => \assegai\Injector::give('Response'));
             $response->setHeader('Location', $r->getUrl());
         }
         catch(\assegai\HTTPNotFoundError $e) {
-            $response = call_user_func($this->error40x, $e);
+            $result = call_user_func($this->error40x, $e);
         }
         catch(\assegai\HTTPClientError $e) {
-            $response = call_user_func($this->error40x, $e);
+            $result = call_user_func($this->error40x, $e);
         }
         catch(\assegai\HTTPServerError $e) {
-            $response = call_user_func($this->error50x, $e);
+            $result = call_user_func($this->error50x, $e);
         }
         // Generic HTTP status response.
         catch(\assegai\HTTPStatus $s) {
-            $response = \assegai\Injector::give('Response', $s->getMessage(), $s->getCode());
+            $result = array(
+                'request' => $request,
+                'response' => \assegai\Injector::give('Response', $s->getMessage(), $s->getCode()));
         }
         catch(\Exception $e) {
-            $response = call_user_func($this->error50x, $e);
+            $result = call_user_func($this->error50x, $e);
         }
 
         if($return_response) {
@@ -306,11 +310,13 @@ class Dispatcher
      */
     protected function display(Request $request, $response) {
         // TODO get rid of backwards compat here.
-        if($response->alteredSession()) {
-            $request->setAllSession($response->getAllSession());
-        }
-        if($response->alteredCookies()) {
-            $request->setAllCookies($response->getAllCookies());
+        if(is_object($response)) {
+            if($response->alteredSession()) {
+                $request->setAllSession($response->getAllSession());
+            }
+            if($response->alteredCookies()) {
+                $request->setAllCookies($response->getAllCookies());
+            }
         }
         $request->commitSessionAndCookies();
         if(is_object($response)) {
@@ -358,26 +364,24 @@ class Dispatcher
                 $modules = new ModuleContainer($server);
             }
 
+            $request = new Request(
+                $server->getRoute(),
+                $_GET,
+                $_POST,
+                new \assegai\Security(),
+                null,
+                $_COOKIE);
+
             $controller = new $class(
                 $modules,
                 $server,
-                new Request(
-                    $server->getRoute(),
-                    $_GET,
-                    $_POST,
-                    new \assegai\Security(),
-                    null,
-                    $_COOKIE),
+                $request,
                 new \assegai\Security());
             $controller->preRequest();
             $page = $controller->$method($e);
             $controller->postRequest($page);
 
-            if(is_string($page)) {
-                return new Response($page);
-            } else {
-                return $page;
-            }
+            return array('request' => $request, 'response' => $page);
         };
     }
 

@@ -252,7 +252,7 @@ class Dispatcher
             $result = array(
                 'request' => $request,
                 'response' => \assegai\Injector::give('Response'));
-            $response->setHeader('Location', $r->getUrl());
+            $result['response']->setHeader('Location', $r->getUrl());
         }
         catch(\assegai\HTTPNotFoundError $e) {
             $result = call_user_func($this->error40x, $e);

@@ -1,7 +1,7 @@
 <?php
 
-require(__DIR__ . '/email.php');
-require(__DIR__ . '/service.php');
+require_once(__DIR__ . '/email.php');
+require_once(__DIR__ . '/service.php');
 
 /**
  * @package assegai.modules.mail
@@ -36,7 +36,7 @@ class Module_Mail extends \assegai\Module
             $classname = "\\assegai\\module\\mail\\" . ucwords($options['service']) . "Service";
         }
 
-        require($classfile);
+        require_once($classfile);
         $this->svc = new $classname($options['options']);
     }
 

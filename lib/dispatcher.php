@@ -533,7 +533,7 @@ class Dispatcher
         $this->server->setAppPath($this->apps_path . '/' . $this->current_app);
         if($this->apps_conf[$this->current_app]->get('use_session')) {
           session_start();
-          $request = new Request($this->server->getRoute(), $_GET, $_POST, new \assegai\Security(), $_SESSION, $_COOKIE);
+          $request = new Request($request->getRoute(), $_GET, $_POST, new \assegai\Security(), $_SESSION, $_COOKIE);
           $this->request = $request;
         }
 

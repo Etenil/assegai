@@ -4,6 +4,7 @@ require_once('ipaginatorprovider.php');
 require_once('ipaginatormodel.php');
 require_once('providers/array.php');
 require_once('providers/model.php');
+require_once('providers/pdo.php');
 
 /**
  * @package assegai.modules.paginator
@@ -28,11 +29,19 @@ class Module_Paginator extends \assegai\Module
     }
 
     /**
+     * Generic instanciation method for any type of provider.
+     */
+    static function fromProvider($provider, $data) {
+        $providername = 'Paginator' . ucfirst(strtolower($provider)) . 'Provider';
+        return new self(new $providername($data));
+    }
+
+    /**
      * Instanciates a paginator from the given array.
      */
     static function fromArray(array $data)
     {
-        return new self(new PaginatorArrayProvider($data));
+        return self::fromProvider('Array', $data);
     }
 
     /**
@@ -40,7 +49,15 @@ class Module_Paginator extends \assegai\Module
      */
     static function fromModel(IPaginatorProvider $data)
     {
-        return new self(new PaginatorArrayProvider($data));
+        return self::fromProvider('Array', $data);
+    }
+
+    /**
+     * Instanciates a paginator from PDO statement.
+     */
+    static function fromPDO(PDOStatement $stmt)
+    {
+        return new self(new PaginatorPdoProvider($stmt));
     }
 
     /**
@@ -140,7 +157,7 @@ class Module_Paginator extends \assegai\Module
 
         if($pagenum <= 1) {
             $lowerbound = 1;
-            $upperbound = 1;
+            $upperbound = min($pagecount, $length);
         }
         else if($pagenum - $delta > $pagecount - $length) {
             $lowerbound = $pagecount - $length + 1;

@@ -32,7 +32,9 @@ class PaginatorPdoProvider implements IPaginatorProvider {
         // Now we're getting the page itself.
         $page = array();
         for($i = 1; $i < $pagelength; $i++) {
-            $page[] = $this->stmt->fetch($this->fetchType);
+            $row = $this->stmt->fetch($this->fetchType);
+            if(!$row) break;
+            $page[] = $row;
         }
 
         return $page;

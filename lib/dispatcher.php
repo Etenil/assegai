@@ -220,8 +220,6 @@ class Dispatcher
                     . $paths[$type] . '/' . str_replace('_', '/', strtolower($class)) . '.php';
             }
 
-            var_dump($filename);
-
             if($filename && file_exists($filename)) {
                 include($filename);
             }

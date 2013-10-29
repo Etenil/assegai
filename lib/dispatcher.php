@@ -217,8 +217,10 @@ class Dispatcher
                                'Model' => 'models',
                                'View' => 'views');
                 $filename = $this->apps_path . '/' . strtolower($app) . '/'
-                    . $paths[$type] . '/' . strtolower($class) . '.php';
+                    . $paths[$type] . '/' . str_replace('_', '/', strtolower($class)) . '.php';
             }
+
+            var_dump($filename);
 
             if($filename && file_exists($filename)) {
                 include($filename);

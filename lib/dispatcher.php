@@ -255,22 +255,35 @@ class Dispatcher
             $result['response']->setHeader('Location', $r->getUrl());
         }
         catch(\assegai\HTTPNotFoundError $e) {
-            $result = call_user_func($this->error40x, $e);
+            $result = array(
+                'request' => $request,
+                'response' => call_user_func($this->error40x, $e)
+            );
         }
         catch(\assegai\HTTPClientError $e) {
-            $result = call_user_func($this->error40x, $e);
+            $result = array(
+                'request' => $request,
+                'response' => call_user_func($this->error40x, $e)
+            );
         }
         catch(\assegai\HTTPServerError $e) {
-            $result = call_user_func($this->error50x, $e);
+            $result = array(
+                'request' => $request,
+                'response' => call_user_func($this->error50x, $e)
+            );
         }
         // Generic HTTP status response.
         catch(\assegai\HTTPStatus $s) {
             $result = array(
                 'request' => $request,
-                'response' => \assegai\Injector::give('Response', $s->getMessage(), $s->getCode()));
+                'response' => \assegai\Injector::give('Response', $s->getMessage(), $s->getCode())
+            );
         }
         catch(\Exception $e) {
-            $result = call_user_func($this->error50x, $e);
+            $result = array(
+                'request' => $request,
+                'response' => call_user_func($this->error50x, $e)
+            );
         }
 
         if($return_response) {

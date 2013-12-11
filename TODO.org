@@ -1,0 +1,15 @@
+* Rethink the dependency injector to actually inject dependencies...
+The injector mustn't be static but an instanciable object that is created
+by the framework and handles all subsequent dependency requests.
+
+Objects need to be registered to the injector via a configuration file,
+PHP or text.
+
+Dependency injection for Assegai is to function exclusively by the
+constructor. There is to be no expensive reflective inspection on objects.
+Instead, the registration of an object bears with it the relevant 
+information about the constructor arguments.
+
+* Migrate Assegai to PSR-0
+* Separate the routing logic from the engine
+* Make sure the engine does not have dependencies

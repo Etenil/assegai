@@ -54,7 +54,7 @@ namespace assegai {
         protected $apps_routes;
         protected $routes;
 
-        function __construct(Server $server, ModuleContainer $container)
+        function __construct(Server $server, ModuleContainer $container, Security $security)
         {
             $this->root_path = dirname(__DIR__);
             $this->server = $server;
@@ -73,6 +73,8 @@ namespace assegai {
             });
 
             $this->modules = $container;
+
+            $this->security = $security;
 
             $this->conf_path = $this->getPath('conf.php');
         }
@@ -256,7 +258,7 @@ namespace assegai {
             catch(\assegai\HttpRedirect $r) {
                 $result = array(
                     'request' => $request,
-                    'response' => \assegai\Injector::give('Response'));
+                    'response' => new Response());
                 $result['response']->setHeader('Location', $r->getUrl());
             }
             catch(\assegai\HTTPNotFoundError $e) {
@@ -272,7 +274,7 @@ namespace assegai {
             catch(\assegai\HTTPStatus $s) {
                 $result = array(
                     'request' => $request,
-                    'response' => \assegai\Injector::give('Response', $s->getMessage(), $s->getCode()));
+                    'response' => new Response($s->getMessage(), $s->getCode()));
             }
             catch(\Exception $e) {
                 $result = call_user_func($this->error50x, $e);
@@ -480,7 +482,7 @@ namespace assegai {
                     'modules' => $this->modules,
                     'server'  => $this->server,
                     'request' => $request,
-                    'sec'     => Injector::give('Security'))),
+                    'sec'     => $this->security)),
                 array_slice($matches, 1));
                 $response = call_user_func_array($method, $params);
             }
@@ -505,10 +507,10 @@ namespace assegai {
 
             // Cleaning up the response...
             if(gettype($response) == 'string') {
-                $response = Injector::give('Response', $response);
+                $response = new Response($response);
             }
             else if($response === null) {
-                $response = Injector::give('Response');
+                $response = new Response();
             }
             else if(gettype($response) != 'object'
             || (gettype($response) == 'object'

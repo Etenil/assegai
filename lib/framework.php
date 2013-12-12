@@ -12,7 +12,7 @@ namespace assegai
 
             //// Setting core dependencies.
             // Core.
-            $this->injector->register('engine', 'assegai\\AppEngine', array('server', 'mc'));
+            $this->injector->register('engine', 'assegai\\AppEngine', array('server', 'mc', 'security'));
             $this->injector->register('server', 'assegai\\Server');
             // Request
             $this->injector->register('request', 'assegai\\Request', array('server', 'security'));

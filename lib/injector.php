@@ -27,26 +27,24 @@ namespace assegai
 
         public function give($def)
         {
-            // TODO: Test this.
-            //echo '<pre>';
-            //var_dump($this->definitions);
-
             if(!array_key_exists($def, $this->definitions)) {
+                echo "key $def is undefined.";
                 // Attempting to instanciate without parameters.
-                throw new Exception("Couldn't find definition for $def.");
+                throw new \Exception("Couldn't find definition for $def.");
             }
 
-            $classname = $this->definitions[$def];
-            $dependencies = $this->definitions[$deps];
+            $classname = $this->definitions[$def]['class'];
+            $dependencies = $this->definitions[$def]['deps'];
 
             // Trying to resolve definitions.
             $deps = array(); // Will hold the deps for the constructor.
             foreach($dependencies as $dependency)
             {
-                $deps = $this->give($dependency);
+                $deps[] = $this->give($dependency);
             }
 
-            return call_user_func_array(array($classname, '__construct'), $deps);
+            $ref = new \ReflectionClass($classname);
+            return $ref->newInstanceArgs($deps);
         }
     }
 }

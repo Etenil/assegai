@@ -82,10 +82,10 @@ class Server
      * Constructs the server object.
      * @param array $server is a server state array; typically $_SERVER.
      */
-	public function __construct(array $server, $prefix = "")
+	public function __construct()
 	{
-		$this->parsevars($server);
-        $this->prefix = $prefix;
+		$this->parsevars($_SERVER);
+        $this->prefix = '';
 	}
 
     /** Gets the current route without prefix. */

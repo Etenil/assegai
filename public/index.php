@@ -25,6 +25,6 @@ if(file_exists(dirname(__DIR__) . '/vendor/autoload.php')) {
 }
 
 $framework = new assegai\Framework();
-$framework->serve();
+$framework->run(dirname(__DIR__) . '/conf.php');
 
 ?>

@@ -34,6 +34,7 @@ class Request
     protected $cookievars;
     /** Security */
     protected $sec;
+    protected $server;
 
     /**
      * Initialises this request object.
@@ -41,14 +42,19 @@ class Request
      * @param $post is a POST associative array.
      * @param $sec is an instance of assegai's security class: \assegai\Security.
      */
-    function __construct($route, array $get, array $post, \assegai\Security $sec, $session, $cookies)
+    function __construct(Server $server, Security $sec)
     {
-        $this->route = $route;
+        $this->server = $server;
         $this->sec = $sec;
-		$this->getvars = $get;
-		$this->postvars = $post;
-        $this->sessionvars = $session;
-        $this->cookievars = $cookies;
+    }
+
+    function fromGlobals()
+    {
+        $this->route = $this->server->getRoute();
+		$this->getvars = $_GET;
+		$this->postvars = $_POST;
+        $this->sessionvars = $_SESSION;
+        $this->cookievars = $_COOKIE;
     }
 
     public function getRoute() {
@@ -359,4 +365,3 @@ class Request
     }
 }
 
-?>

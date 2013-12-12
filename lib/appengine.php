@@ -57,25 +57,29 @@ namespace assegai {
         function __construct(Server $server, ModuleContainer $container)
         {
             $this->root_path = dirname(__DIR__);
-
-            $this->server = new Server($_SERVER);
-            //$this->server = Injector::give('Server', $_SERVER);
-
-            $this->request = new Request($this->server->getRoute(), $_GET, $_POST, new \assegai\Security(), null, $_COOKIE);
-            //$this->request = Injector::give('Request', $_GET, $_POST, (isset($_SESSION) ? $_SESSION : array()), $_COOKIE);
+            $this->server = $server;
 
             $this->register40x(function(\Exception $e) {
-            return Injector::give('Response', '404 Error - Page not found.', 404);
-        });
-
+                return array(
+                    'request' => null,
+                    'response' => new Response('404 Error - Page not found', 404),
+                );
+            });
             $this->register50x(function(\Exception $e) {
-            return Injector::give('Response', '500 Error - Server error.', 500);
-        });
+                return array(
+                    'request' => null,
+                    'response' => new Response('500 Error - Server error', 404),
+                );
+            });
 
-            $this->modules = Injector::give('ModuleContainer', $this->server);
+            $this->modules = $container;
 
-            $this->conf_path = ($conf? $conf : $this->getPath('conf.php'));
-            $this->parseconf();
+            $this->conf_path = $this->getPath('conf.php');
+        }
+
+        function setConfiguration($path)
+        {
+            $this->conf_path = $path;
         }
 
         /**
@@ -235,6 +239,8 @@ namespace assegai {
          */
         public function serve(Request $request = null, $return_response = false)
         {
+            $this->parseconf();
+
             if(!$request) {
                 $request = $this->request;
             }
@@ -270,6 +276,10 @@ namespace assegai {
             }
             catch(\Exception $e) {
                 $result = call_user_func($this->error50x, $e);
+            }
+
+            if(!$result['request']) {
+                $result['request'] = $request;
             }
 
             if($return_response) {
@@ -573,7 +583,10 @@ namespace assegai {
                 $server = $this->server;
                 require('notfoundview.phtml');
             } else {
-                return new Response('Not found!', 404);
+                return array(
+                    'request' => null,
+                    'response' => new Response('Not found!', 404),
+                );
             }
         }
 
@@ -605,7 +618,10 @@ namespace assegai {
                 };
                 require('errorview.phtml');
             } else {
-                return new Response($e->getCode() . " Error!", $e->getCode());
+                return array(
+                    'request' => null,
+                    'response' => new Response($e->getCode() . " Error!", $e->getCode()),
+                );
             }
         }
 

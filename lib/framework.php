@@ -15,7 +15,7 @@ namespace assegai
             $this->injector->register('engine', 'assegai\\AppEngine', array('server', 'mc'));
             $this->injector->register('server', 'assegai\\Server');
             // Request
-            $this->injector->register('request', 'assegai\\Request');
+            $this->injector->register('request', 'assegai\\Request', array('server', 'security'));
             $this->injector->register('mc', 'assegai\\ModuleContainer', array('server'));
             $this->injector->register('response', 'assegai\\Response');
             $this->injector->register('security', 'assegai\\Security');

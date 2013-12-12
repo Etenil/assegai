@@ -23,7 +23,7 @@ namespace assegai {
    * You should have received a copy of the GNU General Public License
    * along with Assegai.  If not, see <http://www.gnu.org/licenses/>.
    */
-    class Engine
+    class AppEngine
     {
         /** Server object. */
         protected $server;

@@ -1,36 +1,53 @@
 <?php
 
-namespace assegai;
-
-/**
- * Dependency injector for assegai.
- */
-class Injector {
-    protected static $registry;
+namespace assegai
+{
 
     /**
-     * Defines a new instanciation function.
+     * Dependency injector for assegai.
      */
-    public static function register($type, \Closure $instanciator)
-    {
-        self::$registry[$type] = $instanciator;
-    }
+    class Injector {
+        protected $definitions;
 
-    public static function give($type)
-    {
-        $args = func_get_args();
-        array_shift($args);
+        public function __construct()
+        {
+            $this->definitions = array();
+        }
 
-        if(@array_key_exists($type, self::$registry)) {
-            // Calling the instanciator.
-            return call_user_func_array(self::$registry[$type], $args);
-        } else {
-            // Instanciating in the good old way.
-            $r = new \ReflectionClass($type);
-            return $r->newInstanceArgs($args);
+        /**
+         * Defines a new instanciation function.
+         */
+        public function register($def, $classname, array $dependencies = array())
+        {
+            $this->definitions[$def] = array(
+                'class' => $classname,
+                'deps' => $dependencies,
+            );
+        }
+
+        public function give($def)
+        {
+            // TODO: Test this.
+            //echo '<pre>';
+            //var_dump($this->definitions);
+
+            if(!array_key_exists($def, $this->definitions)) {
+                // Attempting to instanciate without parameters.
+                throw new Exception("Couldn't find definition for $def.");
+            }
+
+            $classname = $this->definitions[$def];
+            $dependencies = $this->definitions[$deps];
+
+            // Trying to resolve definitions.
+            $deps = array(); // Will hold the deps for the constructor.
+            foreach($dependencies as $dependency)
+            {
+                $deps = $this->give($dependency);
+            }
+
+            return call_user_func_array(array($classname, '__construct'), $deps);
         }
     }
 }
 
-// Loading the dependencies now.
-require('dependencies.php');

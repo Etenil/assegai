@@ -24,7 +24,7 @@ if(file_exists(dirname(__DIR__) . '/vendor/autoload.php')) {
     require('../lib/loader.php');
 }
 
-$engine = new assegai\Dispatcher();
-$engine->serve();
+$framework = new assegai\Framework();
+$framework->serve();
 
 ?>

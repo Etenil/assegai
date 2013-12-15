@@ -1,6 +1,6 @@
 <?php
 
-namespace assegai
+namespace etenil\assegai
 {
     /**
      * Dependency injector for assegai.

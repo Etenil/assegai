@@ -10,6 +10,5 @@ constructor. There is to be no expensive reflective inspection on objects.
 Instead, the registration of an object bears with it the relevant 
 information about the constructor arguments.
 
-* Migrate Assegai to PSR-0
 * Separate the routing logic from the engine
 * Make sure the engine does not have dependencies

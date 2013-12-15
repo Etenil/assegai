@@ -6,15 +6,13 @@ UPDATED 13 March 2013
 
 Introduction
 ------------
-Assegai is a full-featured MVC framework for PHP. It is free software under the GPLv3 license.
+Assegai is a full-featured MVC framework for PHP. It is free software under the MIT license.
 
-The framework relies on the tiny micro-framework *Atlatl* for low-level tasks and provides wrappers to *Atlatl*'s features.
+The framework used to rely on the micro-framework [Atlatl](http://github.com/Etenil/atlatl). This dependency was dropped in version 2.0.
 
 Installation
 ------------
-To install Assegai, you will either need to retrieve the latest package from the [official website](http://assegai.etenil.net), or from the project's [Mercurial repository](http://pikacode.com/etenil/assegai).
-
-Decompress the package or clone the repository on your web server. Your document root should point to the *public* folder of assegai.
+To install Assegai, you will first need to install [composer](http://getcomposer.org). Then create a composer.json file for your project that requires *etenil/assegai*.
 
 Naming Convention
 -----------------

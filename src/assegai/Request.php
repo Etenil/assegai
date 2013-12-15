@@ -53,7 +53,7 @@ class Request
         $this->route = $this->server->getRoute();
 		$this->getvars = $_GET;
 		$this->postvars = $_POST;
-        $this->sessionvars = $_SESSION;
+        $this->sessionvars = (isset($_SESSION) ? $_SESSION : array());
         $this->cookievars = $_COOKIE;
     }
 

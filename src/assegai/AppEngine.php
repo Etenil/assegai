@@ -439,7 +439,7 @@ namespace assegai {
 
             // If we don't have a call at this point, that's a 404.
             if(!$call) {
-                throw new NoRouteException("URL, ".$this->server->getWholeRoute().", not found.");
+                throw new exceptions\NoRouteException("URL, ".$this->server->getWholeRoute().", not found.");
             }
 
             return array('call' => $call, 'params' => $matches);
@@ -502,7 +502,7 @@ namespace assegai {
                     throw new \BadMethodCallException("Method, $method, not supported.");
                 }
             } else {
-                throw new NoHandlerException("Class, $class, not found.");
+                throw new exceptions\NoHandlerException("Class, $class, not found.");
             }
 
             // Cleaning up the response...
@@ -516,7 +516,7 @@ namespace assegai {
             || (gettype($response) == 'object'
             && (get_class($response) != 'assegai\Response'
             && !is_subclass_of($response, 'assegai\Response')))) {
-                throw new IllegalResponseException('Unknown response.');
+                throw new exceptions\IllegalResponseException('Unknown response.');
             }
 
             $this->modules->runMethod('postProcess', array(

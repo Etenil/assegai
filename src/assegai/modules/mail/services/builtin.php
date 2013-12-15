@@ -1,6 +1,8 @@
 <?php
 
-namespace assegai\module\mail;
+namespace assegai\modules\mail\services;
+
+use assegai\modules\mail;
 
 class BuiltinService implements Service
 {

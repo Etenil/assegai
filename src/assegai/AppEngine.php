@@ -554,7 +554,7 @@ namespace assegai {
             $this->server->setAppPath($this->apps_path . '/' . $this->current_app);
             if($this->apps_conf[$this->current_app]->get('use_session')) {
                 session_start();
-                $request = new Request($request->getRoute(), $_GET, $_POST, new \assegai\Security(), $_SESSION, $_COOKIE);
+                $request->setAllSession($_SESSION);
                 $this->request = $request;
             }
 
@@ -581,7 +581,7 @@ namespace assegai {
                             $opts = $this->main_conf->get($module);
                         }
                     }
-                    $container->addModule('Module_' . $module, $opts);
+                    $container->addModule($module, $opts);
                 }
             }
 

@@ -1,45 +1,48 @@
 <?php
 
-require('aclcore.php');
-
-/**
- * @parents assegai.module.acl
- *
- * ACL module for Assegai
- */
-class Module_Acl extends \assegai\Module
+namespace assegai\modules\acl
 {
-    protected $main;
-    protected $auxiliary;
-    
-    function _init($options)
-    {
-        $this->main = new AclCore($options);
-    }
+    require('aclcore.php');
 
-    public static function instanciate()
+    /**
+     * @parents assegai.module.acl
+     *
+     * ACL module for Assegai
+     */
+    class Acl extends \assegai\Module
     {
-		return true;
-	}
-
-    public function loadAuxPerms(array $perms) {
-        if(!is_object($this->auxiliary)) {
-            $this->auxiliary = new AclCore();
+        protected $main;
+        protected $auxiliary;
+        
+        function _init($options)
+        {
+            $this->main = new AclCore($options);
         }
-        $this->auxiliary->loadPermissions($perms);
-    }
 
-    public function isAllowed($role, $resource, $privilege) {
-        if(is_object($this->auxiliary)) {
-            $perm = $this->auxiliary->isAllowed($role, $resource, $privilege);
-            if($perm != AclCore::ACL_UNDEF) {
-                return $perm;
+        public static function instanciate()
+        {
+            return true;
+        }
+
+        public function loadAuxPerms(array $perms) {
+            if(!is_object($this->auxiliary)) {
+                $this->auxiliary = new AclCore();
             }
+            $this->auxiliary->loadPermissions($perms);
         }
-        return $this->main->isAllowed($role, $resource, $privilege) == AclCore::ACL_ALLOWED;
-    }
 
-    public function deleteAux() {
-        unset($this->auxiliary);
+        public function isAllowed($role, $resource, $privilege) {
+            if(is_object($this->auxiliary)) {
+                $perm = $this->auxiliary->isAllowed($role, $resource, $privilege);
+                if($perm != AclCore::ACL_UNDEF) {
+                    return $perm;
+                }
+            }
+            return $this->main->isAllowed($role, $resource, $privilege) == AclCore::ACL_ALLOWED;
+        }
+
+        public function deleteAux() {
+            unset($this->auxiliary);
+        }
     }
 }

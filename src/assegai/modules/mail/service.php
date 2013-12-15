@@ -1,11 +1,12 @@
 <?php
 
-namespace assegai\module\mail;
-
-/**
- * Email service provider.
- */
-interface Service
+namespace assegai\modules\mail
 {
-    function send(Email $email);
+    /**
+     * Email service provider.
+     */
+    interface Service
+    {
+        function send(Email $email);
+    }
 }

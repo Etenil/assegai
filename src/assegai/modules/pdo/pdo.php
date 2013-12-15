@@ -1,9 +1,11 @@
 <?php
 
+namespace assegai\modules\pdo;
+
 /**
  * @package assegai.module.pdo
  */
-class Module_PDO extends \assegai\Module
+class PDO extends \assegai\Module
 {
     /** Currently-running connections. */
     protected $connections;
@@ -19,10 +21,12 @@ class Module_PDO extends \assegai\Module
 
         // Opening connections.
         foreach($options as $conn => $spec) {
-            $this->connections[$conn] = new PDO($spec['dsn'],
-                                                $spec['username'],
-                                                $spec['password'],
-                                                $spec['options']);
+            $this->connections[$conn] = new \PDO(
+                $spec['dsn'],
+                $spec['username'],
+                $spec['password'],
+                $spec['options']
+            );
         }
     }
 

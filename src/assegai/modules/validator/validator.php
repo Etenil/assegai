@@ -1,5 +1,7 @@
 <?php
 
+namespace assegai\modules\validator;
+
 /**
  * Form validation library.
  *
@@ -9,7 +11,7 @@
  * @see https://github.com/blackbelt/php-validation
  * @see Based on idea: http://brettic.us/2010/06/18/form-validation-class-using-php-5-3/
  */
-class Module_Validator
+class Validator
 {
     protected $messages = array();
     protected $errors = array();

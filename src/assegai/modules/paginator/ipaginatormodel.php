@@ -1,5 +1,7 @@
 <?php
 
+namespace assegai\modules\paginator;
+
 /**
  * @package assegai.modules.paginator
  *

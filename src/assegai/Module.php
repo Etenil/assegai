@@ -26,7 +26,7 @@
  * THE SOFTWARE.
  */
  
-namespace assegai\modules;
+namespace assegai;
 
 class Module
 {

@@ -1,6 +1,8 @@
 <?php
 
-class Module_Mongo extends assegai\Module
+namespace assegai\modules\mongo;
+
+class Mongo extends assegai\Module
 {
     protected $connections = null;
 
@@ -14,7 +16,7 @@ class Module_Mongo extends assegai\Module
         $this->connections = array();
 
         foreach($options as $conn => $spec) {
-            $m = new Mongo($spec['server']);
+            $m = new \Mongo($spec['server']);
             $this->connections[$conn] = $m->{$spec['db']};
         }
     }
@@ -24,7 +26,7 @@ class Module_Mongo extends assegai\Module
         if(isset($this->connections[$name])) {
             return $this->connections[$name];
         } else {
-            throw new Exception("No such connection: `$name'");
+            throw new \Exception("No such connection: `$name'");
         }
     }
 }

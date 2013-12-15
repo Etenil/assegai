@@ -1,5 +1,7 @@
 <?php
 
+namespace assegai\modules\mustache;
+
 require('MustacheEngine.php');
 
 /**
@@ -7,14 +9,14 @@ require('MustacheEngine.php');
  *
  * Mustache templating engine module for PHP.
  */
-class Module_Mustache extends \assegai\Module
+class Module_Mustache extends assegai\Module
 {
     public static function instanciate()
     {
         return true;
     }
 
-    public function preView(\assegai\Request $request, $tpl, $vars)
+    public function preView(assegai\Request $request, $tpl, $vars)
     {
         $tpl_path = $this->server->getRelAppPath('views/' . $tpl . '.tpl');
         if(!file_exists($tpl_path)) {

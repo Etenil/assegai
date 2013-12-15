@@ -20,5 +20,5 @@
 
 require('vendor/autoload.php');
 
-$framework = new Framework();
+$framework = new assegai\Framework();
 $framework->run(__DIR__ . '/conf.php');

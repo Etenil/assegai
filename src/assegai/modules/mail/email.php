@@ -1,120 +1,121 @@
 <?php
 
-namespace assegai\module\mail;
-
-/**
- * An email object.
- */
-class Email
+namespace assegai\modules\mail
 {
-    protected $_recipient;
-    protected $_sender;
-    protected $_body;
-    protected $_cc;
-    protected $_bcc;
-    protected $_reply_to;
-    protected $_subject;
-    protected $_date;
-    protected $_content_type;
-
-// Accessors.
-    function getRecipient()
+    /**
+     * An email object.
+     */
+    class Email
     {
-        return $this->_recipient;
-    }
+        protected $_recipient;
+        protected $_sender;
+        protected $_body;
+        protected $_cc;
+        protected $_bcc;
+        protected $_reply_to;
+        protected $_subject;
+        protected $_date;
+        protected $_content_type;
 
-    function setRecipient($val)
-    {
-        $this->_recipient = $val;
-        return $this;
-    }
+    // Accessors.
+        function getRecipient()
+        {
+            return $this->_recipient;
+        }
 
-    function getSender()
-    {
-        return $this->_sender;
-    }
+        function setRecipient($val)
+        {
+            $this->_recipient = $val;
+            return $this;
+        }
 
-    function setSender($val)
-    {
-        $this->_sender = $val;
-        return $this;
-    }
+        function getSender()
+        {
+            return $this->_sender;
+        }
 
-    function getBody()
-    {
-        return $this->_body;
-    }
+        function setSender($val)
+        {
+            $this->_sender = $val;
+            return $this;
+        }
 
-    function setBody($val)
-    {
-        $this->_body = $val;
-        return $this;
-    }
+        function getBody()
+        {
+            return $this->_body;
+        }
 
-    function getCc()
-    {
-        return $this->_cc;
-    }
+        function setBody($val)
+        {
+            $this->_body = $val;
+            return $this;
+        }
 
-    function setCc($val)
-    {
-        $this->_cc = $val;
-        return $this;
-    }
+        function getCc()
+        {
+            return $this->_cc;
+        }
 
-    function getBcc()
-    {
-        return $this->_bcc;
-    }
+        function setCc($val)
+        {
+            $this->_cc = $val;
+            return $this;
+        }
 
-    function setBcc($val)
-    {
-        $this->_bcc = $val;
-        return $this;
-    }
+        function getBcc()
+        {
+            return $this->_bcc;
+        }
 
-    function getReplyTo()
-    {
-        return $this->_reply_to;
-    }
+        function setBcc($val)
+        {
+            $this->_bcc = $val;
+            return $this;
+        }
 
-    function setReplyTo($val)
-    {
-        $this->_reply_to = $val;
-        return $this;
-    }
+        function getReplyTo()
+        {
+            return $this->_reply_to;
+        }
 
-    function getSubject()
-    {
-        return $this->_subject;
-    }
+        function setReplyTo($val)
+        {
+            $this->_reply_to = $val;
+            return $this;
+        }
 
-    function setSubject($val)
-    {
-        $this->_subject = $val;
-        return $this;
-    }
+        function getSubject()
+        {
+            return $this->_subject;
+        }
 
-    function getDate()
-    {
-        return $this->_date;
-    }
+        function setSubject($val)
+        {
+            $this->_subject = $val;
+            return $this;
+        }
 
-    function setDate($val)
-    {
-        $this->_date = $val;
-        return $this;
-    }
+        function getDate()
+        {
+            return $this->_date;
+        }
 
-    function getContentType()
-    {
-        return $this->_content_type;
-    }
+        function setDate($val)
+        {
+            $this->_date = $val;
+            return $this;
+        }
 
-    function setContentType($val)
-    {
-        $this->_content_type = $val;
-        return $this;
-    }
+        function getContentType()
+        {
+            return $this->_content_type;
+        }
 
+        function setContentType($val)
+        {
+            $this->_content_type = $val;
+            return $this;
+        }
+
+    }
 }

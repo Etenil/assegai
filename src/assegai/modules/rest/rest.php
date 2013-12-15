@@ -1,5 +1,7 @@
 <?php
 
+namespace assegai\modules\rest;
+
 /**
  * @package assegai.modules.rest
  *
@@ -14,7 +16,7 @@
  * your controllers should extend this instead of the usual
  * assegai\Controller.
  */
-class Module_Rest extends \assegai\Module
+class Rest extends \assegai\Module
 {
     public static $instanciate = false;
 }

@@ -1,11 +1,13 @@
 <?php
 
-namespace assegai\module\mail;
+namespace assegai\modules\mail\services\ses;
+
+use assegai\modules\mail;
 
 require(__DIR__.'/sdk.class.php');
 require(__DIR__.'/ses.class.php');
 
-class SesService implements Service
+class Ses implements Service
 {
     function __construct($options)
     {

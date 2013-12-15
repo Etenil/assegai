@@ -2,7 +2,6 @@
 
 namespace assegai
 {
-
     /**
      * Dependency injector for assegai.
      */

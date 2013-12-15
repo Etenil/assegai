@@ -1,0 +1,16 @@
+{
+    "name": "Assegai",
+    "files": [
+        {
+            "git": 1
+        },
+        {
+            "directory": ".",
+            "filters": [
+                "*.php",
+                "*.phtml"
+            ],
+            "recursive": 1
+        }
+    ]
+}

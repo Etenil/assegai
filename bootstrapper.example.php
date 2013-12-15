@@ -18,13 +18,9 @@
  * along with Assegai.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-if(file_exists(dirname(__DIR__) . '/vendor/autoload.php')) {
-    require(dirname(__DIR__) . '/vendor/autoload.php');
-} else {
-    require('../lib/loader.php');
-}
+require('vendor/autoload.php');
 
-$framework = new assegai\Framework();
-$framework->run(dirname(__DIR__) . '/conf.php');
+use etenil\assegai;
 
-?>
+$framework = new Framework();
+$framework->run(__DIR__ . '/conf.php');

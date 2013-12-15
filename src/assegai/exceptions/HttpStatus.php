@@ -21,7 +21,7 @@
  * along with assegai.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace etenil\assegai\exceptions
+namespace assegai\exceptions
 {
     class HttpStatus extends \Exception
     {

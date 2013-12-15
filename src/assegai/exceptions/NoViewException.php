@@ -1,6 +1,6 @@
 <?php
 
-namespace etenil\assegai\exceptions
+namespace assegai\exceptions
 {
     /**
      * View doesn't exist, file not found.

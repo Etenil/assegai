@@ -20,7 +20,5 @@
 
 require('vendor/autoload.php');
 
-use etenil\assegai;
-
 $framework = new Framework();
 $framework->run(__DIR__ . '/conf.php');

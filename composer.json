@@ -16,7 +16,7 @@
     },
     "autoload": {
         "psr-0": {
-            "etenil\\assegai\\": "src/"
+            "assegai\\": "src/"
         }
     }
 }

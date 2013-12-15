@@ -1,6 +1,6 @@
 <?php
 
-namespace etenil\assegai\modules;
+namespace assegai\modules;
 
 /**
  * Basic module implementation.

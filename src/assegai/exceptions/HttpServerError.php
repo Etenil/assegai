@@ -1,6 +1,6 @@
 <?php
 
-namespace etenil\assegai\exceptions
+namespace assegai\exceptions
 {
     /**
      * Server-side Http error.

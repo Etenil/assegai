@@ -1,6 +1,6 @@
 <?php
 
-namespace etenil\assegai\exceptions
+namespace assegai\exceptions
 {
     /**
      * The file couldn't be uploaded.

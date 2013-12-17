@@ -32,6 +32,10 @@ class Request
 {
     /** Requested route. */
     protected $route;
+    /** Whole route */
+    protected $whole_route;
+    /** Request's HTTP method (GET, POST, whatnot). */
+    protected $method;
     /** Stores the GET variables. */
 	protected $getvars;
     /** Stores the POST variables. */
@@ -59,6 +63,8 @@ class Request
     function fromGlobals()
     {
         $this->route = $this->server->getRoute();
+        $this->whole_route = $this->server->getWholeRoute();
+        $this->method = $this->server->getMethod();
 		$this->getvars = $_GET;
 		$this->postvars = $_POST;
         $this->sessionvars = (isset($_SESSION) ? $_SESSION : array());
@@ -67,6 +73,14 @@ class Request
 
     public function getRoute() {
         return $this->route;
+    }
+    
+    public function getMethod() {
+        return $this->method;
+    }
+    
+    public function getWholeRoute() {
+        return $this->whole_route;
     }
 
 	/**

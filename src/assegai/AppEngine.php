@@ -37,6 +37,8 @@ namespace assegai {
     {
         /** Server object. */
         protected $server;
+        /** Request router. */
+        protected $router;
         /** Request being handled. */
         protected $request;
         /** Container of modules. */
@@ -64,10 +66,11 @@ namespace assegai {
         protected $apps_routes;
         protected $routes;
 
-        function __construct(Server $server, ModuleContainer $container, Security $security)
+        function __construct(Server $server, ModuleContainer $container, Security $security, routing\IRouter $router)
         {
             $this->root_path = dirname(__DIR__);
             $this->server = $server;
+            $this->router = $router;
 
             $this->register40x(function(\Exception $e) {
                 return array(
@@ -418,54 +421,23 @@ namespace assegai {
          *
          */
         protected function route(Request $request, array $urls) {
-            $path = $request->getRoute();
-
-            $call = false;        // This will store the controller and method to call
-            $matches = array();   // And this the extracted parameters.
-
-            // First we search for specific method routes.
-            $method_routes = preg_grep('/^' . $this->server->getMethod() . ':/i', array_keys($urls));
-            foreach($method_routes as $route) {
-                $method = $this->server->getMethod() . ':';
-                $clean_route = substr($route, strlen($method));
-                if(preg_match('%^'. $clean_route .'/?$%i',
-                $path, $matches)) {
-                    $call = $urls[$route];
-                    break;
-                }
-            }
-
-            // Do we need to try generic routes?
-            if(!$call) {
-                foreach($urls as $regex => $proto) {
-                    if(preg_match('%^'. $regex .'/?$%i',
-                    $path, $matches)) {
-                        $call = $proto;
-                        break;
-                    }
-                }
-            }
-
-
-            // If we don't have a call at this point, that's a 404.
-            if(!$call) {
-                throw new exceptions\NoRouteException("URL, ".$this->server->getWholeRoute().", not found.");
-            }
-
-            return array('call' => $call, 'params' => $matches);
+            $this->router->setRoutes($urls);
+            $call = $this->router->getRoute($request);
+            
+            return array('call' => $call->getCall(), 'params' => $call->getParams());
         }
 
         /**
          * Processes a route call, something like `stuff::thing' or just a function name
          * or even a closure.
          */
-        protected function process($proto, $request) {
+        protected function process(routing\RouteCall $proto, $request) {
             /* We're accepting different types of handler declarations. It can be
              * anything PHP defines as a 'callable', or in the form class::method. */
             $class = '';
             $method = '';
-            $call = $proto['call'];
-            $matches = $proto['params'];
+            $call = $proto->getCall();
+            $matches = $proto->getParams();
 
             if(is_string($call) && preg_match('/^.+::.+$/', trim($call))) {
                 list($class, $method) = explode('::', $call);
@@ -545,9 +517,11 @@ namespace assegai {
         {
             $route_to_app = "";
             $app = null;
-
-            $proto = $this->route($request, $this->app_routes);
-            $this->current_app = $proto['call'];
+            
+            $this->router->setRoutes($this->app_routes);
+            $proto = $this->router->getRoute($request);
+            
+            $this->current_app = $proto->getCall();
 
             $this->server->setMainConf($this->main_conf);
             $this->server->setAppConf($this->apps_conf[$this->current_app]);
@@ -562,8 +536,10 @@ namespace assegai {
             $container = $this->loadAppModules($this->current_app);
 
             $this->setModules($container);
-        
-            $call = $this->route($request, $this->apps_conf[$this->current_app]->get('route'));
+            
+            $this->router->setRoutes($this->apps_conf[$this->current_app]->get('route'));
+            $call = $this->router->getRoute($request);
+            
             return $this->process($call, $request);
         }
 

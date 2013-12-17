@@ -23,37 +23,23 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-
-namespace assegai
+namespace assegai\routing
 {
-    class Framework
+    interface IRouter
     {
-        protected $injector;
-
-        function __construct()
-        {
-            $this->injector = new Injector();
-
-            //// Setting core dependencies.
-            // Core.
-            $this->injector->register('engine', 'assegai\\AppEngine', array('server', 'mc', 'security', 'router'));
-            $this->injector->register('router', 'assegai\\routing\\DefaultRouter');
-            $this->injector->register('server', 'assegai\\Server');
-            // Request
-            $this->injector->register('request', 'assegai\\Request', array('server', 'security'));
-            $this->injector->register('mc', 'assegai\\ModuleContainer', array('server'));
-            $this->injector->register('response', 'assegai\\Response');
-            $this->injector->register('security', 'assegai\\Security');
-        }
-
-        function run($conf_path = '')
-        {
-            $engine = $this->injector->give('engine');
-            $engine->setConfiguration($conf_path);
-            $request = $this->injector->give('request');
-            $request->fromGlobals();
-            $engine->serve($request);
-        }
+        /**
+         * Sets the routes for this router.
+         */
+        function setRoutes(array $routes);
+        
+        /**
+         * Attempts to resolve the current request to a workable callback.
+         * @param   Request       $request  The current request being served
+         * @throws  NoHandlerException      Thrown if corresponding class is not found
+         * @throws  NoRouteException        Thrown if no match is found
+         * @throws  BadMethodCallException  Thrown if a corresponding GET,POST is not found
+         * @return  a RouteCall object.
+         */
+        function getRoute(\assegai\Request $request);
     }
 }
-

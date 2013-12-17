@@ -48,8 +48,8 @@ class ModuleContainer
      * @param string $name is the requested property name.
 	 */
 	public function __get($name) {
-		if(isset($this->modules['Module_' . $name])) {
-			return $this->modules['Module_' . $name];
+		if(isset($this->modules[$name])) {
+			return $this->modules[$name];
 		} else {
 			return false;
 		}
@@ -63,6 +63,11 @@ class ModuleContainer
 	 */
     public function addModule($module, array $options = NULL) {
         $full_module = 'assegai\\modules\\' . $module . '\\' . $module;
+        
+        if(!class_exists($full_module))
+        {
+            $full_module = 'Module_' . $module;
+        }
         
         if($full_module::instanciate())
         {

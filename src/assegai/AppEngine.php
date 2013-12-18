@@ -183,9 +183,10 @@ namespace assegai {
         public function autoload($classname)
         {
             $first_split = strpos($classname, '_');
+            $filename = "";
+            
             if($first_split) {
                 $token = substr($classname, 0, $first_split);
-                $filename = "";
 
                 if($token == 'Module') {
                     $class = substr($classname, strlen($token) + 1);
@@ -237,10 +238,21 @@ namespace assegai {
                     $filename = $this->apps_path . '/' . strtolower($app) . '/'
                         . $paths[$type] . '/' . str_replace('_', '/', strtolower($class)) . '.php';
                 }
-
-                if($filename && file_exists($filename)) {
-                    include($filename);
+            }
+            else {
+                // PSR-0 autoloader (before was just backwards-compat...)
+                if($classname[0] == '\\') {
+                    $classname = substr($classname, 1);
                 }
+                $path = str_replace('\\', '/', str_replace('_', '/', $classname));
+                $filename = sprintf('%s/%s.php', $this->apps_path, $path);
+                if(!file_exists($filename)) {
+                    $filename = sprintf('%s/%s.php', $this->apps_path, strtolower($path));
+                }
+            }
+
+            if($filename && file_exists($filename)) {
+                include($filename);
             }
         }
 
@@ -448,6 +460,10 @@ namespace assegai {
             }
             else if(is_callable($call)) {
                 $method = $call;
+            }
+            
+            if($class) {
+                $class = '\\' . $class;
             }
 
             $response = null;

@@ -2,8 +2,6 @@
 
 namespace assegai\modules\acl
 {
-    require('aclexceptions.php');
-
     /**
      * Core ACL validation framework.
      *
@@ -59,13 +57,13 @@ namespace assegai\modules\acl
 
         function loadPermissions(array $perms) {
             if(!isset($perms['roles'])) {
-                throw new AclTreeParseException("Roles aren't defined.");
+                throw new exceptions\AclTreeParse("Roles aren't defined.");
             }
             if(!isset($perms['resources'])) {
-                throw new AclTreeParseException("Resources aren't defined.");
+                throw new exceptions\AclTreeParse("Resources aren't defined.");
             }
             if(!isset($perms['privileges'])) {
-                throw new AclTreeParseException("Privileges aren't defined.");
+                throw new exceptions\AclTreeParse("Privileges aren't defined.");
             }
 
             $this->roles      = $perms['roles'];
@@ -122,11 +120,11 @@ namespace assegai\modules\acl
         {
             // Clearing the terrain.
             if(!in_array($role, array_keys($this->roles))) {
-                throw new UndefinedRoleException("Role `$role' does not exist");
+                throw new exceptions\UndefinedRole("Role `$role' does not exist");
             }
 
             if(!in_array($resource, array_keys($this->resources))) {
-                throw new UndefinedResourceException("Resource `$resource' does not exist");
+                throw new exceptions\UndefinedResource("Resource `$resource' does not exist");
             }
 
             // Doing a tree look-up for the specified role and resource (no parents)

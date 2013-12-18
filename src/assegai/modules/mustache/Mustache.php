@@ -2,14 +2,12 @@
 
 namespace assegai\modules\mustache;
 
-require('MustacheEngine.php');
-
 /**
  * @package assegai.modules.mustache
  *
  * Mustache templating engine module for PHP.
  */
-class Module_Mustache extends assegai\Module
+class Mustache extends \assegai\Module
 {
     public static function instanciate()
     {

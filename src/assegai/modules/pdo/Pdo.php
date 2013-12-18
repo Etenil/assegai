@@ -5,7 +5,7 @@ namespace assegai\modules\pdo;
 /**
  * @package assegai.module.pdo
  */
-class PDO extends \assegai\Module
+class Pdo extends \assegai\Module
 {
     /** Currently-running connections. */
     protected $connections;

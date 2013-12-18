@@ -2,11 +2,6 @@
 
 namespace assegai\modules\paginator;
 
-require_once('ipaginatorprovider.php');
-require_once('providers/array.php');
-require_once('providers/model.php');
-require_once('providers/pdo.php');
-
 /**
  * @package assegai.modules.paginator
  *
@@ -33,7 +28,7 @@ class Paginator extends \assegai\Module
      * Generic instanciation method for any type of provider.
      */
     static function fromProvider($provider, $data) {
-        $providername = 'Paginator' . ucfirst(strtolower($provider)) . 'Provider';
+        $providername = 'providers\\' . ucfirst(strtolower($provider)) . 'Provider';
         return new self(new $providername($data));
     }
 
@@ -58,7 +53,7 @@ class Paginator extends \assegai\Module
      */
     static function fromPDO(PDOStatement $stmt)
     {
-        return new self(new PaginatorPdoProvider($stmt));
+        return new self(new PdoProvider($stmt));
     }
 
     /**

@@ -7,7 +7,7 @@ namespace assegai\modules\paginator\providers;
  *
  * Array provider for the paginator.
  */
-class PaginatorArrayProvider implements \assegai\modules\paginator\IPaginatorProvider
+class ArrayProvider implements \assegai\modules\paginator\IPaginatorProvider
 {
     protected $data;
 

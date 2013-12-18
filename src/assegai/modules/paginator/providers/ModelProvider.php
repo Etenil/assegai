@@ -9,7 +9,7 @@ use assegai\modules\paginator;
  *
  * Model provider for the paginator.
  */
-class PaginatorModelProvider implements \assegai\modules\paginator\IPaginatorProvider
+class ModelProvider implements \assegai\modules\paginator\IPaginatorProvider
 {
     protected $data;
 

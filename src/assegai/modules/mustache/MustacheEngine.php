@@ -1,5 +1,7 @@
 <?php
 
+namespace assegai\modules\mustache;
+
 /**
  * A Mustache implementation in PHP.
  *

@@ -2,7 +2,6 @@
 
 namespace assegai\modules\auth
 {
-    require('interfaces.php');
 
     /**
      * Auth module for Assegai

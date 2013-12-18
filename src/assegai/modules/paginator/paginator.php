@@ -2,6 +2,7 @@
 
 namespace assegai\modules\paginator;
 
+require_once('ipaginatorprovider.php');
 require_once('providers/array.php');
 require_once('providers/model.php');
 require_once('providers/pdo.php');
@@ -11,7 +12,7 @@ require_once('providers/pdo.php');
  *
  * A paginator for various data providers.
  */
-class Paginator extends assegai\Module
+class Paginator extends \assegai\Module
 {
     protected $provider;
 

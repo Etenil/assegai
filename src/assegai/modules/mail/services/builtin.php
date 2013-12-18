@@ -2,11 +2,9 @@
 
 namespace assegai\modules\mail\services;
 
-use assegai\modules\mail;
-
-class BuiltinService implements Service
+class BuiltinService implements \assegai\modules\mail\Service
 {
-    function send(Email $email)
+    function send(\assegai\modules\mail\Email $email)
     {
         // Generating parameters;
         $params = array();

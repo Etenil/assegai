@@ -9,11 +9,11 @@ use assegai\modules\paginator;
  *
  * PDO provider for the paginator.
  */
-class PaginatorPdoProvider implements IPaginatorProvider {
+class PaginatorPdoProvider implements \assegai\modules\paginator\IPaginatorProvider {
     protected $stmt;
-    protected $fetchType = PDO::FETCH_ASSOC;
+    protected $fetchType = \PDO::FETCH_ASSOC;
 
-    public function __construct(PDOStatement $stmt) {
+    public function __construct(\PDOStatement $stmt) {
         $this->stmt = $stmt;
     }
 

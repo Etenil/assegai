@@ -2,14 +2,12 @@
 
 namespace assegai\modules\paginator\providers;
 
-use assegai\modules\paginator;
-
 /**
  * @package assegai.modules.paginator
  *
  * Array provider for the paginator.
  */
-class PaginatorArrayProvider implements IPaginatorProvider
+class PaginatorArrayProvider implements \assegai\modules\paginator\IPaginatorProvider
 {
     protected $data;
 

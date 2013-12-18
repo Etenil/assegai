@@ -8,7 +8,7 @@ namespace assegai\modules\mail
      * This module facilitates usage of MAIL services by providing a
      * unified interface to several services.
      */
-    class Module_Mail extends \assegai\Module
+    class Mail extends \assegai\Module
     {
         protected $svc;
         protected $default_sender;
@@ -22,8 +22,10 @@ namespace assegai\modules\mail
         {
             $this->default_sender = $options['sender'];
             
+            require_once('service.php');
+            
             $classfile = __DIR__ . "/services/builtin.php"; // Default
-            $classname = "\\assegai\\module\\mail\\BuiltinService";
+            $classname = "\\assegai\\modules\\mail\\services\\BuiltinService";
             
             if(isset($options['service'])) { // We use the standard email service
                 if(file_exists(__DIR__."/services/".$options['service']."/".$options['service'].".php")) {
@@ -32,7 +34,7 @@ namespace assegai\modules\mail
                 else if(file_exists(__DIR__."/services/".$options['service'].".php")) {
                     $classfile = __DIR__."/services/".$options['service'].".php";
                 }
-                $classname = "\\assegai\\module\\mail\\" . ucwords($options['service']) . "Service";
+                $classname = "\\assegai\\modules\\mail\\services\\" . ucwords($options['service']) . "Service";
             }
 
             require_once($classfile);

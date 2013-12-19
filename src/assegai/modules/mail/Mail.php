@@ -22,20 +22,12 @@ namespace assegai\modules\mail
         {
             $this->default_sender = $options['sender'];
             
-            $classfile = __DIR__ . "/services/builtin.php"; // Default
             $classname = "\\assegai\\modules\\mail\\services\\Builtin";
             
             if(isset($options['service'])) { // We use the standard email service
-                if(file_exists(__DIR__."/services/".$options['service']."/".$options['service'].".php")) {
-                    $classfile = __DIR__."/services/".$options['service']."/".$options['service'].".php";
-                }
-                else if(file_exists(__DIR__."/services/".$options['service'].".php")) {
-                    $classfile = __DIR__."/services/".$options['service'].".php";
-                }
                 $classname = "\\assegai\\modules\\mail\\services\\" . ucwords($options['service']);
             }
 
-            require_once($classfile);
             $this->svc = new $classname($options['options']);
         }
 

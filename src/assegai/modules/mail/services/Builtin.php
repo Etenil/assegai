@@ -2,7 +2,7 @@
 
 namespace assegai\modules\mail\services;
 
-class BuiltIn implements \assegai\modules\mail\Service
+class Builtin implements \assegai\modules\mail\Service
 {
     function send(\assegai\modules\mail\Email $email)
     {

@@ -466,24 +466,6 @@ namespace assegai {
         }
 
         /**
-         * Does the actual URL routing.
-         *
-         * The main method of the Core class.
-         *
-         * @param   array    	$urls  	    The regex-based url to class mapping
-         * @throws  NoHandlerException      Thrown if corresponding class is not found
-         * @throws  NoRouteException        Thrown if no match is found
-         * @throws  BadMethodCallException  Thrown if a corresponding GET,POST is not found
-         *
-         */
-        protected function route(Request $request, array $urls) {
-            $this->router->setRoutes($urls);
-            $call = $this->router->getRoute($request);
-            
-            return array('call' => $call->getCall(), 'params' => $call->getParams());
-        }
-
-        /**
          * Processes a route call, something like `stuff::thing' or just a function name
          * or even a closure.
          */
@@ -493,9 +475,9 @@ namespace assegai {
             $class = '';
             $method = '';
             $call = $proto->getCall();
-            $matches = $proto->getParams();
+            $params = $proto->getParams();
 
-            if(is_string($call) && preg_match('/^.+::.+$/', trim($call))) {
+            if(is_string($call) && preg_match('/^.*::.+$/', trim($call))) {
                 list($class, $method) = explode('::', $call);
             }
             else if(is_array($call)) {
@@ -506,7 +488,9 @@ namespace assegai {
                 $method = $call;
             }
             
-            if($class) {
+            if(!$class) {
+                $class = '\\assegai\\Controller';
+            } else {
                 $class = '\\' . $class;
             }
 
@@ -525,7 +509,7 @@ namespace assegai {
                     'server'  => $this->server,
                     'request' => $request,
                     'sec'     => $this->security)),
-                array_slice($matches, 1));
+                $params);
                 $response = call_user_func_array($method, $params);
             }
             else if(class_exists($class)) {
@@ -537,7 +521,7 @@ namespace assegai {
 
                 if(method_exists($obj, $method)) {
                     $response = call_user_func_array(array($obj, $method),
-                    array_slice($matches, 1));
+                    $params);
                     if(method_exists($obj, 'postRequest'))
                         $response = $obj->postRequest($response);
                 } else {

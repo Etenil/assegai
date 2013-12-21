@@ -58,6 +58,13 @@ class Controller implements IController
         // Running the user init.
         $this->_init();
 	}
+	
+	function redirect($to) {
+        $response = new Response();
+        $response->redirect($to);
+        
+        return $response;
+    }
 
     /**
      * This is run after the constructor. Implement to have custom code run.
@@ -74,7 +81,7 @@ class Controller implements IController
     /**
      * Loads a view.
      */
-    protected function view($view_name, array $var_list = NULL, array $block_list = NULL)
+    function view($view_name, array $var_list = NULL, array $block_list = NULL)
     {
         if($var_list === NULL) {
             $var_list = array(); // Avoids notices.

@@ -16,7 +16,7 @@
  * all copies or substantial portions of the Software.
  * 
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE Warray_slice($matches, 1)ARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
@@ -25,8 +25,6 @@
  */
 namespace assegai\routing
 {
-    use \assegai\exceptions;
-    
     class DefaultRouter implements IRouter
     {
         protected $routes;
@@ -72,10 +70,20 @@ namespace assegai\routing
 
             // If we don't have a call at this point, that's a 404.
             if(!$call) {
-                throw new NoRouteException("URL, ".$request->getWholeRoute().", not found.");
+                throw new \assegai\exceptions\NoRouteException("URL, ".$request->getWholeRoute().", not found.");
             }
             
-            return new RouteCall($call, $matches);
+            // Cleaning up the matches. The first one is always the current URL.
+            $params = array_slice($matches, 1);
+            
+            if(is_array($call)) {
+                $params = array_merge(array($call[1]), $params);
+                $call = $call[0];
+            }
+            
+            $routecall = new RouteCall($call, $params);
+            
+            return new RouteCall($call, $params);
         }
     }
 }

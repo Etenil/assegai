@@ -37,27 +37,31 @@ class Config
         return new self($definitions);
     }
 
-    public static function fromFile($path)
+    public static function fromFile($path, $varname = 'conf')
     {
+        $me = new self();
+        $me->loadFile($path, $varname);
+
+        return $me;
+    }
+    
+    public function loadFile($path, $varname = 'conf') {
         if(!file_exists($path)) {
-            throw new Exception("File `$path' doesn't exist.");
+            throw new \Exception("File `$path' doesn't exist.");
         }
 
         $conf = array();
         require($path);
 
-        return self::fromArray($conf);
+        return $this->addArray($$varname);
     }
 
     public function addArray(array $definitions)
     {
+        $this->settings = array_merge($this->settings, $definitions);
     }
 
-    public function addFile($path)
-    {
-    }
-
-    protected function __construct(array $definitions)
+    protected function __construct(array $definitions = array())
     {
         $this->settings = $definitions;
     }
@@ -69,6 +73,11 @@ class Config
         } else {
             return null;
         }
+    }
+    
+    public function set($defname, $value)
+    {
+        $this->definitions[$defname] = $value;
     }
 
     public function getAll()

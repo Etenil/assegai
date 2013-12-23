@@ -104,7 +104,7 @@ namespace assegai {
         protected function parseconf()
         {
             // Loading the main configuration file first so we can get the paths.
-            $conf = array(
+            $this->conf = Config::fromArray(array(
                 'prefix' => '',
                 'apps_path' => 'apps',
                 'models_path' => 'models',
@@ -113,53 +113,49 @@ namespace assegai {
                 'modules_path' => 'lib/modules',
                 'apps' => array(),
                 'modules' => array(),
-			);
+            )); // Defaults
+            $this->conf->loadFile($this->conf_path);
 
-            if(file_exists($this->conf_path)) {
-                require($this->conf_path);
+            if($this->conf->get('prefix')) {
+                $this->server->setPrefix($this->prefix);
             }
 
-            $this->apps_path = $this->getPath($conf['apps_path']);
-            $this->models_path = $this->getPath($conf['models_path']);
-            $this->helpers_path = $this->getPath($conf['helpers_path']);
-            $this->exceptions_path = $this->getPath($conf['exceptions_path']);
-            $this->modules_path = $this->getPath($conf['modules_path']);
-            $this->custom_modules_path = isset($conf['user_modules']) ? $conf['user_modules'] : false;
-            $this->apps = $conf['apps'];
-            $this->prefix = $conf['prefix'];
-            $this->server->setPrefix($this->prefix);
-
-            // Alright. Now let's load the apps config.
+            // Alright. Now let's load the apps config. We'll merge the apps routes as we go along.
             $this->routes = array();
             $this->app_routes = array();
-            foreach($this->apps as $appname) {
-                $path = $this->apps_path . '/' . $appname;
-                if(!file_exists($path) || !is_dir($path)) {
+            foreach($this->conf->get('apps', array()) as $appname) {
+                $path = Utils::joinPaths($this->conf->get('apps_path'), $appname, 'conf.php');
+                
+                try {
+                    $this->apps_conf[$appname] = Config::fromFile($path, 'app');
+                }
+                catch(\Exception $e) {
                     continue;
                 }
-                $app = array();
-                @include($path . '/conf.php');
+                
+                // Little shortcut to help readability
+                $app = $this->apps_conf[$appname];
 
-                // Let's merge in the modules, for backwards compatibility.
-                if(isset($app['modules'])) {
-                    foreach($app['modules'] as $module) {
-                        if(!in_array($module, $conf['modules'])) {
-                            $conf['modules'][] = $module;
-                            if(isset($app[$module])) {
-                                $conf[$module] = $app[$module];
+                // Let's merge in the modules, they'll be common to all apps.
+                $modules = $this->conf->get('modules', array());
+                if($app->get('modules')) {
+                    foreach($app->get('modules') as $module) {
+                        if(!in_array($module, $modules)) {
+                            $modules[] = $module;
+                            if($app->get($module)) { // Module-specific options.
+                                $conf->set($module, $app->get($module));
                             }
                         }
                     }
                 }
 
-                $this->apps_conf[$appname] = Config::fromArray($app);
-                foreach($app['route'] as $route => $callback) {
+                foreach($app->get('route') as $route => $callback) { // This is used to associate a route to an app.
                     $this->app_routes[$route] = $appname;
                 }
             }
 
-            $this->main_conf = Config::fromArray($conf);
-
+            // We reverse-keysort the routes in an attempt to get the more specific routes resolved first.
+            // TODO: move in the router.
             krsort($this->app_routes);
         }
 
@@ -196,7 +192,7 @@ namespace assegai {
             $response = null;
             
             $autoloader = new Autoloader();
-            $autoloader->setAppsPath($this->apps_path);
+            $autoloader->setAppsPath($this->conf->get('apps_path'));
 
             try {
                 // We register the dispatcher's autoloader
@@ -290,13 +286,13 @@ namespace assegai {
          * Prepares the error handlers.
          */
         protected function sethandlers() {
-            if($this->main_conf->get('handler40x')) {
-                $this->register40x($this->makeErrorHandler($this->main_conf->get('handler40x')));
+            if($this->conf->get('handler40x')) {
+                $this->register40x($this->makeErrorHandler($this->conf->get('handler40x')));
             } else {
                 $this->register40x(array($this, 'notfoundhandler'));
             }
-            if($this->main_conf->get('handler50x')) {
-                $this->register50x($this->makeErrorHandler($this->main_conf->get('handler50x')));
+            if($this->conf->get('handler50x')) {
+                $this->register50x($this->makeErrorHandler($this->conf->get('handler50x')));
             } else {
                 $this->register50x(array($this, 'errorhandler'));
             }
@@ -447,7 +443,7 @@ namespace assegai {
             
             $this->current_app = $proto->getCall();
 
-            $this->server->setMainConf($this->main_conf);
+            $this->server->setMainConf($this->conf);
             $this->server->setAppConf($this->apps_conf[$this->current_app]);
             $this->server->setAppPath($this->apps_path . '/' . $this->current_app);
             if($this->apps_conf[$this->current_app]->get('use_session')) {
@@ -463,22 +459,22 @@ namespace assegai {
             
             $this->router->setRoutes($this->apps_conf[$this->current_app]->get('route'));
             $call = $this->router->getRoute($request);
-            
+
             return $this->process($call, $request);
         }
 
         function loadAppModules($app) {
             $container = new ModuleContainer($this->server);
-            if($this->main_conf->get('modules')
-            && is_array($this->main_conf->get('modules'))) {
-                foreach($this->main_conf->get('modules') as $module) {
+            if($this->conf->get('modules')
+            && is_array($this->conf->get('modules'))) {
+                foreach($this->conf->get('modules') as $module) {
                     $opts = NULL;
-                    if($this->main_conf->get($module)) {
+                    if($this->conf->get($module)) {
                         // We give priority to the app's module configuration.
                         if($this->apps_conf[$app]->get($module)) {
                             $opts = $this->apps_conf[$app]->get($module);
                         } else {
-                            $opts = $this->main_conf->get($module);
+                            $opts = $this->conf->get($module);
                         }
                     }
                     $container->addModule($module, $opts);
@@ -504,6 +500,8 @@ namespace assegai {
 
         function errorhandler($e)
         {
+            echo '<pre>';
+            var_dump($e);
             if(isset($_SERVER['APPLICATION_ENV'])
             && $_SERVER['APPLICATION_ENV'] == 'development') {
                 $printtrace = function($error) {

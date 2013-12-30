@@ -50,11 +50,6 @@ namespace assegai {
         protected $error50x;
 
         protected $root_path;
-        protected $apps_path;
-        protected $models_path;
-        protected $exceptions_path;
-        protected $modules_path;
-        protected $custom_modules_path;
         protected $apps;
 
         protected $main_conf;
@@ -143,7 +138,7 @@ namespace assegai {
                         if(!in_array($module, $modules)) {
                             $modules[] = $module;
                             if($app->get($module)) { // Module-specific options.
-                                $conf->set($module, $app->get($module));
+                                $this->conf->set($module, $app->get($module));
                             }
                         }
                     }
@@ -184,6 +179,7 @@ namespace assegai {
         public function serve(Request $request = null, $return_response = false)
         {
             $this->parseconf();
+            $this->request = $request;
 
             if(!$request) {
                 $request = $this->request;
@@ -192,7 +188,7 @@ namespace assegai {
             $response = null;
             
             $autoloader = new Autoloader();
-            $autoloader->setAppsPath($this->conf->get('apps_path'));
+            $autoloader->setConf($this->conf);
 
             try {
                 // We register the dispatcher's autoloader
@@ -200,23 +196,23 @@ namespace assegai {
                 $this->sethandlers();
                 $result = $this->doserve($request);
             }
-            catch(\assegai\HttpRedirect $r) {
+            catch(\assegai\exceptions\HttpRedirect $r) {
                 $result = array(
                     'request' => $request,
                     'response' => new Response());
                 $result['response']->setHeader('Location', $r->getUrl());
             }
-            catch(\assegai\HTTPNotFoundError $e) {
+            catch(\assegai\exceptions\HTTPNotFoundError $e) {
                 $result = call_user_func($this->error40x, $e);
             }
-            catch(\assegai\HTTPClientError $e) {
+            catch(\assegai\exceptions\HTTPClientError $e) {
                 $result = call_user_func($this->error40x, $e);
             }
-            catch(\assegai\HTTPServerError $e) {
+            catch(\assegai\exceptions\HTTPServerError $e) {
                 $result = call_user_func($this->error50x, $e);
             }
             // Generic HTTP status response.
-            catch(\assegai\HTTPStatus $s) {
+            catch(\assegai\exceptions\HTTPStatus $s) {
                 $result = array(
                     'request' => $request,
                     'response' => new Response($s->getMessage(), $s->getCode()));
@@ -232,7 +228,7 @@ namespace assegai {
             if($return_response) {
                 return $result;
             } else {
-                return $this->display($result['request'], $result['response']);
+                return $this->display($result['request'], @$result['response']);
             }
         }
 
@@ -304,12 +300,18 @@ namespace assegai {
         protected function makeErrorHandler($handler) {
             $dispatcher = $this;
             $server = $this->server;
-            return function($e) use($dispatcher, $handler, $server) {
+            $request = $this->request;
+            return function($e) use($dispatcher, $handler, $server, $request) {
                 list($class, $method) = explode('::', $handler);
 
                 // If the controller's name conforms to conventions, then we can get the app name.
-                list($app_name, $token, $controller_name) = explode('_', strtolower($class));
-                if($token == 'controller') {
+                if(strpos($class, '\\') !== false) { // New PSR-0 style.
+                    list($app_name, $token, $controller_name) = explode('\\', $class);
+                } else {
+                    list($app_name, $token, $controller_name) = explode('_', strtolower($class));
+                }
+
+                if($token == 'controller' || $token == 'controllers') {
                     try {
                         $modules = $dispatcher->loadAppModules($app_name);
                     }
@@ -319,14 +321,6 @@ namespace assegai {
                 } else {
                     $modules = new ModuleContainer($server);
                 }
-
-                $request = new Request(
-                    $server->getRoute(),
-                    $_GET,
-                    $_POST,
-                    new \assegai\Security(),
-                    null,
-                    $_COOKIE);
 
                 $controller = new $class(
                     $modules,
@@ -445,7 +439,7 @@ namespace assegai {
 
             $this->server->setMainConf($this->conf);
             $this->server->setAppConf($this->apps_conf[$this->current_app]);
-            $this->server->setAppPath($this->apps_path . '/' . $this->current_app);
+            $this->server->setAppPath(Utils::joinPaths($this->conf->get('apps_path'), $this->current_app));
             if($this->apps_conf[$this->current_app]->get('use_session')) {
                 session_start();
                 $request->setAllSession($_SESSION);
@@ -500,8 +494,6 @@ namespace assegai {
 
         function errorhandler($e)
         {
-            echo '<pre>';
-            var_dump($e);
             if(isset($_SERVER['APPLICATION_ENV'])
             && $_SERVER['APPLICATION_ENV'] == 'development') {
                 $printtrace = function($error) {

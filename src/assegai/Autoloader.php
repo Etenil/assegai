@@ -4,11 +4,11 @@ namespace assegai
 {
     class Autoloader
     {
-        protected $apps_path = '.';
+        protected $conf;
         
-        function setAppsPath($apps_path)
+        function setConf(Config $conf)
         {
-            $this->apps_path = $apps_path;
+            $this->conf = $conf;
         }
         
         /**
@@ -29,16 +29,16 @@ namespace assegai
 
                     // Trying user modules.
                     $filename = '';
-                    if($this->custom_modules_path)
+                    if($this->conf->get('custom_modules_path'))
                     {
-                        $filename = $this->custom_modules_path . '/' . strtolower($class) . '/' .
+                        $filename = $this->conf->get('custom_modules_path') . '/' . strtolower($class) . '/' .
                             strtolower($class) . '.php';
                     }
 
                     // Falling back on default module path.
                     if(!file_exists($filename))
                     {
-                        $filename = $this->modules_path . '/' . strtolower($class) . '/' .
+                        $filename = $this->conf->get('modules_path') . '/' . strtolower($class) . '/' .
                             strtolower($class) . '.php';
                     }
                 }
@@ -47,21 +47,21 @@ namespace assegai
                     $class = substr($classname, strlen($token) + 1);
                     $class = str_replace('_', '/', $class);
 
-                    $filename = $this->models_path . '/' . strtolower($class) . '.php';
+                    $filename = $this->conf->get('models_path') . '/' . strtolower($class) . '.php';
                 }
                 else if($token == 'Helper')
                 {
                     $class = substr($classname, strlen($token) + 1);
                     $class = str_replace('_', '/', $class);
 
-                    $filename = $this->helpers_path . '/' . strtolower($class) . '.php';
+                    $filename = $this->conf->get('helpers_path') . '/' . strtolower($class) . '.php';
                 }
                 else if($token == 'Exception')
                 {
                     $class = substr($classname, strlen($token) + 1);
                     $class = str_replace('_', '/', $class);
 
-                    $filename = $this->exceptions_path . '/' . strtolower($class) . '.php';
+                    $filename = $this->conf->get('exceptions_path') . '/' . strtolower($class) . '.php';
                 }
                 else if(substr_count($classname, '_') >= 2)
                 {
@@ -77,7 +77,7 @@ namespace assegai
                     'Exception' => 'exceptions',
                     'Model' => 'models',
                     'View' => 'views');
-                    $filename = $this->apps_path . '/' . strtolower($app) . '/'
+                    $filename = $this->conf->get('apps_path') . '/' . strtolower($app) . '/'
                         . $paths[$type] . '/' . str_replace('_', '/', strtolower($class)) . '.php';
                 }
             }
@@ -86,13 +86,13 @@ namespace assegai
                 // PSR-0 autoloader (before was just backwards-compat...)
                 $psr0path = function($classname, $base = '')
                 {
-                    $file = str_replace('_', DIRECTORY_SEPARATOR, str_replace('\\', DIRECTORY_SEPARATOR, $classname)) . '.php';
+                    $file = $filename = str_replace('_', DIRECTORY_SEPARATOR, str_replace('\\', DIRECTORY_SEPARATOR, $classname)) . '.php';
                     if($base)
                     {
-                        $file = $base . DIRECTORY_SEPARATOR . $file;
+                        $file = $base . DIRECTORY_SEPARATOR . $filename;
                         if(!file_exists($file))
                         {
-                            $file = $base . DIRECTORY_SEPARATOR . strtolower($file);
+                            $file = $base . DIRECTORY_SEPARATOR . strtolower($filename);
                         }
                     }
                     
@@ -104,27 +104,27 @@ namespace assegai
                     $classname = substr($classname, 1);
                 }
                 
-                $token = substr($classname, 0, strpos('\\', $classname));
-                
+                $token = substr($classname, 0, strpos($classname, '\\'));
+
                 if($token == 'modules') // Global modules
                 {
-                    $filename = $psr0path(str_replace('modules\\', '', $classname), $this->custom_modules_path);
+                    $filename = $psr0path(str_replace('modules\\', '', $classname), $this->conf->get('custom_modules_path'));
                 }
                 else if($token == 'models')
                 {
-                    $filename = $psr0path(str_replace('models\\', '', $classname), $this->models_path);
+                    $filename = $psr0path(str_replace('models\\', '', $classname), $this->conf->get('models_path'));
                 }
                 else if($token == 'helpers')
                 {
-                    $filename = $psr0path(str_replace('helpers\\', '', $classname), $this->helpers_path);
+                    $filename = $psr0path(str_replace('helpers\\', '', $classname), $this->conf->get('helpers_path'));
                 }
                 else if($token == 'exceptions')
                 {
-                    $filename = $psr0path(str_replace('exceptions\\', '', $classname), $this->exceptions_path);
+                    $filename = $psr0path(str_replace('exceptions\\', '', $classname), $this->conf->get('exceptions_path'));
                 }
                 else
                 {
-                    $filename = $psr0path($classname, $this->apps_path);
+                    $filename = $psr0path($classname, $this->conf->get('apps_path'));
                 }
             }
 

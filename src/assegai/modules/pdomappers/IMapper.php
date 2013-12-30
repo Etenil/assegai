@@ -3,6 +3,9 @@
 /**
  * This file is part of Assegai
  *
+ * The PDO mappers module mostly provides a mapper structure through several
+ * interfaces and base classes. It is not instanciated.
+ *
  * Copyright (c) 2013 Guillaume Pasquet
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -24,19 +27,33 @@
  * THE SOFTWARE.
  */
 
-namespace assegai\exceptions
+namespace assegai\modules\pdomappers
 {
-    /**
-     * 500 error.
-     */
-    class HttpInternalServerError extends HttpServerError
-    {
-        function __construct($message = '')
-        {
-            if(!$message) {
-                $message = 'Server Error';
-            }
-            parent::__construct(500, $message);
-        }
-    }
+	interface IMapper
+	{
+		/**
+		 * Loads up a single object based on its primary key.
+		 *
+		 * It is recommended to utilize the loadAll() method here and extract the
+		 * first result. This will ensure better consistency.
+		 *
+		 * @param mixed $pk is the primary key's value to load the object for.
+		 */
+		function load($pk);
+
+		/**
+		 * Saves the object to the database.
+		 * @param IObject $object is the object to be mapped and saved.
+		 */
+		function save(IObject $object);
+
+		/**
+		 * Loads all elements compliant with a set of conditions.
+		 *
+		 * The conditions are expressed as a free-form array. It's up to you to
+		 * decide how you want them to be defined. Make sure you document this
+		 * well however.
+		 */
+		function loadAll(array $conditions);
+	}
 }

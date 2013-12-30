@@ -62,13 +62,13 @@ class ModuleContainer
 	 * the module's constructor. Default is none.
 	 */
     public function addModule($module, array $options = NULL) {
-        $full_module = 'assegai\\modules\\' . $module . '\\' . ucwords($module);
-        
-        echo $full_module . '<br>';
-        
-        if(!class_exists($full_module))
-        {
-            $full_module = 'Module_' . $module;
+        // We need to try the user's modules first, so they can override built-in ones.
+        $full_module = '\\modules\\' . strtolower($module) . '\\' . $module;
+        if(!class_exists($full_module)) {
+            $full_module = 'assegai\\modules\\' . $module . '\\' . ucwords($module);
+            if(!class_exists($full_module)) { // Very last chance.
+                $full_module = 'Module_' . $module;
+            }
         }
         
         if($full_module::instanciate())

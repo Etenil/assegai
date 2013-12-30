@@ -3,6 +3,9 @@
 /**
  * This file is part of Assegai
  *
+ * The PDO mappers module mostly provides a mapper structure through several
+ * interfaces and base classes. It is not instanciated.
+ *
  * Copyright (c) 2013 Guillaume Pasquet
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -24,19 +27,11 @@
  * THE SOFTWARE.
  */
 
-namespace assegai\exceptions
+namespace assegai\modules\pdomappers
 {
-    /**
-     * 500 error.
-     */
-    class HttpInternalServerError extends HttpServerError
-    {
-        function __construct($message = '')
-        {
-            if(!$message) {
-                $message = 'Server Error';
-            }
-            parent::__construct(500, $message);
-        }
-    }
+	interface IObject
+	{
+		function getPk();
+		function setPk($value);
+	}
 }

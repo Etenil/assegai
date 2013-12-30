@@ -25,7 +25,7 @@ class Pdo extends \assegai\Module
                 $spec['dsn'],
                 $spec['username'],
                 $spec['password'],
-                $spec['options']
+                @$spec['options']
             );
         }
     }

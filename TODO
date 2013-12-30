@@ -12,3 +12,5 @@ information about the constructor arguments.
 
 * Separate the routing logic from the engine
 * Make sure the engine does not have dependencies
+
+* Move to DI through setters by default. This will free the constructor parameters for the users.

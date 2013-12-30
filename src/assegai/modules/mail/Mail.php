@@ -20,7 +20,7 @@ namespace assegai\modules\mail
 
         function _init($options)
         {
-            $this->default_sender = $options['sender'];
+            $this->default_sender = @$options['sender'];
             
             $classname = "\\assegai\\modules\\mail\\services\\Builtin";
             
@@ -28,7 +28,7 @@ namespace assegai\modules\mail
                 $classname = "\\assegai\\modules\\mail\\services\\" . ucwords($options['service']);
             }
 
-            $this->svc = new $classname($options['options']);
+            $this->svc = new $classname(@$options['options']);
         }
 
         // Just a nice wrapper to get an email object.

@@ -163,6 +163,10 @@ class Controller implements IController
             return $hook_data;
         }
 
+        if(!class_exists($model_name)) {
+            throw new exceptions\HttpInternalServerError("Class $model_name not found");
+        }
+        
         $model = new $model_name($this->modules);
 
         if($hook_data = $this->modules->postModel($model_name) === true) {

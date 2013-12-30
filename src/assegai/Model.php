@@ -58,6 +58,10 @@ class Model
      */
     protected function model($model_name)
     {
+        if(!class_exists($model_name)) {
+            throw new exceptions\HttpInternalServerError("Class $model_name not found");
+        }
+        
         return new $model_name($this->modules);
     }
 }

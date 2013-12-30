@@ -315,7 +315,7 @@ class Server
 
     public function getRelAppPath($file)
     {
-        return $this->apps_path . '/' . $file;
+        return Utils::joinPaths($this->apps_path, $file);
     }
 
     public function setMainConf(Config $main_conf)

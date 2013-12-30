@@ -1,16 +1,7 @@
-* Rethink the dependency injector to actually inject dependencies...
-The injector mustn't be static but an instanciable object that is created
-by the framework and handles all subsequent dependency requests.
+* Move to DI through setters by default.
+  This will free the constructor parameters for the users.
+* Provide a way to configure DI in-app for controllers, models etc.
+* [THINK] Only one controller per app (to force App separation)
+* Improve Doc
+* Improve website's look & feel, and documentation (depends on point above!)
 
-Objects need to be registered to the injector via a configuration file,
-PHP or text.
-
-Dependency injection for Assegai is to function exclusively by the
-constructor. There is to be no expensive reflective inspection on objects.
-Instead, the registration of an object bears with it the relevant 
-information about the constructor arguments.
-
-* Separate the routing logic from the engine
-* Make sure the engine does not have dependencies
-
-* Move to DI through setters by default. This will free the constructor parameters for the users.

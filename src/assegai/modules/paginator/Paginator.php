@@ -2,12 +2,14 @@
 
 namespace assegai\modules\paginator;
 
+use \assegai\modules;
+
 /**
  * @package assegai.modules.paginator
  *
  * A paginator for various data providers.
  */
-class Paginator extends \assegai\Module
+class Paginator extends modules\Module
 {
     protected $provider;
 

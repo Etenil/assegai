@@ -2,10 +2,12 @@
 
 namespace assegai\modules\pdo;
 
+use \assegai\modules;
+
 /**
  * @package assegai.module.pdo
  */
-class Pdo extends \assegai\Module
+class Pdo extends modules\Module
 {
     /** Currently-running connections. */
     protected $connections;
@@ -15,8 +17,21 @@ class Pdo extends \assegai\Module
         return true;
     }
 
-    function _init($options)
+    public static function dependencies()
     {
+        return array(
+            array(
+                'name' => 'module_pdo',
+                'class' => 'assegai\\modules\\pdo\\Pdo',
+                'mother' => 'module',
+            ),
+        );
+    }
+
+    function setOptions($options)
+    {
+        parent::setOptions($options);
+        
         $this->connections = array();
 
         // Opening connections.
@@ -35,7 +50,7 @@ class Pdo extends \assegai\Module
         if(isset($this->connections[$name])) {
             return $this->connections[$name];
         } else {
-            throw new Exception("No such connection: `$name'");
+            throw new \Exception("No such connection: `$name'");
         }
     }
 }

@@ -29,7 +29,9 @@
 
 namespace assegai\modules\pdomappers
 {
-	class Pdomappers extends \assegai\Module
+    use \assegai\modules;
+    
+	class Pdomappers extends modules\Module
 	{
 		public static final function depends()
 		{

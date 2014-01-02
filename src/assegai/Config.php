@@ -66,12 +66,12 @@ class Config
         $this->settings = $definitions;
     }
 
-    public function get($defname)
+    public function get($defname, $default = null)
     {
         if(isset($this->settings[$defname])) {
             return $this->settings[$defname];
         } else {
-            return null;
+            return $default;
         }
     }
     

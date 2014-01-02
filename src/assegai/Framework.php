@@ -28,29 +28,65 @@ namespace assegai
 {
     class Framework
     {
-        protected $injector;
+        protected $container;
 
         function __construct()
         {
-            $this->injector = new Injector();
+            $this->container = new injector\Container();
 
             //// Setting core dependencies.
             // Core.
-            $this->injector->register('engine', 'assegai\\AppEngine', array('server', 'mc', 'security', 'router'));
-            $this->injector->register('router', 'assegai\\routing\\DefaultRouter');
-            $this->injector->register('server', 'assegai\\Server');
-            // Request
-            $this->injector->register('request', 'assegai\\Request', array('server', 'security'));
-            $this->injector->register('mc', 'assegai\\ModuleContainer', array('server'));
-            $this->injector->register('response', 'assegai\\Response');
-            $this->injector->register('security', 'assegai\\Security');
+            $inject_type = injector\DependenciesDefinition::INJECT_BIG_SETTER;
+
+            $this->container->loadConf(array(
+                array(
+                    'name' => 'engine',
+                    'class' => 'assegai\\AppEngine',
+                    'dependencies' => array('server', 'mc', 'security', 'router'),
+                    'type' => $inject_type,
+                ),
+                array(
+                    'name' => 'router',
+                    'class' => 'assegai\\routing\\DefaultRouter',
+                ),
+                array(
+                    'name' => 'server',
+                    'class' => 'assegai\\Server',
+                ),
+                array(
+                    'name' => 'request',
+                    'class' => 'assegai\\Request',
+                    'dependencies' => array('server', 'security'),
+                    'type' => $inject_type,
+                ),
+                array(
+                    'name' => 'mc',
+                    'class' => 'assegai\\modules\\ModuleContainer',
+                    'dependencies' => array('server'),
+                    'type' => $inject_type,
+                ),
+                array(
+                    'name' => 'module',
+                    'class' => 'assegai\\modules\\ModuleInjected',
+                    'dependencies' => array('server', 'mc'),
+                    'type' => $inject_type,
+                ),
+                array(
+                    'name' => 'response',
+                    'class' => 'assegai\\Response',
+                ),
+                array(
+                    'name' => 'security',
+                    'class' => 'assegai\\Security',
+                ),
+            ));
         }
 
         function run($conf_path = '')
         {
-            $engine = $this->injector->give('engine');
+            $engine = $this->container->give('engine');
             $engine->setConfiguration($conf_path);
-            $request = $this->injector->give('request');
+            $request = $this->container->give('request');
             $request->fromGlobals();
             $engine->serve($request);
         }

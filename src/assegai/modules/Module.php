@@ -26,7 +26,7 @@
  * THE SOFTWARE.
  */
  
-namespace assegai;
+namespace assegai\modules;
 
 class Module
 {
@@ -38,28 +38,19 @@ class Module
      * @param array $options is an associative array whose keys will
      * be mapped to properties for speed populating of the object.
 	 */
-	function __construct(Server $server, ModuleContainer $modules, $options = NULL)
+    function setDependencies(\assegai\Server $server, ModuleContainer $modules)
 	{
         $this->server = $server;
-        $this->options = $options;
         $this->modules = $modules;
-
-        $this->_init($options);
 	}
 
     /**
-     * Method called when the module gets initialised. Put custom code
+     * Method called when the module gets initialised. Put init code
      * here instead of __construct unless you're sure of what you do.
      */
-	public function _init($options)
+    public function setOptions($options)
     {
-		if(is_array($options)) {
-			foreach($options as $opt_name => $opt_val) {
-				if(property_exists($this, $opt_name)) {
-					$this->$opt_name = $opt_val;
-				}
-			}
-		}
+        $this->options = $options;
     }
 
     /**
@@ -95,7 +86,7 @@ class Module
      * @param Request $request is the request object that will be
      * processed.
      */
-	public function preRouting($path, $route, Request $request) {}
+	public function preRouting($path, $route, \assegai\Request $request) {}
 
     /**
      * Post-routing hook. This gets called after the routing
@@ -107,7 +98,7 @@ class Module
      * @param Response $response is the HTTP response produced by the
      * controller.
      */
-	public function postRouting($path, $route, Request $request, Response $response) {}
+	public function postRouting($path, $route, \assegai\Request $request, \assegai\Response $response) {}
 
     /**
      * Pre-view hook. Gets called just before processing the
@@ -116,7 +107,7 @@ class Module
      * @param Request $request is the HTTP Request object currently
      * being handled.
      */
-	public function preView(Request $request, $path, $vars) {}
+	public function preView(\assegai\Request $request, $path, $vars) {}
 
     /**
      * Post-view hook. Gets called just after having processed the
@@ -127,6 +118,6 @@ class Module
      * @param Response response is the HTTP Response produced by the
      * view.
      */
-    public function postView(Request $request, $path, $vars, $result) {}
+    public function postView(\assegai\Request $request, $path, $vars, $result) {}
 }
 

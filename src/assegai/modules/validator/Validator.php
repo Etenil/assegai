@@ -2,6 +2,8 @@
 
 namespace assegai\modules\validator;
 
+use \assegai\modules;
+
 /**
  * Form validation library.
  *
@@ -11,7 +13,7 @@ namespace assegai\modules\validator;
  * @see https://github.com/blackbelt/php-validation
  * @see Based on idea: http://brettic.us/2010/06/18/form-validation-class-using-php-5-3/
  */
-class Validator
+class Validator extends modules\Module
 {
     protected $messages = array();
     protected $errors = array();

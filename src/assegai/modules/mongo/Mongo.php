@@ -2,7 +2,9 @@
 
 namespace assegai\modules\mongo;
 
-class Mongo extends assegai\Module
+use \assegai\modules;
+
+class Mongo extends modules\Module
 {
     protected $connections = null;
 

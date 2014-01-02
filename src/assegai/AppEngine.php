@@ -61,7 +61,12 @@ namespace assegai {
         protected $apps_routes;
         protected $routes;
 
-        function __construct(Server $server, ModuleContainer $container, Security $security, routing\IRouter $router)
+        function __construct()
+        {
+        }   
+
+        // Dependency setters.
+        function setDependencies(Server $server, modules\ModuleContainer $container, Security $security, routing\IRouter $router)
         {
             $this->root_path = dirname(__DIR__);
             $this->server = $server;
@@ -316,10 +321,10 @@ namespace assegai {
                         $modules = $dispatcher->loadAppModules($app_name);
                     }
                     catch(\Exception $e) {
-                        $modules = new ModuleContainer($server);
+                        $modules = new modules\ModuleContainer($server);
                     }
                 } else {
-                    $modules = new ModuleContainer($server);
+                    $modules = new modules\ModuleContainer($server);
                 }
 
                 $controller = new $class(
@@ -447,9 +452,7 @@ namespace assegai {
             }
 
             // Let's load the app's modules
-            $container = $this->loadAppModules($this->current_app);
-
-            $this->setModules($container);
+            $this->loadAppModules($this->current_app);
             
             $this->router->setRoutes($this->apps_conf[$this->current_app]->get('route'));
             $call = $this->router->getRoute($request);
@@ -458,20 +461,29 @@ namespace assegai {
         }
 
         function loadAppModules($app) {
-            $container = new ModuleContainer($this->server);
             if($this->conf->get('modules')
             && is_array($this->conf->get('modules'))) {
                 foreach($this->conf->get('modules') as $module) {
-                    $opts = NULL;
-                    if($this->conf->get($module)) {
+                    $opts = array();
+                    
+                    if($this->apps_conf[$app]->get($module)) {
                         // We give priority to the app's module configuration.
-                        if($this->apps_conf[$app]->get($module)) {
-                            $opts = $this->apps_conf[$app]->get($module);
-                        } else {
-                            $opts = $this->conf->get($module);
-                        }
+                        $opts = $this->apps_conf[$app]->get($module);
                     }
-                    $container->addModule($module, $opts);
+                    elseif($this->conf->get($module)) {
+                        $opts = $this->conf->get($module);
+                    }
+                    
+                    $this->modules->addModule($module, $opts);
+                }
+                // Now the app's modules turn.
+                foreach($this->apps_conf[$app]->get('modules', array()) as $module) {
+                    if(in_array($module, $this->conf->get('modules'))) {
+                        continue;
+                    }
+                    $opts = NULL;
+                    $opts = $this->apps_conf[$app]->get($module, array());
+                    $this->modules->addModule($module, $opts);
                 }
             }
 

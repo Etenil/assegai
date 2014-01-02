@@ -2,6 +2,8 @@
 
 namespace assegai\modules\rest;
 
+use \assegai\modules;
+
 /**
  * @package assegai.modules.rest
  *
@@ -16,36 +18,10 @@ namespace assegai\modules\rest;
  * your controllers should extend this instead of the usual
  * assegai\Controller.
  */
-class Rest extends \assegai\Module
+class Rest extends modules\Module
 {
-    public static $instanciate = false;
-}
-
-class Rest_Controller extends \assegai\Controller
-{
-    const REST_JSON = 1;
-//    const REST_XML = 2;
-
-    protected $rest_type = self::REST_JSON;
-    protected $post;
-
-    protected function _init()
+    public static function instanciate()
     {
-        // Storing the whole POST content here.
-        $this->post = file_get_contents('php://input');
-    }
-
-    public function postRequest($returned)
-    {
-        $response = new \assegai\Response();
-
-        if($this->rest_type == self::REST_JSON) {
-            $response->setBody(json_encode($returned));
-            $response->setHeader('Content-Type', 'application/json');
-        }
-/*        else if($this->rest_type == REST_XML) {
-            $response->setBody(
-            }*/
-        return $response;
+        return false;
     }
 }

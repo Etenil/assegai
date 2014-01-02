@@ -2,6 +2,8 @@
 
 namespace assegai\modules\esi
 {
+    use \assegai\modules;
+    
     /**
      * @package assegai.modules.esi
      *
@@ -12,7 +14,7 @@ namespace assegai\modules\esi
      * accelerate those parts of a page that require a lot of processing
      * and still have other parts dynamic.
      */
-    class Esi extends \assegai\Module
+    class Esi extends modules\Module
     {
         protected $ttl;
         protected $emulate;

@@ -2,21 +2,32 @@
 
 namespace assegai\modules\acl
 {
-    require('aclcore.php');
-
+    use \assegai\modules;
+    
     /**
      * @parents assegai.module.acl
      *
      * ACL module for Assegai
      */
-    class Acl extends \assegai\Module
+    class Acl extends modules\Module
     {
         protected $main;
         protected $auxiliary;
         
-        function _init($options)
+        function setOptions($options)
         {
             $this->main = new AclCore($options);
+        }
+
+        public static function dependencies()
+        {
+            return array(
+                array(
+                    'name' => 'module_acl',
+                    'class' => '\\assegai\\modules\\acl\\Acl',
+                    'mother' => 'module',
+                ),
+            );
         }
 
         public static function instanciate()

@@ -2,11 +2,12 @@
 
 namespace assegai\modules\auth
 {
+    use \assegai\modules;
 
     /**
      * Auth module for Assegai
      */
-    class Auth extends \assegai\Module
+    class Auth extends modules\Module
     {
         protected $user_model;
         protected $group_model;

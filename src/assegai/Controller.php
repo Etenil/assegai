@@ -45,10 +45,10 @@ class Controller implements IController
      * @param Server $server is the current server state.
      * @param Request $request is the current request object.
      */
-	public function __construct(\assegai\ModuleContainer $modules,
-                                \assegai\Server $server,
-                                \assegai\Request $request,
-                                \assegai\Security $security)
+	public function __construct(modules\ModuleContainer $modules,
+                                Server $server,
+                                Request $request,
+                                Security $security)
 	{
 		$this->modules = $modules;
 		$this->server = $server;

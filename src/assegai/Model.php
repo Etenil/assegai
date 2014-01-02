@@ -38,7 +38,7 @@ class Model
      * @param ModuleContainer $modules is a container of modules
      * instanciated by the application.
      */
-    public function __construct(ModuleContainer $modules)
+    public function __construct(modules\ModuleContainer $modules)
     {
         $this->modules = $modules;
         $this->_init();

@@ -26,21 +26,33 @@
  * THE SOFTWARE.
  */
 
-namespace assegai;
- 
+namespace assegai\modules;
+
+use \assegai\injector;
+
 class ModuleContainer
 {
     /** Contains instanciated modules that extend Module.*/
     protected $modules;
     protected $server;
+    protected $injector;
 
     /**
      * Class constructor. Nothing to say here.
      */
-    public function __construct(Server $server)
+    public function __construct()
+    {
+    }
+
+    public function setDependencies(\assegai\Server $server)
     {
         $this->server = $server;
         $this->modules = array();
+    }
+
+    public function setInjector($injector)
+    {
+        $this->injector = $injector;
     }
 
 	/**
@@ -63,17 +75,37 @@ class ModuleContainer
 	 */
     public function addModule($module, array $options = NULL) {
         // We need to try the user's modules first, so they can override built-in ones.
-        $full_module = '\\modules\\' . strtolower($module) . '\\' . $module;
+        $full_module = '\\modules\\' . strtolower($module) . '\\' . ucwords($module);
         if(!class_exists($full_module)) {
             $full_module = 'assegai\\modules\\' . $module . '\\' . ucwords($module);
             if(!class_exists($full_module)) { // Very last chance.
                 $full_module = 'Module_' . $module;
             }
         }
-        
+
         if($full_module::instanciate())
         {
-            $this->add_to_list($module, new $full_module($this->server, $this, $options));
+            $module_instance = null;
+            $module_injector = new injector\Container($this->injector);
+            $deps = array();
+            
+            if(method_exists($full_module, 'dependencies')) {
+                $deps = $full_module::dependencies();
+            } else { // We'll make up a dependency for you.
+                $deps = array(
+                    array(
+                        'name' => 'module_' . $module,
+                        'class' => $full_module,
+                        'mother' => 'module',
+                    ),
+                );
+            }
+
+            $module_injector->loadConf($deps);
+            $module_instance = $module_injector->give('module_' . $module);
+            $module_instance->setOptions($options);
+
+            $this->add_to_list($module, $module_instance);
         }
     }
 
@@ -151,7 +183,7 @@ class ModuleContainer
      * @param Request $request is the request object that will be
      * processed.
      */
-	public function preRouting($path, $route, Request $request)
+	public function preRouting($path, $route, \assegai\Request $request)
 	{ return $this->batchRun(true, 'preRouting', func_get_args()); }
 
 	/** Mapped module function call.
@@ -164,7 +196,7 @@ class ModuleContainer
      * @param Response $response is the HTTP response produced by the
      * controller.
      */
-	public function postRouting($path, $route, Request $request, Response $response)
+	public function postRouting($path, $route, \assegai\Request $request, \assegai\Response $response)
 	{ return $this->batchRun(true, 'postRouting', func_get_args()); }
 
 	/** Mapped module function call.
@@ -174,7 +206,7 @@ class ModuleContainer
      * @param Request $request is the HTTP Request object currently
      * being handled.
      */
-	public function preView(Request $request, $path, $vars)
+	public function preView(\assegai\Request $request, $path, $vars)
 	{ return $this->batchRun(true, 'preView', func_get_args()); }
 
 	/** Mapped module function call.
@@ -186,7 +218,7 @@ class ModuleContainer
      * @param string $result response the HTTP Response produced by the
      * view.
      */
-	public function postView(Request $request, $path, $vars, $result)
+	public function postView(\assegai\Request $request, $path, $vars, $result)
 	{ return $this->batchRun(true, 'postView', func_get_args()); }
 
    	/** Mapped module function call.
@@ -204,5 +236,3 @@ class ModuleContainer
 	public function postModel($model_name)
 	{ return $this->batchRun(true, 'postModel', func_get_args()); }
 }
-
-?>

@@ -54,7 +54,11 @@ class Request
      * @param $post is a POST associative array.
      * @param $sec is an instance of assegai's security class: \assegai\Security.
      */
-    function __construct(Server $server, Security $sec)
+    function __construct()
+    {
+    }
+
+    function setDependencies(Server $server, Security $sec)
     {
         $this->server = $server;
         $this->sec = $sec;

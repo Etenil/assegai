@@ -2,13 +2,15 @@
 
 namespace assegai\modules\mail
 {
+    use \assegai\modules;
+    
     /**
      * @package assegai.modules.mail
      *
      * This module facilitates usage of MAIL services by providing a
      * unified interface to several services.
      */
-    class Mail extends \assegai\Module
+    class Mail extends modules\Module
     {
         protected $svc;
         protected $default_sender;

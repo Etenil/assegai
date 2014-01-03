@@ -57,7 +57,7 @@ namespace assegai\injector
             foreach($conf as $full_def) {
                 $def = DependenciesDefinition::fromArray($full_def);
 
-                $this->register($def, $classname, $dependencies, $type);
+                $this->register($def);
             }
         }
 

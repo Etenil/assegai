@@ -20,8 +20,10 @@ namespace assegai\modules\mail
             return true;
         }
 
-        function _init($options)
+        function setOptions($options)
         {
+            parent::setOptions($options);
+
             $this->default_sender = @$options['sender'];
             
             $classname = "\\assegai\\modules\\mail\\services\\Builtin";
@@ -36,7 +38,7 @@ namespace assegai\modules\mail
         // Just a nice wrapper to get an email object.
         public function newEmail()
         {
-            $e = new \assegai\module\mail\Email();
+            $e = new Email();
             if($this->default_sender) {
                 $e->setSender($this->default_sender);
             }
@@ -45,7 +47,7 @@ namespace assegai\modules\mail
         }
 
         // Sends an email through the loaded service.
-        public function send(\assegai\module\mail\Email $email)
+        public function send(Email $email)
         {
             return $this->svc->send($email);
         }

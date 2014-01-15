@@ -31,5 +31,8 @@ namespace assegai\exceptions
      */
     class HttpServerError extends HttpStatus
     {
+        function __construct($description = '') {
+            parent::__construct(500, $description);
+        }
     }
 }

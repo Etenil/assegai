@@ -82,13 +82,39 @@ namespace assegai
             ));
         }
 
-        function run($conf_path = '')
+        function setConfigPath($conf_path)
+        {
+            $this->conf_path = $conf_path;
+        }
+
+        function serve($request = null)
         {
             $engine = $this->container->give('engine');
-            $engine->setConfiguration($conf_path);
+            $engine->setConfiguration($this->conf_path);
+            $engine->serve($request);
+        }
+
+        function run($conf_path = '')
+        {
             $request = $this->container->give('request');
             $request->fromGlobals();
-            $engine->serve($request);
+            
+            $this->setConfigPath($conf_path);
+            $this->serve($request);
+        }
+
+        function runuri($uri, $conf_path = '')
+        {
+            if($conf_path) {
+                $this->setConfigPath($conf_path);
+            }
+
+            $request = $this->container->give('request');
+            $request->setRoute($uri);
+            $request->setWholeRoute($uri);
+            $request->setMethod('GET');
+
+            $this->serve($request);
         }
     }
 }

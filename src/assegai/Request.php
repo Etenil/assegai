@@ -87,6 +87,21 @@ class Request
         return $this->whole_route;
     }
 
+    function setRoute($val) {
+        $this->route = $val;
+        return $this;
+    }
+
+    function setWholeRoute($val) {
+        $this->whole_route = $val;
+        return $this;
+    }
+
+    function setMethod($val) {
+        $this->method = $val;
+        return $this;
+    }
+
 	/**
 	 * Retrieves a GET variable.
 	 * @param string    $varname         The variable to fetch.

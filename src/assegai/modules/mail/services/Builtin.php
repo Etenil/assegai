@@ -16,7 +16,7 @@ class Builtin implements \assegai\modules\mail\Service
         if($email->getContentType()) $params[] = "Content-Type: ".$email->getContentType();
 
         // Now sending.
-        return mail($email->getRecipient(), $email->getSubject(), $email->getBody(), implode("\n\r", $params));
+        return mail($email->getRecipient(), $email->getSubject(), $email->getBody(), implode("\r\n", $params));
     }
 }
 

@@ -467,7 +467,7 @@ class Validator extends modules\Module
                            }
 
                            try {
-                               $dt = new DateTime($val, new DateTimeZone("UTC"));
+                               $dt = new \DateTime($val, new \DateTimeZone("UTC"));
                                return true;
                            } catch(Exception $e) {
                                return false;
@@ -491,12 +491,12 @@ class Validator extends modules\Module
             $format = $this->_getDefaultDateFormat();
         }
         if (is_numeric($date)) {
-            $date = new DateTime($date . ' days'); // Days difference from today
+            $date = new \DateTime($date . ' days'); // Days difference from today
         } else {
             $fieldValue = $this->_getVal($date);
             $date = ($fieldValue == FALSE) ? $date : $fieldValue;
 
-            $date = DateTime::createFromFormat($format, $date);
+            $date = \DateTime::createFromFormat($format, $date);
         }
 
         $this->setRule(__FUNCTION__, function($val, $args)
@@ -504,7 +504,7 @@ class Validator extends modules\Module
                            $format = $args[1];
                            $limitDate = $args[0];
 
-                           return ($limitDate > DateTime::createFromFormat($format, $val)) ? FALSE : TRUE;
+                           return ($limitDate > \DateTime::createFromFormat($format, $val)) ? FALSE : TRUE;
                        }, $message, array($date, $format));
         return $this;
     }
@@ -523,12 +523,12 @@ class Validator extends modules\Module
             $format = $this->_getDefaultDateFormat();
         }
         if (is_numeric($date)) {
-            $date = new DateTime($date . ' days'); // Days difference from today
+            $date = new \DateTime($date . ' days'); // Days difference from today
         } else {
             $fieldValue = $this->_getVal($date);
             $date = ($fieldValue == FALSE) ? $date : $fieldValue;
 
-            $date = DateTime::createFromFormat($format, $date);
+            $date = \DateTime::createFromFormat($format, $date);
         }
 
         $this->setRule(__FUNCTION__, function($val, $args)
@@ -536,7 +536,7 @@ class Validator extends modules\Module
                            $format = $args[1];
                            $limitDate = $args[0];
 
-                           return !($limitDate < DateTime::createFromFormat($format, $val));
+                           return !($limitDate < \DateTime::createFromFormat($format, $val));
                        }, $message, array($date, $format));
         return $this;
     }

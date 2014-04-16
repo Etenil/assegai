@@ -462,7 +462,7 @@ namespace assegai {
 
         function loadAppModules($app) {
             if($this->conf->get('modules')
-            && is_array($this->conf->get('modules'))) {
+            	&& is_array($this->conf->get('modules'))) {
                 foreach($this->conf->get('modules') as $module) {
                     $opts = array();
                     
@@ -476,6 +476,9 @@ namespace assegai {
                     
                     $this->modules->addModule($module, $opts);
                 }
+			}
+            if($this->apps_conf[$app]->get('modules')
+				&& is_array($this->apps_conf[$app]->get('modules'))) {
                 // Now the app's modules turn.
                 foreach($this->apps_conf[$app]->get('modules', array()) as $module) {
                     if(in_array($module, $this->conf->get('modules'))) {

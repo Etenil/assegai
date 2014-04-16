@@ -1,10 +1,10 @@
 {
-	"name": "etenil/assegai",
+    "name": "etenil/assegai",
     "description": "A full MVC framework for PHP.",
     "keywords": ["framework"],
-    "homepage": "http://pikacode.com/etenil/atlatl",
+    "homepage": "http://github.com/Etenil/atlatl",
     "type": "library",
-    "license": "GPL-3.0+",
+    "license": "MIT",
     "authors": [
         {
             "name": "Guillaume 'Etenil' Pasquet",
@@ -12,9 +12,11 @@
             "homepage": "http://blog.etenil.net"
         }
     ],
-	"require": {
-	},
+    "require": {
+    },
     "autoload": {
-	    "files": ["lib/loader.php"]
-	}
+        "psr-0": {
+            "assegai\\": "src/"
+        }
+    }
 }

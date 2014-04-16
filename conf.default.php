@@ -1,6 +1,0 @@
-<?php
-
-$conf['apps'] = [
-    'myniceapp',
-];
-

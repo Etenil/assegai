@@ -1,0 +1,7 @@
+*~
+*\#
+*.swap
+vendor
+conf.php
+apps
+

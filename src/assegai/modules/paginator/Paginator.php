@@ -30,7 +30,7 @@ class Paginator extends modules\Module
      * Generic instanciation method for any type of provider.
      */
     static function fromProvider($provider, $data) {
-        $providername = 'providers\\' . ucfirst(strtolower($provider)) . 'Provider';
+        $providername = __NAMESPACE__ . '\\providers\\' . ucfirst(strtolower($provider)) . 'Provider';
         return new self(new $providername($data));
     }
 

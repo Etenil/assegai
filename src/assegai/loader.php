@@ -33,7 +33,7 @@ function coreload($classname) {
     if(preg_match('/^\\\\?assegai\\\\(.+)$/', $classname, $matches)) {
         $classname = $matches[1];
         $dirpath = dirname(__FILE__);
-        $potential_file = $dirpath . '/' . strtolower($classname) . '.php';
+        $potential_file = $dirpath . '/' . str_replace('_', '/', str_replace('\\', '/', $classname)) . '.php';
         if(file_exists($potential_file)) {
             require($potential_file);
         }
@@ -42,6 +42,4 @@ function coreload($classname) {
 
 spl_autoload_register('\assegai\coreload');
 
-// We must force-load the exceptions for the moment.
-require(dirname(__FILE__) . '/exceptions.php');
 

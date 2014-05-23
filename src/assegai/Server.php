@@ -80,6 +80,8 @@ class Server
     /** Path to the applications */
     protected $apps_path;
 
+    /** The app that is currently run */
+    protected $app_name;
 
     /** Main configuration */
     public $main;
@@ -326,6 +328,17 @@ class Server
     public function setAppConf(Config $app_conf)
     {
         $this->app = $app_conf;
+    }
+
+    public function setAppName($app)
+    {
+        $this->app_name = $app;
+        return $this;
+    }
+
+    public function getAppName()
+    {
+        return $this->app_name;
     }
 }
 

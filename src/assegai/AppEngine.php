@@ -446,6 +446,7 @@ namespace assegai {
             $proto = $this->router->getRoute($request);
             
             $this->current_app = $proto->getCall();
+            $this->server->setAppName($this->current_app);
 
             $this->server->setMainConf($this->conf);
             $this->server->setAppConf($this->apps_conf[$this->current_app]);

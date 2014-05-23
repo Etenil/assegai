@@ -159,6 +159,10 @@ class Controller implements IController
      */
     protected function model($model_name)
     {
+        if(stripos($model_name, 'model') === false) {
+            $model_name = sprintf('%s\models\%s', $this->server->getAppName(), $model_name);
+        }
+
         if($hook_data = $this->modules->preModel($model_name)) {
             return $hook_data;
         }

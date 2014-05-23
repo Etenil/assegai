@@ -362,7 +362,12 @@ namespace assegai {
             else if(is_callable($call)) {
                 $method = $call;
             }
-            
+
+            // Detecting simple routes that use implicit namespacing.
+            if(stripos($class, 'controller') === false) {
+                $class = sprintf('%s\\controllers\\%s', strtolower($this->current_app), $class);
+            }
+
             if(!$class) {
                 $class = '\\assegai\\Controller';
             } else {

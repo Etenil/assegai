@@ -53,7 +53,7 @@ namespace assegai\routing
                     }
                 }
                 else {
-                    $this->routes[$app][$key] = new RouteCall($app, $value);
+                    $this->routes[$key] = new RouteCall($app, $value);
                 }
             }
             

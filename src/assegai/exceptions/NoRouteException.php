@@ -31,5 +31,18 @@ namespace assegai\exceptions
      */
     class NoRouteException extends HttpNotFoundError
     {
+        protected $routes;
+        
+        public function __construct($message, array $routes)
+        {
+            $this->routes = $routes;
+            
+            parent::__construct($message);
+        }
+        
+        public function getRoutes()
+        {
+            return $this->routes;
+        }
     }
 }

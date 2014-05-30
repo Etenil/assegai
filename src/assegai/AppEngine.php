@@ -483,7 +483,7 @@ namespace assegai {
         function notfoundhandler($e)
         {
             if(isset($_SERVER['APPLICATION_ENV'])
-            && $_SERVER['APPLICATION_ENV'] == 'development') {
+                && $_SERVER['APPLICATION_ENV'] == 'development') {
                 $server = $this->server;
                 require('notfoundview.phtml');
             } else {

@@ -31,9 +31,9 @@ namespace assegai\exceptions
      */
     class HttpNotFoundError extends HttpClientError
     {
-        function __construct()
+        function __construct($message = 'Not Found')
         {
-            parent::__construct(404, 'Not Found');
+            parent::__construct(404, $message);
         }
     }
 }

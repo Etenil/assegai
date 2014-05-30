@@ -27,18 +27,37 @@ namespace assegai\routing
 {
     class RouteCall
     {
+        protected $app;
         protected $call;
         protected $params;
         
-        function __construct($call, array $params)
+        /**
+         * Creates the RouteCall object.
+         * @param $app string is the routing app's name
+         * @param $call callable is a method call
+         * @param $params array are parameters extracted from the route to be passed on to the callback.
+         */
+        function __construct($app, $call, array $params = array())
         {
+            $this->app = $app;
             $this->call = $call;
             $this->params = $params;
+        }
+        
+        function getApp()
+        {
+            return $this->app;
         }
         
         function getCall()
         {
             return $this->call;
+        }
+        
+        function setParams(array $params)
+        {
+            $this->params = $params;
+            return $this;
         }
         
         function getParams()

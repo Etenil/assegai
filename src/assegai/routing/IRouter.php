@@ -29,8 +29,11 @@ namespace assegai\routing
     {
         /**
          * Sets the routes for this router.
+         * @param $app string is the app's name for the provided routing table.
+         * @param $routes array is the routing table for that particular app.
+         * @return null
          */
-        function setRoutes(array $routes);
+        function setRoutes($app, array $routes);
         
         /**
          * Attempts to resolve the current request to a workable callback.

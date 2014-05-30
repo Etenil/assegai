@@ -36,7 +36,7 @@ namespace assegai\exceptions
             if(!$message) {
                 $message = 'Server Error';
             }
-            parent::__construct(500, $message);
+            parent::__construct($message);
         }
     }
 }

@@ -95,7 +95,10 @@ namespace assegai\routing
 
             // If we don't have a call at this point, that's a 404.
             if(!$call) {
-                throw new \assegai\exceptions\NoRouteException("URL, ".$request->getWholeRoute().", not found.");
+                throw new \assegai\exceptions\NoRouteException(
+                    sprintf('URL %s not found.', $request->getWholeRoute()),
+                    $this->routes
+                );
             }
             
             // Cleaning up the matches. The first one is always the current URL.

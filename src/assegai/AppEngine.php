@@ -390,10 +390,10 @@ namespace assegai {
                     if(method_exists($obj, 'postRequest'))
                         $response = $obj->postRequest($response);
                 } else {
-                    throw new \BadMethodCallException("Method, $method, not supported.");
+                    throw new \BadMethodCallException("Method '$method' not found in class '$class'.");
                 }
             } else {
-                throw new exceptions\NoHandlerException("Class, $class, not found.");
+                throw new exceptions\NoHandlerException("Class '$class' not found.");
             }
 
             // Cleaning up the response...
@@ -483,7 +483,7 @@ namespace assegai {
         function notfoundhandler($e)
         {
             if(isset($_SERVER['APPLICATION_ENV'])
-            && $_SERVER['APPLICATION_ENV'] == 'development') {
+                && $_SERVER['APPLICATION_ENV'] == 'development') {
                 $server = $this->server;
                 require('notfoundview.phtml');
             } else {
@@ -497,7 +497,7 @@ namespace assegai {
         function errorhandler($e)
         {
             if(isset($_SERVER['APPLICATION_ENV'])
-            && $_SERVER['APPLICATION_ENV'] == 'development') {
+                && $_SERVER['APPLICATION_ENV'] == 'development') {
                 $printtrace = function($error) {
                     $trace = $error->getTrace();
                     $formatted_trace = array();

@@ -75,7 +75,11 @@ table tr:nth-child(even) {
       <div id="content">
         <h2>We couldn't find what you look for.</h2>
         <p>
-            The resource you asked for couldn't be found.
+            <?php if($e->getMessage()): ?>
+                <?php echo $e->getMessage(); ?>
+            <?php else: ?>
+                The resource you asked for couldn't be found.
+            <?php endif; ?>
         </p>
         <p>Prefix:</p>
         <pre>'<?php echo $this->prefix; ?>'</pre>
@@ -83,11 +87,11 @@ table tr:nth-child(even) {
         <pre>'<?php echo $server->getRoute(); ?>'</pre>
         <p>Routes:</p>
         <table>
-            <tr><th>Route</th><th>App</th></tr>
-            <?php foreach($this->app_routes as $route => $target): ?>
+            <tr><th>Route</th><th>App[call]</th></tr>
+            <?php foreach($e->getRoutes() as $route => $target): ?>
                 <tr>
                     <td><code>'<?php echo $route;?>'</code></td>
-                    <td><code><?php echo $target;?></code></td>
+                    <td><code><?php echo $target->getApp();?>[<?php echo $target->getCall();?>]</code></td>
                 </tr>
             <?php endforeach; ?>
         </table>

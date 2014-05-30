@@ -1,23 +1,21 @@
-Assegai
-=======
+# ASSEGAI
 
-VERSION dev
-UPDATED 19 December 2013
+UPDATED 30 May 2014
 
-Introduction
-------------
+## Introduction
+
 Assegai is a full-featured MVC framework for PHP. It is free software under the MIT license.
 
 The framework used to rely on the micro-framework [Atlatl](http://github.com/Etenil/atlatl). This dependency was dropped in version 2.0.
 
-Installation
-------------
+## Installation
+
 To install Assegai, you will first need to install [composer](http://getcomposer.org). Then create a composer.json file for your project that requires *etenil/assegai*. Finally run
 
     composer install
 
-Namespacing Convention
-----------------------
+## Namespacing Convention
+
 Assegai encourages the use of multiple specialised apps that can share models in order to implement websites. The framework relies on the [PSR-0](http://www.php-fig.org/psr/psr-0/) naming standard.
 
 Classes need to be named like so:
@@ -28,9 +26,21 @@ For instance:
 
     myapp\models\DemoCode
 
+You can also use sub-folders for models and controllers and extend the namespace accordingly:
 
-Basic Configuration
--------------------
+    myapp\models\demo\SomeModel
+
+
+## Getting started
+
+### Bootstrapping
+
+You will need to make a bootstrapper, or use the default one for your project. The framework comes with an example bootstrapper that you can adapt. Copy the file *bootstrapper.example.php* from the framework to *index.php*. The file is extremely simple and self-explanatory.
+
+It is recommended to place the bootstrapper and static files in a sub-folder, which will be the root folder for the web server. This will harden somewhat the website. You will have to modify the bootstrapper slightly to load the correct paths if you choose to do this.
+
+### Basic Configuration
+
 Even though Assegai has default configuration options, it will not work unless a configuration file is created, even if empty. You can simply copy the file *conf.example.php* that comes with the framework to *conf.php*.
 
 You will need to inform Assegai of the section or URL that precedes the first url segment. This means that if you need to access Assegai through the url *http://example.org/assegai/public/index.php*, then your configuration file should contain the following code:
@@ -40,12 +50,8 @@ You will need to inform Assegai of the section or URL that precedes the first ur
 
 If you can access Assegai through *http://example.org/index.php*, you'll still need to add the '/index.php' prefix. The only case where you don't need to specify the prefix is if you have set up your server to rewrite urls and get rid of the */index.php* part.
 
-Bootstrapping
--------------
-You will need to make a bootstrapper, or use the default one for your project. The framework comes with an example bootstrapper that you can adapt. Copy the file *bootstrapper.example.php* from the framework to *index.php*. The file is extremely simple and self-explanatory.
+### Hello World
 
-Hello World
------------
 In this chapter, we'll see how to write a very simple application for assegai, it will simply display the famous "Hello, World" message on an HTML page.
 
 Create a folder, then the file *composer.json* with the following contents:
@@ -53,7 +59,7 @@ Create a folder, then the file *composer.json* with the following contents:
     {
         "name": "charlie/test-assegai",
         "require": {
-            "etenil/assegai": "v2.*"
+            "etenil/assegai": "2.*"
         }
     }
 
@@ -93,12 +99,12 @@ Be careful to put the first backslash on *\assegai\Controller*, otherwise you'll
 We still need to indicate to the framework that this controller needs to be called when visiting the website. This is done by adding the following contents to the application's *conf.php* file.
 
     $conf['route'] = [
-        '/' => 'hello\\controllers\\Demo::hello',
+        '/' => 'hello\controllers\Demo::hello',
     ];
 
 Now you can visit your web server and should see the *Hello, World* message printed.
 
-### Using a model
+#### Using a model
 Let us now try and modify the exercise by introducing a model. Models are a powerful and convenient way to organise your code, by delegating all data management to a dedicated class.
 
 Create the file *models/hello.php* that will contain the following code:
@@ -126,7 +132,7 @@ We will need to load the model from the controller now. Let's create a new funct
 
         function hello_model()
         {
-            $hello = $this->model('Model_Hello');
+            $hello = $this->model('Hello');
             return $hello->hello();
         }
     }
@@ -134,13 +140,15 @@ We will need to load the model from the controller now. Let's create a new funct
 Finally, we need to create a route to this new function in conf.php like so:
 
     $app['route'] = [
-        '/' => 'hello\\controllers\\Demo::hello',
-        '/model' => 'hello\\controllers\\Demo::hello_model',
+        '/' => 'hello\controllers\Demo::hello',
+        '/model' => 'Demo::hello_model',
         ];
 
 Now try visiting your installation with the segment */model* e.g. http://localhost/index.php/model. You should see the message "Hello, Model" displayed.
 
-### Views
+Note that we used an implicit namespace route for the '/model' path. This is handy and saves typing.
+
+#### Views
 Now let's try doing the same thing we did before but by using a view instead. We'll fetch the data from our existing model, then feed it into a view and display this.
 
 We will create the view first. Create the file views/hello.phtml with the following code:
@@ -161,21 +169,21 @@ Let's create another function within the controller's body like so:
 
     function hello_view()
     {
-        $hello = $this->model('Hello_Model_Hello');
+        $hello = $this->model('Hello');
         return $this->view('hello', array('message' => $hello->hello()));
     }
 
 Finally we will create a route to this new function in conf.php:
 
     $app['route'] = [
-        '/' => 'hello\controllers\Demo::hello',
-        '/model' => 'hello\controllers\Demo::hello2',
-        '/view' => 'hello\controllers\Demo::hello_view',
+        '/' => 'Demo::hello',
+        '/model' => 'Demo::hello2',
+        '/view' => 'Demo::hello_view',
     ];
 
 Try visiting the url with the segment */view*, for instance http://localhost/index.php/view and you should see the view with *Hello, Model* in place of the message variable.
 
-#### View helpers
+##### View helpers
 View helpers are convenient functions that return or output some HTML and are used to format and display data within the view. Consider the following:
 
     <?php $h->form->input('text', 'foobar') ?>
@@ -205,8 +213,8 @@ A helper class must follow the usual convention and be named *helpers\SomeName*.
         }
     }
 
-Routing
--------
+## Routing
+
 Routes are defined on an per-application basis and conflicting routes are overwritten by applications loaded later.
 
 Routes are regex-based. Thus it is easy to wildcard any part of a route and direct to the same handler. Capturing braces within a route are mapped as parameters to the handler. Thus one could use the following:
@@ -220,15 +228,34 @@ Routes are regex-based. Thus it is easy to wildcard any part of a route and dire
 Routes can also be defined for a specific HTTP method by prepending the desired method with columns to the route like so:
 
     $app['route'] = [
-        'GET:/bar' => 'Controller_Foo::bar_get',
-        'POST:/bar' => 'Controller_Foo::bar_post',
-        '/bar' => 'Controller_Foo::bar',
+        'GET:/bar' => 'app\controllers\Foo::bar_get',
+        'POST:/bar' => 'app\controllers\Foo::bar_post',
+        '/bar' => 'app\controllers\Foo::bar',
+    ];
+
+Note that routes also support implicit namespacing like so:
+
+    $app['route'] = [
+        '/bar' => 'Foo::bar', // This will be assumed as 'app\controllers\Foo'.
+    ];
+
+In large routing tables, it is convenient to use route groups. They make the table clearer and reduce typing:
+
+    $app['route'] = [
+        '@/test' => [
+            '/foo' => 'Test::testFoo', // This is understood as '/test/foo'.
+            '/bar' => 'Test::testBar',
+        ],
+        '@/real' => [
+            '/foo' => 'Real::foo',
+            '/bar' => 'Real::bar',
+        ],
     ];
 
 The route table is searched for method-specific routes first, then for other routes if none is found.
 
-Generic routes
---------------
+### Generic routes
+
 The bundled router features several built-in handlers. Those can be used to perform instant actions on URLs.
 
 Generic routes are defined within the router itself, and do cannot be extended or modified. They accept parameters, and therefore look different than usual routes.
@@ -241,7 +268,7 @@ Or use parameters as:
 
     ['::view', 'baz', ['foo' => 'bar']]
 
-### Redirections
+#### Redirections
 Redirections are just an easy way to achieve 301 HTTP redirections without touching the web server's configuration files, or creating a dedicated controller. The redirect route accepts two parameters, the first being the redirect target, and the second is the HTTP code for the redirect (typically 301 or sometimes 302). The second parameters defaults to 301 if omitted.
 
     $app['route'] = [
@@ -249,7 +276,7 @@ Redirections are just an easy way to achieve 301 HTTP redirections without touch
         '/bar' => 'app\\controllers\\Bar::bar',
     ];
 
-### Views
+#### Views
 View generic routes are perfect for all the quasi-static files that all websites have. The view route accepts two parameters, the first is the name of the view, and the last is an associative array that is passed to the view.
 
     $app['route'] = [
@@ -257,8 +284,8 @@ View generic routes are perfect for all the quasi-static files that all websites
         '/bar' => ['::view', 'bar'],
     ];
 
-Configuration
--------------
+## Configuration
+
 Framework and application configurations are readily accessible as part of the server property. You can access them like so:
 
     $this->server->main->get('apps');
@@ -266,8 +293,8 @@ Framework and application configurations are readily accessible as part of the s
 
 Those configuration dictionary simply wrap the parsed configuration files, so you can define your own settings easily.
 
-Controllers
------------
+## Controllers
+
 Controllers are the heart of an application in Assegai. They provide access to models, views and modules.
 
 ### Initialisation
@@ -278,6 +305,17 @@ The controller contains the helper method *view()* which loads a view and return
 
 ### Models
 Controllers have the *model()* helper function to easily load a model. This takes the model's class name as parameter and returns the instanciated model.
+
+The model helper supports implicit namepaces, thus saving a lot of typing:
+
+    class MyController extends \assegai\Controller
+    {
+        function foo()
+        {
+            $my_model = $this->model('app\models\Foo');
+            $my_short_model = $this->model('Foo');
+        }
+    }
 
 ### Modules
 Modules are shared among applications and the member variable *modules* provides easy access to those from a controller. See the dedicated chapter for more information.
@@ -308,16 +346,16 @@ Typically, you will end up having quite a few models within your shared folder. 
     models\polls\Negative\Mapper
     models/poll/negative/Mapper.php
 
-Exceptions
-----------
+## Exceptions
+
 Applications come with an *exceptions* folder. This folder is meant to contain Exception classes that may be thrown anywhere in your application and handled.
 
 The naming convention for exceptions is simply:
 
     <app>\exceptions\<Name>
 
-Unit Tests
-----------
+## Unit Tests
+
 Assegai supports unit testing your applications and provides the necessary glue code to have PHPUnit run nicely.
 
 In order to test your code, you'll need to have PHPUnit installed and to create a *phpunit.xml* and a bootstrap file within the tests folder.
@@ -343,8 +381,8 @@ You can then run your tests with the command:
 
     phpunit -c phpunit.xml
 
-Modules
--------
+## Modules
+
 The modules provide access to advanced features either from the provided *$modules* helper variable in the *Controller* or *Model*, or from actions on hooks to modify the framework's behaviour.
 
 Modules are globally available in *Assegai*, although you can declare them within applications'configuration as well as the main configuration. If the current application contains configuration for a loaded module, this configuration will be given priority other that of the global configuration file.

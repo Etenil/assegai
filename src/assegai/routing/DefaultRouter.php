@@ -29,14 +29,42 @@ namespace assegai\routing
     {
         protected $routes;
     
+        public function __construct()
+        {
+            $this->routes = array();
+        }
+    
         /**
          * Sets the routes for this router.
          */
-        function setRoutes(array $routes)
+        function setRoutes($app, array $routes)
         {
-            $this->routes = $routes;
+            foreach($routes as $key => $value) {
+                if(is_array($value) && is_string($key) && $key[0] == '@') { // prefixed routes start with '@'
+                    $prefix = substr($key, 1);
+                    foreach($value as $regex => $action) {
+                        $method = '';
+                        $matches = array();
+                        if(preg_match('%^([A-Za-z]+:)%', $regex, $matches)) { // This caters for specific methods.
+                            $method = $matches[1];
+                            $regex = substr($regex, strlen($method));
+                        }
+                        $this->routes[$method . $prefix . $regex] = new RouteCall($app, $action);
+                    }
+                }
+                else {
+                    $this->routes[$app][$key] = new RouteCall($app, $value);
+                }
+            }
+            
+            krsort($this->routes);
+            
+            return $this;
         }
         
+        /**
+         * Searches for a route matching the provided request.
+         */
         function getRoute(\assegai\Request $request)
         {
             $path = $request->getRoute();
@@ -45,12 +73,11 @@ namespace assegai\routing
             $matches = array();   // And this the extracted parameters.
 
             // First we search for specific method routes.
-            $method_routes = preg_grep('/^' . $request->getMethod() . ':/i', array_keys($this->routes));
+            $method_routes = preg_grep('%^' . $request->getMethod() . ':%i', array_keys($this->routes));
             foreach($method_routes as $route) {
                 $method = $request->getMethod() . ':';
                 $clean_route = substr($route, strlen($method));
-                if(preg_match('%^'. $clean_route .'/?$%i',
-                $path, $matches)) {
+                if(preg_match('%^'. $clean_route .'/?$%i', $path, $matches)) {
                     $call = $this->routes[$route];
                     break;
                 }
@@ -59,14 +86,12 @@ namespace assegai\routing
             // Do we need to try generic routes?
             if(!$call) {
                 foreach($this->routes as $regex => $proto) {
-                    if(preg_match('%^'. $regex .'/?$%i',
-                    $path, $matches)) {
+                    if(preg_match('%^'. $regex .'/?$%i', $path, $matches)) {
                         $call = $proto;
                         break;
                     }
                 }
             }
-
 
             // If we don't have a call at this point, that's a 404.
             if(!$call) {
@@ -81,9 +106,9 @@ namespace assegai\routing
                 $call = $call[0];
             }
             
-            $routecall = new RouteCall($call, $params);
+            $call->setParams($params);
             
-            return new RouteCall($call, $params);
+            return $call;
         }
     }
 }

@@ -56,14 +56,7 @@ namespace assegai {
         protected $apps_conf;
 
         protected $current_app;
-        protected $prefix;
-
-        protected $apps_routes;
-        protected $routes;
-
-        function __construct()
-        {
-        }   
+        protected $prefix;  
 
         // Dependency setters.
         function setDependencies(Server $server, modules\ModuleContainer $container, Security $security, routing\IRouter $router)
@@ -121,8 +114,6 @@ namespace assegai {
             }
 
             // Alright. Now let's load the apps config. We'll merge the apps routes as we go along.
-            $this->routes = array();
-            $this->app_routes = array();
             foreach($this->conf->get('apps', array()) as $appname) {
                 $path = Utils::joinPaths($this->conf->get('apps_path'), $appname, 'conf.php');
                 
@@ -135,6 +126,7 @@ namespace assegai {
                 
                 // Little shortcut to help readability
                 $app = $this->apps_conf[$appname];
+                $this->router->setRoutes($appname, $app->get('route'));
 
                 // Let's merge in the modules, they'll be common to all apps.
                 $modules = $this->conf->get('modules', array());
@@ -148,15 +140,7 @@ namespace assegai {
                         }
                     }
                 }
-
-                foreach($app->get('route') as $route => $callback) { // This is used to associate a route to an app.
-                    $this->app_routes[$route] = $appname;
-                }
             }
-
-            // We reverse-keysort the routes in an attempt to get the more specific routes resolved first.
-            // TODO: move in the router.
-            krsort($this->app_routes);
         }
 
         /**
@@ -396,8 +380,9 @@ namespace assegai {
                 $obj = new $class($this->modules, $this->server,
                 $request, new Security());
             
-                if(method_exists($obj, 'preRequest'))
+                if(method_exists($obj, 'preRequest')) {
                     $obj->preRequest();
+                }   
 
                 if(method_exists($obj, $method)) {
                     $response = call_user_func_array(array($obj, $method),
@@ -442,10 +427,9 @@ namespace assegai {
             $route_to_app = "";
             $app = null;
             
-            $this->router->setRoutes($this->app_routes);
-            $proto = $this->router->getRoute($request);
+            $call = $this->router->getRoute($request);
             
-            $this->current_app = $proto->getCall();
+            $this->current_app = $call->getApp();
             $this->server->setAppName($this->current_app);
 
             $this->server->setMainConf($this->conf);
@@ -460,9 +444,6 @@ namespace assegai {
             // Let's load the app's modules
             $this->loadAppModules($this->current_app);
             
-            $this->router->setRoutes($this->apps_conf[$this->current_app]->get('route'));
-            $call = $this->router->getRoute($request);
-
             return $this->process($call, $request);
         }
 

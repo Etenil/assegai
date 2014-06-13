@@ -200,6 +200,30 @@ class ModuleContainer
 	{ return $this->batchRun(true, 'postRouting', func_get_args()); }
 
 	/** Mapped module function call.
+     * Pre-request handling hook. This gets called just after the
+     * controller has been instanciated and before the request is
+     * handled by it.
+     * @param Controller $controller is the instanciated controller.
+     * @param Request $request is the request object that will be
+     * processed.
+     */
+	public function preRequest(\assegai\Controller $controller, \assegai\Request $request)
+	{ return $this->batchRun(true, 'preRequest', func_get_args()); }
+
+	/** Mapped module function call.
+     * Post-request hook. This gets called after the request has been
+     * handled by the controller.
+     * @param string $path is the application path.
+     * @param string $route is the route that is being queried.
+     * @param Request $request is the request object that will be
+     * processed.
+     * @param Response $response is the HTTP response produced by the
+     * controller.
+     */
+	public function postRequest(\assegai\Controller $controller, \assegai\Request $request, \assegai\Response $response)
+	{ return $this->batchRun(true, 'postRequest', func_get_args()); }
+
+	/** Mapped module function call.
      * Pre-view hook. Gets called just before processing the
      * view.
      * @param string $path is the requested view's path.

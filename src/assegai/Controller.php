@@ -39,6 +39,9 @@ class Controller implements IController
     /** Security provider. */
 	protected $sec;
 
+    /** Virtual methods. */
+    protected $virtual_methods;
+
     /**
      * Controller's constructor. This is meant to be called by Core.
      * @param ModuleContainer $modules is a container of loaded modules.
@@ -58,6 +61,38 @@ class Controller implements IController
         // Running the user init.
         $this->_init();
 	}
+
+    /**
+     * Register a method on the controller.
+     *
+     * Typically, this is used by modules to add their own custom methods
+     * (or override default ones) to the controller. A good example of this
+     * is the Forms module, which also hooks up to the autoloader to achieve
+     * a very native feel.
+     *
+     * @param $name string the method's name. It must comply to the usual
+     *      naming restrictions.
+     * @param $callback callable is the function to assign to this method.
+     */
+    public function register($name, $callback)
+    {
+        $this->virtual_methods[$name] = $callback;
+    }
+
+    /**
+     * Using a magic method is necessary to handle virtual methods calls;
+     * although I really really hate PHP's magic stuff. Please remove me
+     * once PHP will have cleared calls to closures stored in member variables.
+     */
+    function __call($method, $args)
+    {
+        if(array_key_exists($method, $this->virtual_methods)) {
+            return call_user_func_array($this->virtual_methods[$method], $args);
+        }
+        else {
+            throw new \Exception(sprintf("Unknown controller method called: %s::%s", get_class($this), $method));
+        }
+    }
 	
 	function redirect($to) {
         $response = new Response();
@@ -68,6 +103,9 @@ class Controller implements IController
 
     /**
      * This is run after the constructor. Implement to have custom code run.
+     * Be very careful, this is run before some module hooks, and may result in
+     * missing methods or features. You may need to use the preRequest() method 
+     * instead.
      */
     protected function _init()
     {
@@ -228,5 +266,3 @@ class Controller implements IController
 	}
 }
 
-
-?>

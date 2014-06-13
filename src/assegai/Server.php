@@ -88,16 +88,30 @@ class Server
     /** App configuration */
     public $app;
 
+    protected static $instance;
+
 
     /**
      * Constructs the server object.
      * @param array $server is a server state array; typically $_SERVER.
      */
-	public function __construct()
+	protected function __construct()
 	{
 		$this->parsevars($_SERVER);
         $this->prefix = '';
 	}
+
+    /**
+     * Yes, this is a singleton...
+     */
+    public static function getInstance()
+    {
+        if(!is_object(self::$instance)) {
+            self::$instance = new self();
+        }
+
+        return self::$instance;
+    }
 
     /** Gets the current route without prefix. */
 	public function getRoute()

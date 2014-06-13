@@ -306,7 +306,11 @@ namespace assegai {
                     $modules,
                     $server,
                     $request,
-                    new \assegai\Security());
+                    new \assegai\Security()
+                );
+
+                $this->modules->preRequest($controller, $request);
+
                 $controller->preRequest();
                 $page = $controller->$method($e);
                 $controller->postRequest($page);
@@ -369,8 +373,10 @@ namespace assegai {
             }
             else if(class_exists($class)) {
                 $obj = new $class($this->modules, $this->server,
-                $request, new Security());
-            
+                    $request, new Security());
+
+                $this->modules->preRequest($obj, $request);
+
                 if(method_exists($obj, 'preRequest')) {
                     $obj->preRequest();
                 }   
@@ -467,8 +473,6 @@ namespace assegai {
                     $this->modules->addModule($module, $opts);
                 }
             }
-
-            return $container;
         }
 
         function notfoundhandler($e)

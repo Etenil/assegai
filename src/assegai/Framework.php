@@ -52,6 +52,7 @@ namespace assegai
                 array(
                     'name' => 'server',
                     'class' => 'assegai\\Server',
+                    'type' => $inject_type,
                 ),
                 array(
                     'name' => 'request',

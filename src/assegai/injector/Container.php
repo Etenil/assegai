@@ -132,7 +132,13 @@ namespace assegai\injector
                     break;
                 case DependenciesDefinition::INJECT_BIG_SETTER:
                 case DependenciesDefinition::INJECT_EACH_SETTER:
-                    $object = new $classname();
+                    // Exception for singletons.
+                    if(method_exists($classname, 'getInstance')) {
+                        $object = $classname::getInstance();
+                    }
+                    else {
+                        $object = new $classname();
+                    }
                     break;
                 default:
                     throw new exceptions\HttpInternalServerError("Unknown injection method.");
@@ -143,7 +149,9 @@ namespace assegai\injector
             case DependenciesDefinition::INJECT_CONSTRUCTOR:
                 break;
             case DependenciesDefinition::INJECT_BIG_SETTER:
-                call_user_func_array(array($object, 'setDependencies'), $deps);
+                if(method_exists($object, 'setDependencies')) {
+                    call_user_func_array(array($object, 'setDependencies'), $deps);
+                }
                 break;
             case DependenciesDefinition::INJECT_EACH_SETTER:
                 foreach($deps as $name => $dep) {

@@ -6,7 +6,6 @@ class Field
 {
     protected $_name = '';
     protected $_blank = true;
-    protected $_choices = array();
     protected $_default = null;
     protected $_editable = true;
     protected $_help = null;
@@ -22,12 +21,6 @@ class Field
     function blank($val)
     {
         $this->_blank = (bool)$val;
-        return $this;
-    }
-
-    function choices(array $val) 
-    {
-        $this->_choices = $val;
         return $this;
     }
 
@@ -82,11 +75,6 @@ class Field
     function getValue()
     {
         return $this->_value;
-    }
-    
-    public function getChoices()
-    {
-        return $this->_choices;
     }
     
     public function getDefault()

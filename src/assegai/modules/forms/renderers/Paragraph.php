@@ -10,45 +10,80 @@ class Paragraph extends Renderer implements IRenderer
 
     const TPL_FIELD = '
         <p id="field-{{name}}">
-            <label>{{label}}</label>
+            <label for="input-{{name}}">{{label}}:</label>
             {{input}}
         </p>
     ';
-    const TPL_INPUT = '
-        <input type="{{type}}" name="{{name}}" id="input-{{name}}" class="{{class}}" {{extra}} />
+    const TPL_PREFIELD = '
+        <p id="field-{{name}}">
+            {{input}}
+            <label for="input-{{name}}">{{label}}</label>
+        </p>
     ';
+    const TPL_INPUT = '
+        <input type="{{type}}" name="{{name}}" id="input-{{name}}" class="{{class}}" value="{{value}}" {{extra}} />
+    ';
+    const TPL_TEXTAREA = '<textarea name="{{name}}" id="input-{{name}}" class="{{class}}" {{extra}}>{{value}}</textarea>';
+    const TPL_SELECT = '<select name="{{name}}" id="input-{{name}}" class="{{class}}" {{extra}}>{{options}}</select>';
+    const TPL_SELECT_OPTION = '<option value="{{value}}" {{selected}}>{{label}}</option>';
 
     public function __construct(array $errors = array())
     {
         $this->errors = $errors;
     }
     
-    function text(fields\Field $field)
+    protected function field($field, $input, $prefield = false)
     {
-        $input = $this->tpl(self::TPL_INPUT, array(
-            'name' => $field->getName(),
-            'type' => 'text',
-        ));
-        
-        $field = $this->tpl(self::TPL_FIELD, array(
+        $tpl = self::TPL_FIELD;
+        if($prefield) {
+            $tpl = self::TPL_PREFIELD;
+        }
+        return $this->tpl($tpl, array(
             'name' => $field->getName(),
             'label' => $field->getLabel(),
             'input' => $input,
         ));
-        
-        return $field;
+    }
+    
+    function text(fields\Field $field)
+    {
+        return $this->field($field, $this->tpl(self::TPL_INPUT, array(
+            'name' => $field->getName(),
+            'type' => 'text',
+        )));
     }
     
     function textarea(fields\Field $field)
     {
+        return $this->field($field, $this->tpl(self::TPL_TEXTAREA, array('name' => $field->getName())));
     }
     
-    function select(fields\Field $field)
+    function select(fields\ChoiceField $field)
     {
+        $options = '';
+        foreach($field->getChoices() as $choice_lbl => $choice_val) {
+            $options.= $this->tpl(self::TPL_SELECT_OPTION, array(
+                'value' => $choice_val,
+                'label' => is_int($choice_lbl) ? $choice_val : $choice_lbl,
+            ));
+        }
+        
+        return $this->field($field, $this->tpl(self::TPL_SELECT, array(
+            'name' => $field->getName(),
+            'options' => $options,
+        )));
     }
     
     function checkbox(fields\Field $field)
     {
+        return $this->field($field, $this->tpl(
+            self::TPL_INPUT,
+            array(
+                'type' => 'checkbox',
+                'name' => $field->getName(),
+            )),
+            true
+        );
     }
     
     function checkboxes(fields\Field $field)
@@ -60,10 +95,6 @@ class Paragraph extends Renderer implements IRenderer
     }
     
     function time(fields\Field $field)
-    {
-    }
-    
-    function input(fields\Field $field)
     {
     }
 }

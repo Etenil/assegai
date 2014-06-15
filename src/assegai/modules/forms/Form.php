@@ -21,13 +21,30 @@ class Form
                 continue;
             }
             
+            /* The field cannot know about the variable name it was given,
+               unfortunately. So we inform it about its name here, unless
+               the developer manually set a different name for it. */
+            if(!$field->getName()) {
+                $field->name($fieldname);
+            }
+            
             switch($field->getType()) {
                 case 'text':
-                if(!$field->getName()) {
-                    $field->name($fieldname);
-                }
-                $buffer.= $renderer->text($field);
-                break;
+                    if($field->isMultiline()) {
+                        $buffer.= $renderer->textarea($field);
+                    }
+                    else {
+                        $buffer.= $renderer->text($field);
+                    }
+                    break;
+                case 'choice':
+                    $buffer.= $renderer->select($field);
+                    break;
+                case 'bool':
+                    $buffer.= $renderer->checkbox($field);
+                    break;
+                default:
+                    throw new \Exception(sprintf("Don't know how to render field type '%s'", get_class($field)));
             }
         }
         

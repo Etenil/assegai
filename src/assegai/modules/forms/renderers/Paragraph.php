@@ -47,41 +47,71 @@ class Paragraph extends Renderer implements IRenderer
     
     function text(fields\Field $field)
     {
-        return $this->field($field, $this->tpl(self::TPL_INPUT, array(
-            'name' => $field->getName(),
-            'type' => 'text',
-        )));
+        return $this->field(
+            $field,
+            $this->tpl(
+                self::TPL_INPUT,
+                array(
+                    'name' => $field->getName(),
+                    'value' => $field->getValue(),
+                    'type' => 'text',
+                )
+            )
+        );
     }
     
     function textarea(fields\Field $field)
     {
-        return $this->field($field, $this->tpl(self::TPL_TEXTAREA, array('name' => $field->getName())));
+        return $this->field(
+            $field,
+            $this->tpl(
+                self::TPL_TEXTAREA,
+                array(
+                    'name' => $field->getName(),
+                    'value' => $field->getValue(),
+                )
+            )
+        );
     }
     
     function select(fields\ChoiceField $field)
     {
         $options = '';
         foreach($field->getChoices() as $choice_lbl => $choice_val) {
-            $options.= $this->tpl(self::TPL_SELECT_OPTION, array(
-                'value' => $choice_val,
-                'label' => is_int($choice_lbl) ? $choice_val : $choice_lbl,
-            ));
+            $options.= $this->tpl(
+                self::TPL_SELECT_OPTION,
+                array(
+                    'value' => $choice_val,
+                    'label' => is_int($choice_lbl) ? $choice_val : $choice_lbl,
+                    'selected' => $field->getValue() == $choice_val ? 'selected' : '',
+                )
+            );
         }
         
-        return $this->field($field, $this->tpl(self::TPL_SELECT, array(
-            'name' => $field->getName(),
-            'options' => $options,
-        )));
+        return $this->field(
+            $field,
+            $this->tpl(
+                self::TPL_SELECT,
+                array(
+                    'name' => $field->getName(),
+                    'options' => $options,
+                )
+            )
+        );
     }
     
     function checkbox(fields\Field $field)
     {
-        return $this->field($field, $this->tpl(
-            self::TPL_INPUT,
-            array(
-                'type' => 'checkbox',
-                'name' => $field->getName(),
-            )),
+        return $this->field(
+            $field,
+            $this->tpl(
+                self::TPL_INPUT,
+                array(
+                    'type' => 'checkbox',
+                    'name' => $field->getName(),
+                    'extra' => $field->getValue() ? 'checked' : '',
+                )
+            ),
             true
         );
     }

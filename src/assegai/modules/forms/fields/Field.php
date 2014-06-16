@@ -64,7 +64,7 @@ class Field
     
     function getLabel()
     {
-        if($this->label) {
+        if($this->_label) {
             return $this->_label;
         }
         else {

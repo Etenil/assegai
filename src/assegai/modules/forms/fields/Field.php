@@ -12,6 +12,16 @@ class Field
     protected $_label = '';
     protected $_value = null;
 
+    function validate($data)
+    {
+        $errors = [];
+        if(!$data && !$this->_blank) {
+            $errors[] = sprintf("%s cannot be blank", $this->getName());
+        }
+
+        return $errors;
+    }
+
     function name($val)
     {
         $this->_name = $val;

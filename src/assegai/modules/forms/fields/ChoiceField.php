@@ -29,7 +29,7 @@ class ChoiceField extends Field
                 $errors
             );
         }
-        elseif(!in_array($item, $choices)) {
+        elseif(!in_array($item, $this->_choices)) {
             $carry[] = sprintf("'%s' is an unknown choice for %s", $item, $this->getName());
         }
 

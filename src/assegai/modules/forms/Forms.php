@@ -22,11 +22,10 @@ class Forms extends modules\Module
     public function preRequest(\assegai\Controller $controller, \assegai\Request $request)
     {
         $controller->register('form', array($this, 'loadForm'));
-
-        spl_autoload_register();
+        $controller->registerHelper('forms', new FormHelper($this));
     }
 
-    public function loadForm($form_name) {
+    public function loadForm($form_name, array $data = array()) {
         if(stripos($form_name, 'false') === false) {
             $form_name = sprintf('%s\forms\%s', $this->server->getAppName(), $form_name);
         }
@@ -35,7 +34,7 @@ class Forms extends modules\Module
             throw new exceptions\HttpInternalServerError("Class $form_name not found");
         }
         
-        return new $form_name($this->modules);
+        return new $form_name($this->modules, $data);
     }
     
     public function render(Form $form)

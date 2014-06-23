@@ -41,6 +41,7 @@ class Controller implements IController
 
     /** Virtual methods. */
     protected $virtual_methods;
+    protected $helpers;
 
     /**
      * Controller's constructor. This is meant to be called by Core.
@@ -57,6 +58,7 @@ class Controller implements IController
 		$this->server = $server;
         $this->sec = $security;
         $this->request = $request;
+        $this->helpers = array();
 
         // Running the user init.
         $this->_init();
@@ -111,9 +113,26 @@ class Controller implements IController
     {
     }
 
+    /**
+     * Registers a new helper. Useful in modules.
+     */
+    function registerHelper($helper_name, IHelper $helper)
+    {
+        $this->helpers[$helper_name] = $helper;
+        return $this;
+    }
+
+    /**
+     * Instanciates a helper.
+     */
     function helper($helper_name) {
-        $classname = 'Helper_' . ucwords($helper_name);
-        return new $classname($this->modules, $this->server, $this->request, $this->security);
+        if(array_key_exists($helper_name, $this->helpers)) {
+            return $this->helpers[$helper_name];
+        }
+        else {
+            $classname = 'Helper_' . ucwords($helper_name);
+            return new $classname($this->modules, $this->server, $this->request, $this->security);
+        }
     }
 
     /**

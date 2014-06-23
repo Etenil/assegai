@@ -6,6 +6,7 @@ use \assegai\modules\forms\fields;
 
 class Form
 {
+    protected $modules;
     protected $_fields = array();
     protected $_errors = array();
 
@@ -13,6 +14,17 @@ class Form
     {
         if(isset($this->_fields, $name)) {
             return $this->_fields[$name];
+        }
+    }
+    
+    public function __construct($modules, array $data = array())
+    {
+        $this->modules = $modules;
+        
+        $this->_initFields();
+        
+        if($data) {
+            $this->populateFields($data);
         }
     }
 
@@ -25,9 +37,8 @@ class Form
         return $field;
     }
     
-    public function render(renderers\IRenderer $renderer)
+    protected function _initFields()
     {
-        $buffer = '';
         foreach($this->_fields as $fieldname => $field) {
             /* The field cannot know about the variable name it was given,
                unfortunately. So we inform it about its name here, unless
@@ -35,7 +46,13 @@ class Form
             if(!$field->getName()) {
                 $field->name($fieldname);
             }
-            
+        }
+    }
+    
+    public function render(renderers\IRenderer $renderer)
+    {
+        $buffer = '';
+        foreach($this->_fields as $fieldname => $field) {            
             switch($field->getType()) {
                 case 'text':
                     if($field->isMultiline()) {
@@ -59,6 +76,15 @@ class Form
         return $buffer;
     }
 
+    public function populateFields(array $data)
+    {
+        foreach($this->_fields as $fieldname => $field) {
+            if(isset($data[$field->getName()])) {
+                $field->value($data[$field->getName()]);
+            }
+        }
+    }
+
     public function isValid(array $data)
     {
         foreach($this->_fields as $fieldname => $field) {
@@ -74,7 +100,16 @@ class Form
             $this->_errors = array_merge($this->_errors, $field->validate($data[$field->getName()]));
         }
 
-        return (count($this->_errors) == 0);
+        return !$this->hasErrors();
+    }
+    
+    function hasErrors()
+    {
+        return count($this->_errors) > 0;
+    }
+    
+    public function allErrors()
+    {
+        return $this->_errors;
     }
 }
-

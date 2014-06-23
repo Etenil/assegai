@@ -5,21 +5,22 @@ namespace assegai\modules\forms\fields;
 class Field
 {
     protected $_name = '';
-    protected $_blank = true;
+    protected $_required = true;
     protected $_default = null;
     protected $_editable = true;
     protected $_help = null;
     protected $_label = '';
     protected $_value = null;
+    // Fields are invalid by default because they're blank and are required.
+    protected $_errors = array();
 
     function validate($data)
-    {
-        $errors = [];
-        if(!$data && !$this->_blank) {
-            $errors[] = sprintf("%s cannot be blank", $this->getName());
+    {        
+        if(!$data && $this->isRequired()) {
+            $this->_errors[] = sprintf("%s cannot be blank", $this->getName());
         }
 
-        return $errors;
+        return $this->allErrors();
     }
 
     function name($val)
@@ -28,9 +29,9 @@ class Field
         return $this;
     }
 
-    function blank($val)
+    function required($val)
     {
-        $this->_blank = (bool)$val;
+        $this->_required = (bool)$val;
         return $this;
     }
 
@@ -82,14 +83,24 @@ class Field
         }
     }
     
-    function getValue()
+    function isRequired()
     {
-        return $this->_value;
+        return $this->_required;
     }
     
     public function getDefault()
     {
         return $this->_default;
+    }
+    
+    function getValue()
+    {
+        if($this->_value) {
+            return $this->_value;
+        }
+        else {
+            return $this->getDefault();
+        }
     }
     
     public function isEditable()
@@ -100,6 +111,21 @@ class Field
     public function getHelp()
     {
         return $this->_help;
+    }
+    
+    public function hasErrors()
+    {
+        return count($this->_errors) > 0;
+    }
+    
+    public function isValid()
+    {
+        return !$this->hasErrors();
+    }
+    
+    public function allErrors()
+    {
+        return $this->_errors;
     }
 }
 

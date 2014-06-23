@@ -9,15 +9,18 @@ class Paragraph extends Renderer implements IRenderer
     protected $errors;
 
     const TPL_FIELD = '
-        <p id="field-{{name}}">
+        <p id="field-{{name}}" class="{{class}}">
             <label for="input-{{name}}">{{label}}:</label>
             {{input}}
+            {{help}}
         </p>
     ';
+    const TPL_HELPTEXT = '<span class="helptext">{{help}}</span>';
     const TPL_PREFIELD = '
         <p id="field-{{name}}">
             {{input}}
             <label for="input-{{name}}">{{label}}</label>
+            {{help}}
         </p>
     ';
     const TPL_INPUT = '
@@ -38,10 +41,19 @@ class Paragraph extends Renderer implements IRenderer
         if($prefield) {
             $tpl = self::TPL_PREFIELD;
         }
+        $help = '';
+        if($field->getHelp()) {
+            $help = $this->tpl(self::TPL_HELPTEXT, array(
+                'name' => $field->getName(),
+                'help' => $field->getHelp(),
+            ));
+        }
         return $this->tpl($tpl, array(
             'name' => $field->getName(),
             'label' => $field->getLabel(),
             'input' => $input,
+            'help' => $help,
+            'class' => $field->hasErrors() ? 'error' : '',
         ));
     }
     

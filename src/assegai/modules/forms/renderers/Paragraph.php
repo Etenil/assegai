@@ -121,7 +121,7 @@ class Paragraph extends Renderer implements IRenderer
                 array(
                     'type' => 'checkbox',
                     'name' => $field->getName(),
-                    'extra' => $field->getValue() ? 'checked' : '',
+                    'extra' => $field->getValue() !== null ? 'checked' : '',
                 )
             ),
             true

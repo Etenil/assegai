@@ -103,7 +103,7 @@ class Field
     
     function getValue()
     {
-        if($this->_value) {
+        if($this->_value !== null) {
             return $this->_value;
         }
         else {

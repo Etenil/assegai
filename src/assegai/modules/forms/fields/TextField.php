@@ -4,12 +4,11 @@ namespace assegai\modules\forms\fields;
 
 class TextField extends SizedField
 {
-    protected $_max_length = null;
     protected $_multiline = false;
 
-    function validate($data)
+    function validate()
     {
-        $errors = parent::validate($data);
+        $errors = parent::validate();
         $validator = new Validator($this->_value);
         
         if(!$this->isMultiline()) {

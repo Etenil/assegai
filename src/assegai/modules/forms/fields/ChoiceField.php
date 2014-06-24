@@ -7,9 +7,9 @@ class ChoiceField extends Field
     protected $_choices = array();
     protected $_multiple = false;
 
-    function validate($data)
+    function validate()
     {
-        $errors = parent::validate($data);
+        $errors = parent::validate();
         $validator = new Validator($this->_value);
 
         if(is_array($data) && !$this->isMultiple()) {

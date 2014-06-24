@@ -14,10 +14,18 @@ class Field
     // Fields are invalid by default because they're blank and are required.
     protected $_errors = array();
 
-    function validate($data)
+    function __construct($value = null)
+    {
+        $this->_value = $value;
+    }
+
+    function validate()
     {
         $validator = new Validator($this->_value);
-        $validator->required(sprintf("%s cannot be blank", $this->getName()));
+        
+        if($this->isRequired()) {
+            $validator->required(sprintf("%s cannot be blank", $this->getName()));
+        }
 
         $this->_errors = $validator->allErrors();
         return $this->allErrors();

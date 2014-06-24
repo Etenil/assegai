@@ -8,7 +8,7 @@ class SizedField extends Field
     
     function validate()
     {
-        $errors = parent::validate($data);
+        $errors = parent::validate();
         $validator = new Validator($this->_value);
         
         if($this->_max_length > -1) {

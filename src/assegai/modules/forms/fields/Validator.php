@@ -12,7 +12,7 @@ class Validator
     
     public function __construct($value)
     {
-        $this->setValue = $value;
+        $this->setValue($value);
     }
     
     public function hasErrors()
@@ -462,7 +462,10 @@ class Validator
      */
     public function notRegexp($pattern, $msg)
     {
-        return !$this->regexp($pattern, $msg);
+        if(preg_match($pattern, (string)$this->_value)) {
+            $this->_errors[] = $msg;
+        }
+        return $this;
     }
     
     /**

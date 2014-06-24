@@ -22,7 +22,6 @@ class DateField extends Field
     function validate()
     {
         $errors = parent::validate();
-        
         $validator = new Validator($this->_value);
         $validator->date(sprintf("%s is not a date", $this->getName()));
         

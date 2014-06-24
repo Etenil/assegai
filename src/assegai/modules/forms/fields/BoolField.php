@@ -4,5 +4,9 @@ namespace assegai\modules\forms\fields;
 
 class BoolField extends Field
 {
-    // I don't see what more to add...
+    function __construct($value = null)
+    {
+        parent::__construct($value);
+        $this->_required = false;
+    }
 }

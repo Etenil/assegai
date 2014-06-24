@@ -83,8 +83,9 @@ class Form
             if(!$field->getName()) {
                 $field->name($fieldname);
             }
-
-            $this->_errors = array_merge($this->_errors, $field->validate($data[$field->getName()]));
+            
+            $field->value($data[$field->getName()]);
+            $this->_errors = array_merge($this->_errors, $field->validate());
         }
 
         return !$this->hasErrors();

@@ -6,4 +6,3 @@ class BoolField extends Field
 {
     // I don't see what more to add...
 }
-

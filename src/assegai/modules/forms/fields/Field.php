@@ -15,11 +15,11 @@ class Field
     protected $_errors = array();
 
     function validate($data)
-    {        
-        if(!$data && $this->isRequired()) {
-            $this->_errors[] = sprintf("%s cannot be blank", $this->getName());
-        }
+    {
+        $validator = new Validator($this->_value);
+        $validator->required(sprintf("%s cannot be blank", $this->getName()));
 
+        $this->_errors = $validator->allErrors();
         return $this->allErrors();
     }
 

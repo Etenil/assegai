@@ -18,5 +18,26 @@ class DateField extends Field
         $this->_max_value = $val;
         return $this;
     }
+    
+    function validate()
+    {
+        $errors = parent::validate();
+        
+        $validator = new Validator($this->_value);
+        $validator->date(sprintf("%s is not a date", $this->getName()));
+        
+        if($this->_min_value) {
+            $validator->minDate(sprintf("%s is too small", $this->getName()));
+        }
+        if($this->_max_value) {
+            $validator->maxDate(sprintf("%s is too big", $this->getName()));
+        }
+        
+        if($validator->hasErrors()) {
+            $this->_errors = array_merge($errors, $validator->allErrors());
+        }
+        
+        return $this->allErrors();
+    }
 }
 

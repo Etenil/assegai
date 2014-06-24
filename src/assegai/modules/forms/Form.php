@@ -21,8 +21,6 @@ class Form
     {
         $this->modules = $modules;
         
-        $this->_initFields();
-        
         if($data) {
             $this->populateFields($data);
         }
@@ -32,21 +30,10 @@ class Form
     {
         $fieldname = 'assegai\modules\forms\fields\\' . $type . 'Field';
         $field = new $fieldname;
+        $field->name($name);
         $this->_fields[$name] = $field;
 
         return $field;
-    }
-    
-    protected function _initFields()
-    {
-        foreach($this->_fields as $fieldname => $field) {
-            /* The field cannot know about the variable name it was given,
-               unfortunately. So we inform it about its name here, unless
-               the developer manually set a different name for it. */
-            if(!$field->getName()) {
-                $field->name($fieldname);
-            }
-        }
     }
     
     public function render(renderers\IRenderer $renderer)

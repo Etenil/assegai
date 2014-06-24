@@ -10,30 +10,29 @@ class ChoiceField extends Field
     function validate($data)
     {
         $errors = parent::validate($data);
+        $validator = new Validator($this->_value);
 
         if(is_array($data) && !$this->isMultiple()) {
             $errors[] = sprintf(
                 "only choose one value for %s",
-                $this->getName(), $this->_max_length
+                $this->getName()
             );
         }
         elseif(is_array($data) && $this->isMultiple()) {
-            $choices = $this->_choices;
-            $errors = array_reduce(
-                $data,
-                function($carry, $item) use($choices) {
-                    if(!in_array($item, $choices)) {
-                        $carry[] = sprintf("'%s' is an unknown choice for %s", $item, $this->getName());
-                    }
-                },
-                $errors
-            );
+            foreach($data as $item) {
+                $validator->setValue($item);
+                $validator->oneOf($this->getChoices(), sprintf("'%s' is an unknown choice for %s", $item, $this->getName()));
+            }
         }
-        elseif(!in_array($item, $this->_choices)) {
-            $carry[] = sprintf("'%s' is an unknown choice for %s", $item, $this->getName());
+        else {
+            $validator->oneOf($this->getChoices(), sprintf("'%s' is an unknown choice for %s", $item, $this->getName()));
+        }
+        
+        if($validator->hasErrors()) {
+            $this->_errors = array_merge($errors, $validator->allErrors());
         }
 
-        return $errors;
+        return $this->allErrors();
     }
     
     public function choices(array $val) 

@@ -39,42 +39,13 @@ class Response
     /** Content type header. */
 	protected $content_type;
 
-    protected $sessionvars;
-    protected $cookievars;
-    protected $alteredsession = false;
-    protected $alteredcookies = false;
-
     /**
      * Backwards-compatible constructor, for people who have not
      * migrated to the DI yet.
      */
     function __construct($body = '', $status_code = 200,
-        $content_type = 'text/html; charset=UTF-8',
-        array $cookies = null, array $session = null)
+        $content_type = 'text/html; charset=UTF-8')
     {
-        if(!$session) {
-            // PHP 5.4+ first.
-            if((function_exists('session_status')
-                    && session_status() == PHP_SESSION_ACTIVE)
-                || isset($_SESSION)) {
-                $session = $_SESSION;
-            }
-            else if(session_id() && isset($_SESSION)) {
-                $session = $_SESSION;
-            }
-            else {
-                $session = array();
-            }
-        } else {
-            $this->sessionvars = $session ?: array();
-        }
-
-        if(!$cookies) {
-            $cookies = $_COOKIE;
-        } else {
-            $this->cookievars = $cookies ?: array();
-        }
-
 		$this->status_code = $status_code;
 		$this->content_type = $content_type;
 		$this->headers = array();
@@ -156,89 +127,6 @@ class Response
 	}
 
     /**
-     * Sets a SESSION variable.
-     * @param varname is the variable's name.
-     * @param varval is the value to assign to the variable.
-     * @return FALSE if session isn't started.
-     */
-    public function setSession($varname, $varval)
-    {
-        $this->alteredsession = true;
-        $this->sessionvars[$varname] = $varval;
-        return $this;
-    }
-
-    /**
-     * Retrieves the value of a session variable.
-     * @param $varname is the variable's name
-     * @param $default is the default value to be returned.
-     * @return the session variable or FALSE if it can't be retrieved.
-     */
-    public function getSession($varname, $default = false)
-    {
-        if(isset($this->sessionvars[$varname])) {
-            return $this->sessionvars[$varname];
-        } else {
-            return $default;
-        }
-    }
-
-    /**
-     * Clears a session variable.
-     * @param $varname is the session variable's name.
-     */
-    public function killSession($varname)
-    {
-        $this->alteredsession = true;
-        unset($this->sessionvars[$varname]);
-        return $this;
-    }
-
-    public function alteredSession() {
-        return $this->alteredsession;
-    }
-
-    public function alteredCookies() {
-        return $this->alteredcookies;
-    }
-
-    /**
-     * Clears a cookie variable.
-     * @param $varname is the cookie variable's name.
-     */
-    public function killCookie($varname)
-    {
-        $this->alteredcookies = true;
-        unset($this->cookievars[$varname]);
-        return $this;
-    }
-
-    /**
-     * Sets a COOKIE variable.
-     * @param varname is the variable's name.
-     * @param varval is the value to assign to the variable.
-     */
-    public function setCookie($varname, $varval)
-    {
-        $this->alteredcookies = true;
-        $this->cookievars[$varname] = $varval;
-    }
-
-    /**
-     * Retrieves the value of a cookie variable.
-     * @param $varname is the variable's name
-     * @param $default is the default value to be returned.
-     */
-    public function getCookie($varname, $default = false)
-    {
-        if(isset($this->cookievars[$varname])) {
-            return $this->cookievars[$varname];
-        } else {
-            return $default;
-        }
-    }
-
-    /**
      * Sets the HTTP status code.
      * @param int $statuscode is the HTTP status code to be returned.
      */
@@ -248,20 +136,6 @@ class Response
             $this->status_code = $statuscode;
         }
         return $this;
-    }
-
-    /**
-     * Gets all cookies.
-     */
-    function getAllCookies() {
-        return $this->cookievars;
-    }
-
-    /**
-     * Gets all session.
-     */
-    function getAllSession() {
-        return $this->sessionvars;
     }
 
     /**
@@ -334,29 +208,11 @@ class Response
 	 */
 	public function compile()
 	{
-        $session_started = false;
-        if(function_exists('session_status') && session_status() == PHP_SESSION_ACTIVE) {
-          $session_started = true;
-        }
-        else if(isset($_SESSION)) {
-          $session_started = true;
-        }
-
-        if($session_started) {
-          // Session handling.
-          if(!is_array($this->sessionvars)) {
-            $this->sessionvars = array();
-          }
-          $_SESSION = @array_merge($_SESSION, $this->sessionvars);
-        }
-
 		header('HTTP/1.1 ' . $this->httpStatus($this->getStatus()));
 		header('Content-Type: ' . $this->content_type);
 		foreach($this->headers as $hdrkey => $hdrval) {
 			header($hdrkey . ': ' . $hdrval);
 		}
-
-        $_COOKIE = @array_merge($_COOKIE, $this->cookievars);
 
 		echo $this->body;
 	}

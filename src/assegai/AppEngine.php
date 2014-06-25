@@ -250,16 +250,7 @@ namespace assegai {
          * Processes the returned object from a handler.
          */
         protected function display(Request $request, $response) {
-            // TODO get rid of backwards compat here.
-            if(is_object($response)) {
-                if($response->alteredSession()) {
-                    $request->setAllSession($response->getAllSession());
-                }
-                if($response->alteredCookies()) {
-                    $request->setAllCookies($response->getAllCookies());
-                }
-            }
-            $request->commitSessionAndCookies();
+            $request->saveState();
             if(is_object($response)) {
                 $response->compile();
             } else {

@@ -28,7 +28,7 @@
 
 namespace assegai;
 
-class Request
+class Request extends Stateful
 {
     /** Requested route. */
     protected $route;
@@ -40,10 +40,7 @@ class Request
 	protected $getvars;
     /** Stores the POST variables. */
 	protected $postvars;
-    /** Stores Session vars. */
-    protected $sessionvars;
-    /** Stores Cookie vars. */
-    protected $cookievars;
+    
     /** Security */
     protected $sec;
     protected $server;
@@ -56,6 +53,7 @@ class Request
      */
     function __construct()
     {
+        parent::__construct();
     }
 
     function setDependencies(Server $server, Security $sec)
@@ -71,8 +69,6 @@ class Request
         $this->method = $this->server->getMethod();
 		$this->getvars = $_GET;
 		$this->postvars = $_POST;
-        $this->sessionvars = (isset($_SESSION) ? $_SESSION : array());
-        $this->cookievars = $_COOKIE;
     }
 
     public function getRoute() {
@@ -203,94 +199,6 @@ class Request
     }
 
     /**
-     * Sets a SESSION variable.
-     * @param varname is the variable's name.
-     * @param varval is the value to assign to the variable.
-     * @return FALSE if session isn't started.
-     */
-    public function setSession($varname, $varval)
-    {
-        $this->sessionvars[$varname] = $varval;
-        return $this;
-    }
-
-    /**
-     * Retrieves the value of a session variable.
-     * @param $varname is the variable's name
-     * @param $default is the default value to be returned.
-     * @return the session variable or FALSE if it can't be retrieved.
-     */
-    public function getSession($varname, $default = false)
-    {
-        if(isset($this->sessionvars[$varname])) {
-            return $this->sessionvars[$varname];
-        } else {
-            return $default;
-        }
-    }
-
-    /**
-     * Clears a session variable.
-     * @param $varname is the session variable's name.
-     */
-    public function killSession($varname)
-    {
-        unset($this->sessionvars[$varname]);
-        return $this;
-    }
-
-    public function getAllSession() {
-        return $this->sessionvars;
-    }
-
-    public function setAllSession(array $session) {
-        $this->sessionvars = $session;
-    }
-
-    public function getAllCookies() {
-        return $this->sessionvars;
-    }
-
-    public function setAllCookies(array $cookies) {
-        $this->cookievars = $cookies;
-    }
-
-    /**
-     * Clears a cookie variable.
-     * @param $varname is the cookie variable's name.
-     */
-    public function killCookie($varname)
-    {
-        unset($this->cookievars[$varname]);
-        return $this;
-    }
-
-    /**
-     * Sets a COOKIE variable.
-     * @param varname is the variable's name.
-     * @param varval is the value to assign to the variable.
-     */
-    public function setCookie($varname, $varval)
-    {
-        $this->cookievars[$varname] = $varval;
-    }
-
-    /**
-     * Retrieves the value of a cookie variable.
-     * @param $varname is the variable's name
-     * @param $default is the default value to be returned.
-     */
-    public function getCookie($varname, $default = false)
-    {
-        if(isset($this->cookievars[$varname])) {
-            return $this->cookievars[$varname];
-        } else {
-            return $default;
-        }
-    }
-
-
-    /**
      * Does the request contain files?
      */
     function hasFiles()
@@ -397,12 +305,4 @@ class Request
 
         return $return;
     }
-
-    function commitSessionAndCookies() {
-        if(is_array($this->sessionvars)) { // Let's not alter the session if not started.
-            $_SESSION = $this->sessionvars;
-        }
-        $_COOKIE = $this->cookievars;
-    }
 }
-

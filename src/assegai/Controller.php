@@ -283,5 +283,34 @@ class Controller implements IController
 	{
 		return $returned;
 	}
+    
+    /**
+     * Generates a CSRF token.
+     */
+    protected final function csrf()
+    {
+        $token = Utils::randomString(64);
+        $this->request->setSession('assegai_csrf_token', $token);
+        return '<input type="hidden" name="csrf" value="' . $token . '" />';
+    }
+    
+    /**
+     * Checks the validity of the CSRF token.
+     */
+    protected final function checkCsrf()
+    {
+        $valid = false;
+        
+        $r = $this->request;
+        
+        if($r->getSession('assegai_csrf_token')
+            && $r->post('csrf')
+            && $r->getSession('assegai_csrf_token') == $r->post('csrf')) {
+            $valid = true;
+        }
+        
+        $this->request->killSession('assegai_csrf_token');
+        return $valid;
+    }
 }
 

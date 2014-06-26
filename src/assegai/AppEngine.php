@@ -281,32 +281,34 @@ namespace assegai {
             $dispatcher = $this;
             $server = $this->server;
             $request = $this->request;
-            return function($e) use($dispatcher, $handler, $server, $request) {
+            $modules = $this->modules;
+            return function($e) use($modules, $dispatcher, $handler, $server, $request) {
                 list($class, $method) = explode('::', $handler);
 
                 // If the controller's name conforms to conventions, then we can get the app name.
                 if(strpos($class, '\\') !== false) { // New PSR-0 style.
-                    list($app_name, $token, $controller_name) = explode('\\', $class);
+                    list($app_name, $token, $controller_name) = explode('\\', trim($class, '\\'));
                 } else {
                     list($app_name, $token, $controller_name) = explode('_', strtolower($class));
                 }
 
-                if($token == 'controller' || $token == 'controllers') {
-                    try {
-                        $modules = $dispatcher->loadAppModules($app_name);
-                    }
-                    catch(\Exception $e) {
-                        $modules = new modules\ModuleContainer($server);
-                    }
-                } else {
-                    $modules = new modules\ModuleContainer($server);
+                try {
+                    $new_modules = $dispatcher->loadAppModules($app_name);
+                }
+                catch(\Exception $e) {
+                    // nothing.
+                }
+
+                if($new_modules) {
+                    $modules = $new_modules;
                 }
 
                 $controller = new $class(
                     $modules,
                     $server,
                     $request,
-                    new \assegai\Security());
+                    new \assegai\Security()
+                );
                 $controller->preRequest();
                 $page = $controller->$method($e);
                 $controller->postRequest($page);
@@ -444,7 +446,7 @@ namespace assegai {
                 foreach($this->conf->get('modules') as $module) {
                     $opts = array();
                     
-                    if($this->apps_conf[$app]->get($module)) {
+                    if(isset($this->apps_conf[$app]) && $this->apps_conf[$app]->get($module)) {
                         // We give priority to the app's module configuration.
                         $opts = $this->apps_conf[$app]->get($module);
                     }
@@ -455,7 +457,7 @@ namespace assegai {
                     $this->modules->addModule($module, $opts);
                 }
 			}
-            if($this->apps_conf[$app]->get('modules')
+            if(isset($this->apps_conf[$app]) && $this->apps_conf[$app]->get('modules')
 				&& is_array($this->apps_conf[$app]->get('modules'))) {
                 // Now the app's modules turn.
                 foreach($this->apps_conf[$app]->get('modules', array()) as $module) {

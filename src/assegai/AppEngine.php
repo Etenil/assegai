@@ -141,6 +141,8 @@ namespace assegai {
                     }
                 }
             }
+
+            $this->server->setMainConf($this->conf);
         }
 
         /**
@@ -294,6 +296,8 @@ namespace assegai {
 
                 try {
                     $new_modules = $dispatcher->loadAppModules($app_name);
+                    $this->server->setAppConf($this->apps_conf[$app_name]);
+                    $this->server->setAppPath(Utils::joinPaths($this->conf->get('apps_path'), $app_name));
                 }
                 catch(\Exception $e) {
                     // nothing.
@@ -425,7 +429,6 @@ namespace assegai {
             $this->current_app = $call->getApp();
             $this->server->setAppName($this->current_app);
 
-            $this->server->setMainConf($this->conf);
             $this->server->setAppConf($this->apps_conf[$this->current_app]);
             $this->server->setAppPath(Utils::joinPaths($this->conf->get('apps_path'), $this->current_app));
             if($this->apps_conf[$this->current_app]->get('use_session')) {

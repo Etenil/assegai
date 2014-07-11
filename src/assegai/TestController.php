@@ -54,7 +54,18 @@ class TestController extends \PHPUnit_Framework_TestCase implements IController
 		$this->server = $container->give('server');
         $this->sec = $container->give('security');
         $this->request = $container->give('request');
-        
+
+        // Starting modules.
+        foreach($this->server->main->get('modules') as $module) {
+            $opts = array();
+            
+            if($this->server->main->get($module)) {
+                $opts = $this->server->main->get($module);
+            }
+                    
+            $this->modules->addModule($module, $opts);
+        }
+
         // Running the user init.
         $this->_init();
 	}

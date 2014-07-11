@@ -77,7 +77,7 @@ class Config
     
     public function set($defname, $value)
     {
-        $this->definitions[$defname] = $value;
+        $this->settings[$defname] = $value;
     }
 
     public function getAll()

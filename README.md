@@ -1,6 +1,6 @@
 # ASSEGAI
 
-UPDATED 30 May 2014
+UPDATED 14 July 2014
 
 ## Introduction
 

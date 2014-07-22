@@ -42,6 +42,7 @@ class ModuleContainer
      */
     public function __construct()
     {
+        $this->modules = array();
     }
 
     public function setDependencies(\assegai\Server $server)

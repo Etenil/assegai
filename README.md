@@ -24,15 +24,15 @@ Now save and exit the composer.json file and from your project’s root folder (
 
     $ composer install
 
-Once the installation of Assegai is completed, you will have a fully functional MVC framework installed inside your project folder. 
+Once the installation of Assegai is completed, you will have a fully functional MVC framework installed inside your project's folder. 
 
 ## Getting started
 
-There are many possible ways to setup and use the Assegai framework. Following sections demonstrates currently the simples setup. The recommended setup will follow shortly.
+There are many possible ways to setup and use the Assegai framework. Following sections demonstrates currently the most simple setup. The recommended setup documentation will follow shortly.
 
 ### Bootstrapping
 
-You will need to make a bootstrapper, or use the default one for your project. The framework comes with an example bootstrapper that you can adapt. 
+You will need to make a bootstrapper or use the default one for your project. The framework comes with an example bootstrapper that you can adapt. 
 
 To utilise the default bootstrapper run the following command from within your project’s root folder: 
 
@@ -46,7 +46,7 @@ Even though Assegai has default configuration options, it will not work unless a
 
     $ cp vendor/etenil/assegai/conf.example.php conf.php
 
-Now you have fully configured framework. In order to test the setup the flowing section will demonstrate how to create an application within Assegai. 
+Now you have fully configured framework. In order to test the setup the flowing section will demonstrate how to create an application with Assegai. 
 
 ### Hello World app
 
@@ -65,7 +65,7 @@ Your configuration file should look as following:
     ];
 ```
 
-Now lets create the actual application. From the project’s root folder type in following command;
+Now lets create the actual application. From the project’s root folder type in following command:
     
     $ vendor/etenil/assegai/assegai app helloworld
 
@@ -80,7 +80,7 @@ This will create the file-system tree for your application. The default applicat
        |- views
 
 
-Create the file *Hello.php* within the *controllers* directory and put the following code:
+Now create the file *Hello.php* within the *controllers* directory and put the following code:
 ```php
 <?php
     namespace helloworld\controllers;
@@ -99,7 +99,7 @@ We still need to indicate to the framework that this controller needs to be call
 ```php
 <?php
     $conf['route'] = [
-        '/' => 'hello\controllers\Hello::sayHello',
+        '/' => 'helloworld\controllers\Hello::sayHello',
     ];
 ```
 Now you can visit your web server and should see the *Hello, World* message printed.

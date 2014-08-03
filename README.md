@@ -79,8 +79,8 @@ This will create the file-system tree for your application. The default applicat
 
 
 Create the file *Hello.php* within the *controllers* directory and put the following code:
-
-
+```php
+<?php
     namespace helloworld\controllers;
     
     class Hello extends \assegai\Controller
@@ -90,7 +90,7 @@ Create the file *Hello.php* within the *controllers* directory and put the follo
             return "Hello, World!";
         }
     }
-
+```
 Be careful to put the first backslash on *\assegai\Controller*, otherwise you'll have issues.
 
 We still need to indicate to the framework that this controller needs to be called when visiting the website. This is done by adding the following contents to the application's *conf.php* file. Note that this conf.php file is different to the general configuration file. 

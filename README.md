@@ -11,14 +11,14 @@ The framework used to rely on the micro-framework [Atlatl](http://github.com/Ete
 ## Installation
 
 To install Assegai you will first need to install [composer](http://getcomposer.org). Then create a composer.json file for your project that requires *etenil/assegai*. An example composer.json file should look as following:
-
+```json
 {
     "name": “YOUR_NAME/test-assegai”,
     "require": {
         "etenil/assegai": "2.*"
     }
 }
-
+```
 
 Now save and exit the composer.json file and from your project’s root folder (using command line) run the following command:  
 

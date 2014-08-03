@@ -22,7 +22,7 @@ To install Assegai you will first need to install [composer](http://getcomposer.
 
 Now save and exit the composer.json file and from your project’s root folder (using command line) run the following command:  
 
-    composer install
+    $ composer install
 
 Once the installation of Assegai is completed, you will have a fully functional MVC framework installed inside your project folder. 
 
@@ -36,7 +36,7 @@ You will need to make a bootstrapper, or use the default one for your project. T
 
 To utilise the default bootstrapper run the following command from within your project’s root folder: 
 
-    cp vendor/etenil/assegai/bootstrapper.example.conf index.php
+    $ cp vendor/etenil/assegai/bootstrapper.example.conf index.php
 
 This will copy the already provided example bootstrapper file into the project’s root folder, renaming the file to *index.php*. 
 
@@ -44,7 +44,7 @@ This will copy the already provided example bootstrapper file into the project�
 
 Even though Assegai has default configuration options, it will not work unless a configuration file is created, even if empty. You can simply use the file *conf.example.php* that comes with the framework. To do that from your project root folder use the following command:
 
-    cp vendor/etenil/assegai/conf.example.php conf.php
+    $ cp vendor/etenil/assegai/conf.example.php conf.php
 
 Now you have fully configured framework. In order to test the setup the flowing section will demonstrate how to create an application within Assegai. 
 
@@ -56,16 +56,18 @@ To create application firstly go into the conf.php file in your projects’s roo
 Feel free to delete or simply rename the currently existing sample app.
 
 Your configuration file should look as following: 
-
+```php
+<?php
     $conf['apps_path'] = __DIR__ . '/apps';
 
     $conf['apps'] = [
         'helloworld',   
     ];
+```
 
-Now lets create the actual application. From the project’s root folder type in following command 
+Now lets create the actual application. From the project’s root folder type in following command;
     
-    vendor/etenil/assegai/assegai app helloworld
+    $ vendor/etenil/assegai/assegai app helloworld
 
 This will create the file-system tree for your application. The default application tree is like so:
 
@@ -94,11 +96,12 @@ Create the file *Hello.php* within the *controllers* directory and put the follo
 Be careful to put the first backslash on *\assegai\Controller*, otherwise you'll have issues.
 
 We still need to indicate to the framework that this controller needs to be called when visiting the website. This is done by adding the following contents to the application's *conf.php* file. Note that this conf.php file is different to the general configuration file. 
-
+```php
+<?php
     $conf['route'] = [
         '/' => 'hello\controllers\Hello::sayHello',
     ];
-
+```
 Now you can visit your web server and should see the *Hello, World* message printed.
 
 

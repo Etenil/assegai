@@ -107,7 +107,7 @@ We still need to indicate to the framework that this controller needs to be call
 Now you can visit your web server and should see the *Hello, World* message printed.
 
 
-## Namespacing Convention
+### Namespacing Convention
 
 Assegai encourages the use of multiple specialised apps that can share models in order to implement websites. The framework relies on the [PSR-0](http://www.php-fig.org/psr/psr-0/) naming standard.
 

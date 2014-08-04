@@ -1,6 +1,6 @@
 # ASSEGAI
 
-UPDATED 30 May 2014
+UPDATED 03 August 2014
 
 ## Introduction
 
@@ -10,11 +10,104 @@ The framework used to rely on the micro-framework [Atlatl](http://github.com/Ete
 
 ## Installation
 
-To install Assegai, you will first need to install [composer](http://getcomposer.org). Then create a composer.json file for your project that requires *etenil/assegai*. Finally run
+*Note: A full demonstration video is available illustrating points covered in the installation and the getting started sections. Please visit [youtube](https://www.youtube.com/watch?v=c3jxjB5p99E) to view the video.*
 
-    composer install
+To install Assegai you will first need to install [composer](http://getcomposer.org). Then create a composer.json file for your project that requires *etenil/assegai*. An example composer.json file should look as following:
+```json
+{
+    "name": “YOUR_NAME/test-assegai”,
+    "require": {
+        "etenil/assegai": "2.*"
+    }
+}
+```
 
-## Namespacing Convention
+Now save and exit the composer.json file and from your project’s root folder (using command line) run the following command:  
+
+    $ composer install
+
+Once the installation of Assegai is completed, you will have a fully functional MVC framework installed inside your project's folder. 
+
+## Getting started
+
+There are many possible ways to setup and use the Assegai framework. Following sections demonstrates currently the most simple setup. The recommended setup documentation will follow shortly.
+
+### Bootstrapping
+
+You will need to make a bootstrapper or use the default one for your project. The framework comes with an example bootstrapper that you can adapt. 
+
+To utilise the default bootstrapper run the following command from within your project’s root folder: 
+
+    $ cp vendor/etenil/assegai/bootstrapper.example.conf index.php
+
+This will copy the already provided example bootstrapper file into the project’s root folder, renaming the file to *index.php*. 
+
+### Basic Configuration
+
+Even though Assegai has default configuration options, it will not work unless a configuration file is created, even if empty. You can simply use the file *conf.example.php* that comes with the framework. To do that from your project root folder use the following command:
+
+    $ cp vendor/etenil/assegai/conf.example.php conf.php
+
+Now you have fully configured framework. In order to test the setup the flowing section will demonstrate how to create an application with Assegai. 
+
+### Hello World app
+
+In this chapter, we'll see how to write a very simple application for assegai, it will simply display the famous "Hello, World" message on an HTML page.
+
+To create application firstly go into the conf.php file in your projects’s root folder and add the application name into the apps array. 
+Feel free to delete or simply rename the currently existing sample app.
+
+Your configuration file should look as following: 
+```php
+<?php
+    $conf['apps_path'] = __DIR__ . '/apps';
+
+    $conf['apps'] = [
+        'helloworld',   
+    ];
+```
+
+Now lets create the actual application. From the project’s root folder type in following command:
+    
+    $ vendor/etenil/assegai/assegai app helloworld
+
+This will create the file-system tree for your application. The default application tree is like so:
+
+    apps
+     - helloworld
+       |- conf.php
+       |- controllers
+       |- exceptions
+       |- models
+       |- views
+
+
+Now create the file *Hello.php* within the *controllers* directory and put the following code:
+```php
+<?php
+    namespace helloworld\controllers;
+    
+    class Hello extends \assegai\Controller
+    {
+        function sayHello()
+        {
+            return "Hello, World!";
+        }
+    }
+```
+Be careful to put the first backslash on *\assegai\Controller*, otherwise you'll have issues.
+
+We still need to indicate to the framework that this controller needs to be called when visiting the website. This is done by adding the following contents to the application's *conf.php* file. Note that this conf.php file is different to the general configuration file. 
+```php
+<?php
+    $conf['route'] = [
+        '/' => 'helloworld\controllers\Hello::sayHello',
+    ];
+```
+Now you can visit your web server and should see the *Hello, World* message printed.
+
+
+### Namespacing Convention
 
 Assegai encourages the use of multiple specialised apps that can share models in order to implement websites. The framework relies on the [PSR-0](http://www.php-fig.org/psr/psr-0/) naming standard.
 
@@ -31,78 +124,6 @@ You can also use sub-folders for models and controllers and extend the namespace
     myapp\models\demo\SomeModel
 
 
-## Getting started
-
-### Bootstrapping
-
-You will need to make a bootstrapper, or use the default one for your project. The framework comes with an example bootstrapper that you can adapt. Copy the file *bootstrapper.example.php* from the framework to *index.php*. The file is extremely simple and self-explanatory.
-
-It is recommended to place the bootstrapper and static files in a sub-folder, which will be the root folder for the web server. This will harden somewhat the website. You will have to modify the bootstrapper slightly to load the correct paths if you choose to do this.
-
-### Basic Configuration
-
-Even though Assegai has default configuration options, it will not work unless a configuration file is created, even if empty. You can simply copy the file *conf.example.php* that comes with the framework to *conf.php*.
-
-You will need to inform Assegai of the section or URL that precedes the first url segment. This means that if you need to access Assegai through the url *http://example.org/assegai/public/index.php*, then your configuration file should contain the following code:
-
-    <?php
-    $conf['prefix'] = /assegai/public/index.php';
-
-If you can access Assegai through *http://example.org/index.php*, you'll still need to add the '/index.php' prefix. The only case where you don't need to specify the prefix is if you have set up your server to rewrite urls and get rid of the */index.php* part.
-
-### Hello World
-
-In this chapter, we'll see how to write a very simple application for assegai, it will simply display the famous "Hello, World" message on an HTML page.
-
-Create a folder, then the file *composer.json* with the following contents:
-
-    {
-        "name": "charlie/test-assegai",
-        "require": {
-            "etenil/assegai": "2.*"
-        }
-    }
-
-Now, run the *composer install* command to fetch the dependencies (assegai itself).
-
-Copy the default configuration in the current folder, then the bootstrapper.
-
-After having configured the framework as explained previously, run the following command:
-
-    ./vendor/etenil/assegai/assegai app hello
-
-This will create the file-system tree for your application. The default application tree is like so:
-
-    apps
-    `- hello
-       |- conf.php
-       |- controllers
-       |- exceptions
-       |- models
-       `- views
-
-Let's write a controller first. Controllers execute actions and coordinate models and views in order to produce the desired output. Create the file *hello.php* within the *controllers* directory and put the following code:
-
-
-    namespace hello\controllers;
-    
-    class Demo extends \assegai\Controller
-    {
-        function hello()
-        {
-            return "Hello, World!";
-        }
-    }
-
-Be careful to put the first backslash on *\assegai\Controller*, otherwise you'll have issues.
-
-We still need to indicate to the framework that this controller needs to be called when visiting the website. This is done by adding the following contents to the application's *conf.php* file.
-
-    $conf['route'] = [
-        '/' => 'hello\controllers\Demo::hello',
-    ];
-
-Now you can visit your web server and should see the *Hello, World* message printed.
 
 #### Using a model
 Let us now try and modify the exercise by introducing a model. Models are a powerful and convenient way to organise your code, by delegating all data management to a dedicated class.

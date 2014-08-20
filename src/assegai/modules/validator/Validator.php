@@ -469,7 +469,7 @@ class Validator extends modules\Module
                            try {
                                $dt = new \DateTime($val, new \DateTimeZone("UTC"));
                                return true;
-                           } catch(Exception $e) {
+                           } catch(\Exception $e) {
                                return false;
                            }
 
@@ -611,10 +611,10 @@ class Validator extends modules\Module
         if (is_callable($callback)) {
 
             if (is_array($callback)) {
-                $func = new ReflectionMethod($callback[0], $callback[1]);
+                $func = new \ReflectionMethod($callback[0], $callback[1]);
             }
             else if (is_string($callback)) {
-                $func = new ReflectionFunction($callback);
+                $func = new \ReflectionFunction($callback);
             }
 
             if (!empty($func)) {
@@ -636,7 +636,7 @@ class Validator extends modules\Module
             }
 
         } else {
-            throw new Exception(sprintf('%s is not callable.', $function));
+            throw new \Exception(sprintf('%s is not callable.', $function));
         }
 
         return $this;

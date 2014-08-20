@@ -632,7 +632,7 @@ class Validator extends modules\Module
                                      return is_array($callback) ?
                                      $func->invokeArgs($callback[0], (array) $params) : $func->invokeArgs($callback);
                                    */
-                               });
+                               }, $message);
             }
 
         } else {

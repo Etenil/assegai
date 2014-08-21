@@ -281,15 +281,23 @@ namespace assegai {
             $dispatcher = $this;
             $server = $this->server;
             $request = $this->request;
-            return function($e) use($dispatcher, $handler, $server, $request) {
+            $conf = $this->conf;
+            $apps_conf = $this->apps_conf;
+            
+            return function($e) use($dispatcher, $handler, $server, $request, $conf, $apps_conf) {
                 list($class, $method) = explode('::', $handler);
 
                 // If the controller's name conforms to conventions, then we can get the app name.
                 if(strpos($class, '\\') !== false) { // New PSR-0 style.
-                    list($app_name, $token, $controller_name) = explode('\\', $class);
+                    list($app_name, $token, $controller_name) = explode('\\', trim($class, '\\'));
                 } else {
                     list($app_name, $token, $controller_name) = explode('_', strtolower($class));
                 }
+
+                $server->setAppName($app_name);
+                $server->setMainConf($conf);
+                $server->setAppConf($apps_conf[$app_name]);
+                $server->setAppPath(Utils::joinPaths($conf->get('apps_path'), $app_name));
 
                 if($token == 'controller' || $token == 'controllers') {
                     try {

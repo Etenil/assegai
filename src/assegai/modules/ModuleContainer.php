@@ -153,6 +153,7 @@ class ModuleContainer
 
         // We collect the results into an array.
         $results = array();
+        if(!$this->modules) $this->modules = array();
         foreach($this->modules as $name => $module) {
             if(method_exists($module, $method_name)) {
                 $result = call_user_func_array(array($module, $method_name), $params);

@@ -481,6 +481,8 @@ namespace assegai {
                     $this->modules->addModule($module, $opts);
                 }
             }
+
+            return $this->modules;
         }
 
         function notfoundhandler($e)

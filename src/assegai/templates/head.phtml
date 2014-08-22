@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Assegai - Error</title>
+    <title>Assegai - <?php echo $title; ?></title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <style type="text/css">
 html {
@@ -50,11 +50,19 @@ pre {
     background-color: #cc9966;
     border-radius: 10px;
     padding: 1em;
-    white-space: pre-wrap;       /* css-3 */
-    white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
-    white-space: -pre-wrap;      /* Opera 4-6 */
-    white-space: -o-pre-wrap;    /* Opera 7 */
-    word-wrap: break-word;       /* Internet Explorer 5.5+ */
+    line-height: 1.5em;
+}
+table {
+    width: 70%;
+    margin: 0 auto;
+    border-collapse: collapse;
+}
+table tr th, table tr td {
+    text-align: left;
+    padding: 2px 10px;
+}
+table tr:nth-child(even) {
+    background-color: #cc9966;
 }
     </style>
   </head>
@@ -66,22 +74,3 @@ pre {
       </header>
 
       <div id="content">
-        <h2>An error occured!</h2>
-        <p>
-          Something wrong happened while running your code.
-          The following error was encountered:
-        </p>
-        <pre><?=$e->getMessage()?></pre>
-
-        <p>Trace:</p>
-        <pre><?=$printtrace($e)?></pre>
-      </div>
-
-      <footer>
-        <p>
-          Powered by <a href="http://assegai.etenil.net">Assegai</a>.
-        </p>
-      </footer>
-    </div>
-  </body>
-</html>

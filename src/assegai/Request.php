@@ -40,6 +40,8 @@ class Request extends Stateful
 	protected $getvars;
     /** Stores the POST variables. */
 	protected $postvars;
+    /** This is mostly used for error handlers. */
+    protected $exception;
     
     /** Security */
     protected $sec;
@@ -90,6 +92,16 @@ class Request extends Stateful
 
     function setWholeRoute($val) {
         $this->whole_route = $val;
+        return $this;
+    }
+
+    public function getException()
+    {
+        return $this->exception;
+    }
+    public function setException($val)
+    {
+        $this->exception = $val;
         return $this;
     }
 

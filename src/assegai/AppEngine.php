@@ -269,6 +269,19 @@ namespace assegai {
         }
 
         /**
+         * Actually does the job of serving pages.
+         */
+        protected function doserve(Request $request)
+        {
+            $route_to_app = "";
+            $app = null;
+            
+            $call = $this->router->getRoute($request);
+            
+            return $call;
+        }
+
+        /**
          * Processes a route call, something like `stuff::thing' or just a function name
          * or even a closure.
          */
@@ -280,6 +293,23 @@ namespace assegai {
             $call = $proto->getCall();
             $params = $proto->getParams();
 
+            if($proto->getApp()) {
+                $this->current_app = $proto->getApp();
+                $this->server->setAppName($this->current_app);
+
+                $this->server->setMainConf($this->conf);
+                $this->server->setAppConf($this->apps_conf[$this->current_app]);
+                $this->server->setAppPath(Utils::joinPaths($this->conf->get('apps_path'), $this->current_app));
+                if($this->apps_conf[$this->current_app]->get('use_session')) {
+                    session_start();
+                    $request->setAllSession($_SESSION);
+                    $this->request = $request;
+                }
+
+                // Let's load the app's modules
+                $this->loadAppModules($this->current_app);
+            }
+
             if(is_string($call) && preg_match('/^.*::.+$/', trim($call))) {
                 list($class, $method) = explode('::', $call);
             }
@@ -290,6 +320,9 @@ namespace assegai {
             else if(is_callable($call)) {
                 $method = $call;
             }
+
+            // Cleaning for messy namespace separators.
+            $class = preg_replace('/\\{2,}/', '\\', trim($class, '\\'));
 
             // Detecting simple routes that use implicit namespacing.
             if(is_string($class) && stripos($class, 'controller') === false) {
@@ -375,34 +408,6 @@ namespace assegai {
             return array('response' => $response, 'request' => $request);
         }
 
-        /**
-         * Actually does the job of serving pages.
-         */
-        protected function doserve(Request $request)
-        {
-            $route_to_app = "";
-            $app = null;
-            
-            $call = $this->router->getRoute($request);
-            
-            $this->current_app = $call->getApp();
-            $this->server->setAppName($this->current_app);
-
-            $this->server->setMainConf($this->conf);
-            $this->server->setAppConf($this->apps_conf[$this->current_app]);
-            $this->server->setAppPath(Utils::joinPaths($this->conf->get('apps_path'), $this->current_app));
-            if($this->apps_conf[$this->current_app]->get('use_session')) {
-                session_start();
-                $request->setAllSession($_SESSION);
-                $this->request = $request;
-            }
-
-            // Let's load the app's modules
-            $this->loadAppModules($this->current_app);
-            
-            return $call;
-        }
-
         function loadAppModules($app) {
             if($this->conf->get('modules')
             	&& is_array($this->conf->get('modules'))) {
@@ -436,6 +441,22 @@ namespace assegai {
             return $this->modules;
         }
 
+        protected function errorHandlerToCall($handler)
+        {
+            if(is_string($handler)) {
+                $clean_handler = trim($handler, '\\');
+                if(strpos($clean_handler, '::') !== false && strpos($clean_handler, '\\') !== false) {
+                    // trying to guess the app.
+                    $app = substr($clean_handler, 0, strpos($clean_handler, '\\'));
+                    if($app) {
+                        return new routing\RouteCall($app, $handler);
+                    }
+                }
+            }
+
+            return new routing\RouteCall(null, $handler);
+        }
+
         /**
          * Sets a new handler for 404 errors.
          * @param callable $handler will be called in the event of a 404
@@ -443,7 +464,7 @@ namespace assegai {
          */
         public function register40x($handler)
         {
-            $this->error40x = new routing\RouteCall(null, $handler);
+            $this->error40x = $this->errorHandlerToCall($handler);
         }
 
         /**
@@ -453,7 +474,7 @@ namespace assegai {
          */
         public function register50x($handler)
         {
-            $this->error50x = new routing\RouteCall(null, $handler);
+            $this->error50x = $this->errorHandlerToCall($handler);
         }
 
         /**

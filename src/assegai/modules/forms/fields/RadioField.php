@@ -2,11 +2,10 @@
 
 namespace assegai\modules\forms\fields;
 
-class ChoiceField extends Field
+class RadioField extends Field
 {
     protected $_choices = array();
-    protected $_multiple = false;
-    protected $_input_type = 'select';
+    protected $_input_type = 'radio';
 
     function validate()
     {

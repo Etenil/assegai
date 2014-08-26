@@ -10,7 +10,7 @@ interface IRenderer
     function textarea(fields\Field $field);
     function select(fields\ChoiceField $field);
     function checkbox(fields\Field $field);
-    function checkboxes(fields\Field $field);
+    function radio(fields\Field $field);
     function yesno(fields\Field $field);
     function time(fields\Field $field);
 }

@@ -9,6 +9,8 @@ class NumberField extends SizedField
     public $_decimal = false;
     public $_max_length = 10;
 
+    protected $_type = 'number';
+
     function validate()
     {
         $errors = parent::validate();

@@ -5,6 +5,8 @@ namespace assegai\modules\forms\fields;
 class SizedField extends Field
 {
     public $_max_length = -1;
+    protected $_input_type = 'input';
+    protected $_type = 'text';
     
     function validate()
     {

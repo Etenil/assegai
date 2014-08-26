@@ -40,20 +40,23 @@ class Form
     {
         $buffer = '';
         foreach($this->_fields as $fieldname => $field) {            
-            switch($field->getType()) {
-                case 'text':
-                    if($field->isMultiline()) {
+            switch($field->getInputType()) {
+                case 'input':
+                    if(method_exists($field, 'isMultiline') && $field->isMultiline()) {
                         $buffer.= $renderer->textarea($field);
                     }
                     else {
                         $buffer.= $renderer->text($field);
                     }
                     break;
-                case 'choice':
+                case 'select':
                     $buffer.= $renderer->select($field);
                     break;
-                case 'bool':
+                case 'checkbox':
                     $buffer.= $renderer->checkbox($field);
+                    break;
+                case 'radio':
+                    $buffer.= $renderer->radio($field);
                     break;
                 default:
                     throw new \Exception(sprintf("Don't know how to render field type '%s'", get_class($field)));

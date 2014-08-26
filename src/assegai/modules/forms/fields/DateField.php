@@ -7,6 +7,9 @@ class DateField extends Field
     public $_min_value = null;
     public $_max_value = null;
 
+    protected $_input_type = 'input';
+    protected $_type = 'date';
+
     function minValue($val)
     {
         $this->_min_value = $val;

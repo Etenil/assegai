@@ -10,7 +10,7 @@ class Paragraph extends Renderer implements IRenderer
 
     const TPL_FIELD = '
         <p id="field-{{name}}" class="{{class}}">
-            <label for="input-{{name}}">{{label}}:</label>
+            <label for="{{id}}">{{label}}:</label>
             {{input}}
             {{help}}
         </p>
@@ -19,15 +19,15 @@ class Paragraph extends Renderer implements IRenderer
     const TPL_PREFIELD = '
         <p id="field-{{name}}">
             {{input}}
-            <label for="input-{{name}}">{{label}}</label>
+            <label for="{{id}}">{{label}}</label>
             {{help}}
         </p>
     ';
     const TPL_INPUT = '
-        <input type="{{type}}" name="{{name}}" id="input-{{name}}" class="{{class}}" value="{{value}}" {{extra}} />
+        <input type="{{type}}" name="{{name}}" id="{{id}}" class="{{class}}" value="{{value}}" {{extra}} />
     ';
-    const TPL_TEXTAREA = '<textarea name="{{name}}" id="input-{{name}}" class="{{class}}" {{extra}}>{{value}}</textarea>';
-    const TPL_SELECT = '<select name="{{name}}" id="input-{{name}}" class="{{class}}" {{extra}}>{{options}}</select>';
+    const TPL_TEXTAREA = '<textarea name="{{name}}" id="{{id}}" class="{{class}}" {{extra}}>{{value}}</textarea>';
+    const TPL_SELECT = '<select name="{{name}}" id="{{id}}" class="{{class}}" {{extra}}>{{options}}</select>';
     const TPL_SELECT_OPTION = '<option value="{{value}}" {{selected}}>{{label}}</option>';
 
     public function __construct(array $errors = array())
@@ -37,6 +37,12 @@ class Paragraph extends Renderer implements IRenderer
     
     protected function field($field, $input, $prefield = false)
     {
+        if($field->hasErrors()) {
+            $field->addClass('error');
+        }
+
+        $id = $field->getId() ?: sprintf('input-%s', $field->getName());
+
         $tpl = self::TPL_FIELD;
         if($prefield) {
             $tpl = self::TPL_PREFIELD;
@@ -45,15 +51,17 @@ class Paragraph extends Renderer implements IRenderer
         if($field->getHelp()) {
             $help = $this->tpl(self::TPL_HELPTEXT, array(
                 'name' => $field->getName(),
+                'id' => $id,
                 'help' => $field->getHelp(),
             ));
         }
         return $this->tpl($tpl, array(
+            'id' => $id,
             'name' => $field->getName(),
             'label' => $field->getLabel(),
             'input' => $input,
             'help' => $help,
-            'class' => $field->hasErrors() ? 'error' : '',
+            'class' => implode(' ', $field->getClasses()),
         ));
     }
     
@@ -66,7 +74,7 @@ class Paragraph extends Renderer implements IRenderer
                 array(
                     'name' => $field->getName(),
                     'value' => $field->getValue(),
-                    'type' => 'text',
+                    'type' => $field->getType(),
                 )
             )
         );
@@ -128,8 +136,29 @@ class Paragraph extends Renderer implements IRenderer
         );
     }
     
-    function checkboxes(fields\Field $field)
+    function radio(fields\Field $field)
     {
+        $options = '';
+        $iter = 0;
+        foreach($field->getChoices() as $choice_lbl => $choice_val) {
+            $field->setLabel($choice_val)
+                  ->setId(sprintf('radio-%s-%d', $field->getName(), $iter++));
+            $options.= $this->field(
+                $field,
+                $this->tpl(
+                    self::TPL_INPUT,
+                    array(
+                        'type' => 'radio',
+                        'name' => $field->getName(),
+                        'id' => $field->getid(),
+                        'extra' => $field->getValue() == $choice_val ? 'selected' : '',
+                    )
+                ),
+                true
+            );
+        }
+        
+        return $options;
     }
     
     function yesno(fields\Field $field)

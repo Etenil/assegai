@@ -119,5 +119,10 @@ class Module
      * view.
      */
     public function postView(\assegai\Request $request, $path, $vars, $result) {}
+
+    public function setAppName($app_name)
+    {
+        $this->server->setAppName($app_name);
+    }
 }
 

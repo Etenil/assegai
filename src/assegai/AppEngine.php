@@ -65,24 +65,13 @@ namespace assegai {
             $this->server = $server;
             $this->router = $router;
 
-            $this->register40x(function(\Exception $e) {
-                return array(
-                    'request' => null,
-                    'response' => new Response('404 Error - Page not found', 404),
-                );
-            });
-            $this->register50x(function(\Exception $e) {
-                return array(
-                    'request' => null,
-                    'response' => new Response('500 Error - Server error', 404),
-                );
-            });
-
             $this->modules = $container;
 
             $this->security = $security;
 
             $this->conf_path = $this->getPath('conf.php');
+
+            set_error_handler(array($this, 'phpErrorHandler'), E_ALL);
         }
 
         function setConfiguration($path)
@@ -185,7 +174,8 @@ namespace assegai {
                 // We register the dispatcher's autoloader
                 spl_autoload_register(array($autoloader, 'autoload'));
                 $this->sethandlers();
-                $result = $this->doserve($request);
+                $call = $this->doserve($request);
+                $result = $this->process($call, $request);
             }
             catch(\assegai\exceptions\HttpRedirect $r) {
                 $result = array(
@@ -194,13 +184,16 @@ namespace assegai {
                 $result['response']->setHeader('Location', $r->getUrl());
             }
             catch(\assegai\exceptions\HTTPNotFoundError $e) {
-                $result = call_user_func($this->error40x, $e);
+                $request->setException($e);
+                $result = $this->process($this->error40x, $request);
             }
             catch(\assegai\exceptions\HTTPClientError $e) {
-                $result = call_user_func($this->error40x, $e);
+                $request->setException($e);
+                $result = $this->process($this->error40x, $request);
             }
             catch(\assegai\exceptions\HTTPServerError $e) {
-                $result = call_user_func($this->error50x, $e);
+                $request->setException($e);
+                $result = $this->process($this->error50x, $request);
             }
             // Generic HTTP status response.
             catch(\assegai\exceptions\HTTPStatus $s) {
@@ -209,7 +202,8 @@ namespace assegai {
                     'response' => new Response($s->getMessage(), $s->getCode()));
             }
             catch(\Exception $e) {
-                $result = call_user_func($this->error50x, $e);
+                $request->setException($e);
+                $result = $this->process($this->error50x, $request);
             }
 
             if(!$result['request']) {
@@ -265,60 +259,28 @@ namespace assegai {
          */
         protected function sethandlers() {
             if($this->conf->get('handler40x')) {
-                $this->register40x($this->makeErrorHandler($this->conf->get('handler40x')));
+                $this->register40x($this->conf->get('handler40x'));
             } else {
-                $this->register40x(array($this, 'notfoundhandler'));
+                $this->register40x(array('assegai\ErrorController', 'notFoundHandler'));
             }
             if($this->conf->get('handler50x')) {
-                $this->register50x($this->makeErrorHandler($this->conf->get('handler50x')));
+                $this->register50x($this->conf->get('handler50x'));
             } else {
-                $this->register50x(array($this, 'errorhandler'));
+                $this->register50x(array('assegai\ErrorController', 'errorHandler'));
             }
         }
 
         /**
-         * Generates an error-handling closure.
+         * Actually does the job of serving pages.
          */
-        protected function makeErrorHandler($handler) {
-            $dispatcher = $this;
-            $server = $this->server;
-            $request = $this->request;
-            $modules = $this->modules;
-            return function($e) use($modules, $dispatcher, $handler, $server, $request) {
-                list($class, $method) = explode('::', $handler);
-
-                // If the controller's name conforms to conventions, then we can get the app name.
-                if(strpos($class, '\\') !== false) { // New PSR-0 style.
-                    list($app_name, $token, $controller_name) = explode('\\', trim($class, '\\'));
-                } else {
-                    list($app_name, $token, $controller_name) = explode('_', strtolower($class));
-                }
-
-                try {
-                    $new_modules = $dispatcher->loadAppModules($app_name);
-                    $this->server->setAppConf($this->apps_conf[$app_name]);
-                    $this->server->setAppPath(Utils::joinPaths($this->conf->get('apps_path'), $app_name));
-                }
-                catch(\Exception $e) {
-                    // nothing.
-                }
-
-                if($new_modules) {
-                    $modules = $new_modules;
-                }
-
-                $controller = new $class(
-                    $modules,
-                    $server,
-                    $request,
-                    new \assegai\Security()
-                );
-                $controller->preRequest();
-                $page = $controller->$method($e);
-                $controller->postRequest($page);
-
-                return array('request' => $request, 'response' => $page);
-            };
+        protected function doserve(Request $request)
+        {
+            $route_to_app = "";
+            $app = null;
+            
+            $call = $this->router->getRoute($request);
+            
+            return $call;
         }
 
         /**
@@ -333,6 +295,23 @@ namespace assegai {
             $call = $proto->getCall();
             $params = $proto->getParams();
 
+            if($proto->getApp()) {
+                $this->current_app = $proto->getApp();
+                $this->server->setAppName($this->current_app);
+
+                $this->server->setMainConf($this->conf);
+                $this->server->setAppConf($this->apps_conf[$this->current_app]);
+                $this->server->setAppPath(Utils::joinPaths($this->conf->get('apps_path'), $this->current_app));
+                if($this->apps_conf[$this->current_app]->get('use_session')) {
+                    session_start();
+                    $request->setAllSession($_SESSION);
+                    $this->request = $request;
+                }
+
+                // Let's load the app's modules
+                $this->loadAppModules($this->current_app);
+            }
+
             if(is_string($call) && preg_match('/^.*::.+$/', trim($call))) {
                 list($class, $method) = explode('::', $call);
             }
@@ -344,14 +323,18 @@ namespace assegai {
                 $method = $call;
             }
 
+            // Cleaning for messy namespace separators.
+            $class = preg_replace('/\\{2,}/', '\\', trim($class, '\\'));
+
             // Detecting simple routes that use implicit namespacing.
-            if(stripos($class, 'controller') === false) {
+            if(is_string($class) && stripos($class, 'controller') === false) {
                 $class = sprintf('%s\\controllers\\%s', strtolower($this->current_app), $class);
             }
 
             if(!$class) {
                 $class = '\\assegai\\Controller';
-            } else {
+            }
+            elseif(!is_object($class)) {
                 $class = '\\' . $class;
             }
 
@@ -373,10 +356,21 @@ namespace assegai {
                 $params);
                 $response = call_user_func_array($method, $params);
             }
-            else if(class_exists($class)) {
-                $obj = new $class($this->modules, $this->server,
-                $request, new Security());
-            
+            else if(is_object($class) || class_exists($class)) {
+                $obj = null;
+                if(is_object($class)) {
+                    $obj = $class;
+                }
+                else {
+                    $obj = new $class(
+                        $this->modules,
+                        $this->server,
+                        $request, new Security()
+                    );
+                }
+
+                $this->modules->preRequest($obj, $request);
+
                 if(method_exists($obj, 'preRequest')) {
                     $obj->preRequest();
                 }   
@@ -416,33 +410,6 @@ namespace assegai {
             return array('response' => $response, 'request' => $request);
         }
 
-        /**
-         * Actually does the job of serving pages.
-         */
-        protected function doserve(Request $request)
-        {
-            $route_to_app = "";
-            $app = null;
-            
-            $call = $this->router->getRoute($request);
-            
-            $this->current_app = $call->getApp();
-            $this->server->setAppName($this->current_app);
-
-            $this->server->setAppConf($this->apps_conf[$this->current_app]);
-            $this->server->setAppPath(Utils::joinPaths($this->conf->get('apps_path'), $this->current_app));
-            if($this->apps_conf[$this->current_app]->get('use_session')) {
-                session_start();
-                $request->setAllSession($_SESSION);
-                $this->request = $request;
-            }
-
-            // Let's load the app's modules
-            $this->loadAppModules($this->current_app);
-            
-            return $this->process($call, $request);
-        }
-
         function loadAppModules($app) {
             if($this->conf->get('modules')
             	&& is_array($this->conf->get('modules'))) {
@@ -473,56 +440,23 @@ namespace assegai {
                 }
             }
 
-            return $container;
+            return $this->modules;
         }
 
-        function notfoundhandler($e)
+        protected function errorHandlerToCall($handler)
         {
-            if(isset($_SERVER['APPLICATION_ENV'])
-                && $_SERVER['APPLICATION_ENV'] == 'development') {
-                $server = $this->server;
-                require('notfoundview.phtml');
-            } else {
-                return array(
-                    'request' => null,
-                    'response' => new Response('Not found!', 404),
-                );
-            }
-        }
-
-        function errorhandler($e)
-        {
-            if(isset($_SERVER['APPLICATION_ENV'])
-                && $_SERVER['APPLICATION_ENV'] == 'development') {
-                $printtrace = function($error) {
-                    $trace = $error->getTrace();
-                    $formatted_trace = array();
-                    for($i = 0; $i < count($trace); $i++) {
-                        $line = '';
-                        if(true || strpos($trace[$i]['class'], 'assegai\\') === false) {
-                            $line = "$i - ";
-                            if($trace[$i]['class']) {
-                                $line.= "at " . $trace[$i]['class'] . "::";
-                            }
-                            if($trace[$i]['function']) {
-                                $line.= $trace[$i]['function'] . "() ";
-                            }
-                            $line.= sprintf("in %s on line %s",
-                            $trace[$i]['file'],
-                            $trace[$i]['line']);
-                        }
-                        $formatted_trace[] = $line;
+            if(is_string($handler)) {
+                $clean_handler = trim($handler, '\\');
+                if(strpos($clean_handler, '::') !== false && strpos($clean_handler, '\\') !== false) {
+                    // trying to guess the app.
+                    $app = substr($clean_handler, 0, strpos($clean_handler, '\\'));
+                    if($app) {
+                        return new routing\RouteCall($app, $handler);
                     }
-
-                    return implode(PHP_EOL, $formatted_trace);
-                };
-                require('errorview.phtml');
-            } else {
-                return array(
-                    'request' => null,
-                    'response' => new Response($e->getCode() . " Error!", $e->getCode()),
-                );
+                }
             }
+
+            return new routing\RouteCall(null, $handler);
         }
 
         /**
@@ -532,7 +466,7 @@ namespace assegai {
          */
         public function register40x($handler)
         {
-            $this->error40x = $handler;
+            $this->error40x = $this->errorHandlerToCall($handler);
         }
 
         /**
@@ -542,17 +476,22 @@ namespace assegai {
          */
         public function register50x($handler)
         {
-            $this->error50x = $handler;
+            $this->error50x = $this->errorHandlerToCall($handler);
         }
 
         /**
          * Wrapper that converts PHP errors to exceptions and passes them
          * to the standard error50x handler.
          */
-        public function php_error_handler($errno, $errstr, $errfile, $errline)
+        public function phpErrorHandler($errno, $errstr, $errfile, $errline)
         {
-            $e = new \Exception($errstr, $errno);
-            call_user_func($this->error50x, $e);
+            $ignore = array(E_DEPRECATED, E_STRICT, E_NOTICE);
+            if(in_array($errno, $ignore)) return;
+
+            $request = $this->request;
+            $request->setException(new \Exception($errstr, $errno));
+            $result = $this->process($this->error50x, $request);
+            return $this->display($result['request'], $result['response']);
         }
 
         /**

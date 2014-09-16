@@ -135,6 +135,20 @@ class Validator extends modules\Module
     }
 
     /**
+     * Field must exist, even if empty
+     *
+     * @param null $message
+     * @return $this
+     */
+    public function exists( $message = null)
+    {
+        $this->setRule(__FUNCTION__, function ($val) {
+            return null !== $val;
+        }, $message);
+        return $this;
+    }
+
+    /**
      * Field must contain a valid float value.
      *
      * @param string $message

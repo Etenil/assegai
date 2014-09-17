@@ -650,7 +650,7 @@ class Validator extends modules\Module
             }
 
         } else {
-            throw new \Exception(sprintf('%s is not callable.', $function));
+            throw new \Exception(sprintf('%s is not callable.', $callback));
         }
 
         return $this;

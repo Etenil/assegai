@@ -621,37 +621,24 @@ class Validator extends modules\Module
      */
     public function callback($callback, $message = '', $params = NULL)
     {
-
-        if (is_callable($callback)) {
-
-            if (is_array($callback)) {
-                $func = new \ReflectionMethod($callback[0], $callback[1]);
-            }
-            else if (is_string($callback)) {
-                $func = new \ReflectionFunction($callback);
-            }
-
-            if (!empty($func)) {
-                // needs a unique name to avoild collisions in the rules array
-                $name = 'callback_' . sha1(uniqid());
-                $this->setRule($name, function($value) use ($func, $params, $callback)
-                               {
-                                   if (is_array($callback)) {
-                                       return $func->invoke($callback[0], $value, (array) $params);
-                                   } else {
-                                       return $func->invoke($callback, $value);
-                                   }
-
-                                   /*
-                                     return is_array($callback) ?
-                                     $func->invokeArgs($callback[0], (array) $params) : $func->invokeArgs($callback);
-                                   */
-                               }, $message);
-            }
-
-        } else {
+        if(!is_callable($callback)) {
             throw new \Exception(sprintf('%s is not callable.', $callback));
         }
+
+        // needs a unique name to avoid collisions in the rules array
+        $name = 'callback_' . sha1(uniqid());
+        $this->setRule(
+            $name,
+            function($value) use ($params, $callback)
+            {
+                if(!$params) $params = array();
+                return call_user_func_array(
+                    $callback,
+                    array_merge(array($value), $params)
+                );
+            },
+            $message
+        );
 
         return $this;
     }

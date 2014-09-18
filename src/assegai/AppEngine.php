@@ -313,22 +313,20 @@ namespace assegai {
             }
 
             if(is_string($call) && preg_match('/^.*::.+$/', trim($call))) {
-                list($class, $method) = explode('::', $call);
+                list($class, $method) = explode('::', trim($call));
             }
             else if(is_array($call)) {
-                $class = $call[0];
-                $method = $call[1];
+                if(is_string($call[0]) && preg_match('/^.*::.+$/', trim($call[0]))) {
+                    list($class, $method) = explode('::', trim($call[0]));
+                    $params = array_slice($call, 1);
+                }
+                else {
+                    $class = $call[0];
+                    $method = $call[1];
+                }
             }
             else if(is_callable($call)) {
                 $method = $call;
-            }
-
-            // Cleaning for messy namespace separators.
-            $class = preg_replace('/\\{2,}/', '\\', trim($class, '\\'));
-
-            // Detecting simple routes that use implicit namespacing.
-            if(is_string($class) && stripos($class, 'controller') === false) {
-                $class = sprintf('%s\\controllers\\%s', strtolower($this->current_app), $class);
             }
 
             if(!$class) {
@@ -337,6 +335,14 @@ namespace assegai {
             elseif(!is_object($class)) {
                 $class = '\\' . $class;
             }
+
+            // Detecting simple routes that use implicit namespacing.
+            if(is_string($class) && stripos($class, 'controller') === false) {
+                $class = sprintf('%s\\controllers\\%s', strtolower($this->current_app), $class);
+            }
+
+            // Cleaning for messy namespace separators.
+            $class = preg_replace('/\\\\{2,}/', '\\', trim($class, '\\'));
 
             $response = null;
 
@@ -376,8 +382,7 @@ namespace assegai {
                 }   
 
                 if(method_exists($obj, $method)) {
-                    $response = call_user_func_array(array($obj, $method),
-                    $params);
+                    $response = call_user_func_array(array($obj, $method), $params);
                     if(method_exists($obj, 'postRequest'))
                         $response = $obj->postRequest($response);
                 } else {

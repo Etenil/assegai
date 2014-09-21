@@ -15,7 +15,7 @@ The framework used to rely on the micro-framework [Atlatl](http://github.com/Ete
 To install Assegai you will first need to install [composer](http://getcomposer.org). Then create a composer.json file for your project that requires *etenil/assegai*. An example composer.json file should look as following:
 ```json
 {
-    "name": “YOUR_NAME/test-assegai”,
+    "name": “YOUR_NAME/helloworld”,
     "require": {
         "etenil/assegai": "2.*"
     }
@@ -38,7 +38,7 @@ You will need to make a bootstrapper or use the default one for your project. Th
 
 To utilise the default bootstrapper run the following command from within your project’s root folder: 
 
-    $ cp vendor/etenil/assegai/bootstrapper.example.conf index.php
+    $ cp vendor/etenil/assegai/bootstrapper.example.php index.php
 
 This will copy the already provided example bootstrapper file into the project’s root folder, renaming the file to *index.php*. 
 
@@ -100,11 +100,18 @@ Be careful to put the first backslash on *\assegai\Controller*, otherwise you'll
 We still need to indicate to the framework that this controller needs to be called when visiting the website. This is done by adding the following contents to the application's *conf.php* file. Note that this conf.php file is different to the general configuration file. 
 ```php
 <?php
-    $conf['route'] = [
+    $app['route'] = [
         '/' => 'helloworld\controllers\Hello::sayHello',
     ];
 ```
-Now you can visit your web server and should see the *Hello, World* message printed.
+
+### Test it
+
+Now, start the PHP internal web server with (or configure the your preferred web server):
+
+php -S localhost:8080 -t ./
+
+And then, when visit your web server with a browser you should see the *Hello, World* message printed.
 
 
 ### Namespacing Convention
@@ -550,6 +557,7 @@ be handled in your Model. This is just a quick example.
 
 #### Available Validation Methods
 
+* exists($message = null) - The field must exist, regardless of it's content.
 * required($message = null) - The field value is required.
 * email($message = null) - The field value must be a valid email address string.
 * float($message = null) - The field value must be a float.

@@ -21,10 +21,22 @@ class ErrorController extends Controller
 
         if(isset($_SERVER['APPLICATION_ENV'])
         && $_SERVER['APPLICATION_ENV'] == 'development') {
-            $server = $this->server;
-            return $this->glimpse('templates/notfoundview.phtml', array(
-                'exception' => $e,
-            ));
+            if(php_sapi_name() != 'cli') {
+                $server = $this->server;
+                return $this->glimpse('templates/notfoundview.phtml', array(
+                    'exception' => $e,
+                ));
+            }
+            else {
+                echo "URL handler not found:\n";
+                printf("Prefix: %s\n", $this->server->getPrefix());
+                printf("Request: %s\n", $this->server->getRoute());
+                printf("Routes:\n");
+                foreach($e->getRoutes() as $route => $target) {
+                    printf("\t%s => %s[%s]\n", $route, $target->getApp(), $target->getCall());
+                }
+                echo "\n\n";
+            }
         } else {
             return new Response('Not found!', 404);
         }
@@ -59,10 +71,17 @@ class ErrorController extends Controller
         $e = $this->request->getException();
 
         if(isset($_SERVER['APPLICATION_ENV'])
-            && $_SERVER['APPLICATION_ENV'] == 'development') {
-            return $this->glimpse('templates/errorview.phtml', array(
-                'exception' => $e,
-            ));
+        && $_SERVER['APPLICATION_ENV'] == 'development') {
+            if(php_sapi_name() != 'cli') {
+                return $this->glimpse('templates/errorview.phtml', array(
+                    'exception' => $e,
+                ));
+            }
+            else {
+                echo "An error occured while running your code:\n";
+                printf("%s\n", $e->getMessage());
+                printf("%s\n\n", $this->printTrace($e));
+            }
         } else {
             return new Response(sprintf("Server error %d<br>", $e->getCode()), 500);
         }

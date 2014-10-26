@@ -45,10 +45,14 @@ class ModuleContainer
         $this->modules = array();
     }
 
-    public function setDependencies(\assegai\Server $server)
+    public function dependenciesLoaded()
+    {
+        $this->modules = array();
+    }
+    
+    public function setServer(\assegai\Server $server)
     {
         $this->server = $server;
-        $this->modules = array();
     }
 
     public function setInjector($injector)

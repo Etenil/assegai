@@ -1,7 +1,7 @@
-* Move to DI through setters by default.
-  This will free the constructor parameters for the users.
-* Provide a way to configure DI in-app for controllers, models etc.
-* [THINK] Only one controller per app (to force App separation)
-* Improve Doc
-* Improve website's look & feel, and documentation (depends on point above!)
+Event system.
 
+Bootstrap steps:
+- Instanciate the dependency container
+- Load the DI configuration
+- Fire up a event system
+- Await user-defined event

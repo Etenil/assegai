@@ -26,149 +26,120 @@
  * THE SOFTWARE.
  */
 
-namespace assegai\injector
-{
+namespace assegai\injector;
+
+/**
+ * Dependency injector for assegai.
+ */
+class Container {
+    protected $definitions;
+    protected $mother;
+
+    public function __construct(Container $mother = null)
+    {
+        $this->definitions = array();
+        $this->mother = $mother;
+    }
+
     /**
-     * Dependency injector for assegai.
+     * Defines a new instanciation function.
      */
-    class Container {
-        protected $definitions;
-        protected $mother;
+    public function register(DependenciesDefinition $def)
+    {
+        $this->definitions[$def->getName()] = $def;
+    }
 
-        public function __construct(Container $mother = null)
-        {
-            $this->definitions = array();
-            $this->mother = $mother;
+    /**
+     * Loads dependency definitions from a configuration file.
+     */
+    public function loadConfFile($filepath)
+    {
+        $dependencies = array();
+        require($filepath);
+        
+        if(is_array($dependencies) && count($dependencies) > 0) {
+            $this->loadConf($dependencies);
         }
-
-        /**
-         * Defines a new instanciation function.
-         */
-        public function register(DependenciesDefinition $def)
-        {
-            $this->definitions[$def->getName()] = $def;
-        }
-
-        /**
-         * Loads up dependency configuration as an array structure.
-         */
-        public function loadConf(array $conf)
-        {
-            foreach($conf as $full_def) {
-                $def = DependenciesDefinition::fromArray($full_def);
-
-                $this->register($def);
-            }
-        }
-
-        public function giveDefinition($def)
-        {
-            if(!array_key_exists($def, $this->definitions)) {
-                if(is_object($this->mother)) {
-                    return $this->mother->giveDefinition($def);
-                } else {
-                    return false;
-                }
-            }
-
-            return $this->definitions[$def];
-        }
-
-        public function give($def)
-        {
-            if(!array_key_exists($def, $this->definitions)) {
-                if(is_object($this->mother)) {
-                    return $this->mother->give($def);
-                } else {
-                    echo "key $def is undefined.";
-                    // Attempting to instanciate without parameters.
-                    throw new \Exception("Couldn't find definition for $def.");
-                }
-            }
-
-            $mydef = $this->definitions[$def];
-            $motherdef = false;
-            
-            if(is_object($this->mother)) {
-                $motherdef = $this->mother->giveDefinition($mydef->getMother() ?: $mydef->getName());
-            }
-
-            $inject_order = array($mydef, $motherdef);
-            
-            if($motherdef && $motherdef->getType() == DependenciesDefinition::INJECT_CONSTRUCTOR
-               && $mydef->getType() != DependenciesDefinition::INJECT_CONSTRUCTOR) { // Always priority
-                $inject_order = array($motherdef, $mydef);
-            }
-
-            $object = null;
-            foreach($inject_order as $def) {
-                $object = $this->inject($def, $object);
-            }
-
-            return $object;
-        }
-
-        protected function inject($def, $object = null) {
-            if(!$def) {
-                return $object;
-            }
-            
-            $classname = $def->getClass();
-            $dependencies = $def->getDependencies();
-            $type = $def->getType();
-
-            // Trying to resolve definitions.
-            $deps = array(); // Will hold the deps for the constructor.
-            foreach($dependencies as $dependency)
-            {
-                $deps[$dependency] = $this->give($dependency);
-            }
-
-            if(!$object) {
-                switch($type) {
-                case DependenciesDefinition::INJECT_CONSTRUCTOR:
-                    $ref = new \ReflectionClass($classname);
-                    $object = $ref->newInstanceArgs($deps);
-                    break;
-                case DependenciesDefinition::INJECT_BIG_SETTER:
-                case DependenciesDefinition::INJECT_EACH_SETTER:
-                    // Exception for singletons.
-                    if(method_exists($classname, 'getInstance')) {
-                        $object = $classname::getInstance();
-                    }
-                    else {
-                        $object = new $classname();
-                    }
-                    break;
-                default:
-                    throw new exceptions\HttpInternalServerError("Unknown injection method.");
-                }
-            }
-
-            switch($type) {
-            case DependenciesDefinition::INJECT_CONSTRUCTOR:
-                break;
-            case DependenciesDefinition::INJECT_BIG_SETTER:
-                if(method_exists($object, 'setDependencies')) {
-                    call_user_func_array(array($object, 'setDependencies'), $deps);
-                }
-                break;
-            case DependenciesDefinition::INJECT_EACH_SETTER:
-                foreach($deps as $name => $dep) {
-                    // I know that PHP isn't case sensitive. But I like to feel safe.
-                    $object->{'set' . ucwords($name)}($dep);
-                }
-                break;
-            default:
-                throw new exceptions\HttpInternalServerError("Unknown injection method.");
-            }
-
-            if(method_exists($object, 'setInjector')) { // Automatically injecting self reference.
-                $object->setInjector($this);
-            }
-
-            return $object;
+        else {
+            throw new \Exception("Failed to load dependencies from file $filepath.");
         }
     }
-}
 
+    /**
+     * Loads up dependency configuration as an array structure.
+     */
+    public function loadConf(array $conf)
+    {
+        foreach($conf as $full_def) {
+            $def = DependenciesDefinition::fromArray($full_def);
+
+            $this->register($def);
+        }
+    }
+
+    public function giveDefinition($def)
+    {
+        if(!array_key_exists($def, $this->definitions)) {
+            if(is_object($this->mother)) {
+                return $this->mother->giveDefinition($def);
+            } else {
+                return false;
+            }
+        }
+
+        return $this->definitions[$def];
+    }
+
+    public function give($def)
+    {
+        if(!array_key_exists($def, $this->definitions)) {
+            if(is_object($this->mother)) {
+                return $this->mother->give($def);
+            } else {
+                throw new \Exception("Couldn't find definition for $def.");
+            }
+        }
+
+        $mydef = $this->definitions[$def];
+        $object = $this->inject($mydef);
+
+        return $object;
+    }
+
+    protected function inject($def)
+    {
+        $classname = $def->getClass();
+        $dependencies = $def->getDependencies();
+
+        // Trying to resolve definitions.
+        $deps = array(); // Will hold the deps for the constructor.
+        foreach($dependencies as $dependency)
+        {
+            $deps[$dependency] = $this->give($dependency);
+        }
+
+        // Exception for singletons.
+        if(method_exists($classname, 'getInstance')) {
+            $object = $classname::getInstance();
+        }
+        else {
+            $object = new $classname();
+        }
+
+        foreach($deps as $name => $dep) {
+            // I know that PHP isn't case sensitive. But I like to feel safe.
+            $object->{'set' . ucwords($name)}($dep);
+        }
+
+        if(method_exists($object, 'setInjector')) { // Automatically injecting self reference.
+            $object->setInjector($this);
+        }
+        
+        // Calling the surrogate constructor.
+        if(method_exists($object, 'dependenciesLoaded')) {
+            $object->dependenciesLoaded();
+        }
+
+        return $object;
+    }
+}

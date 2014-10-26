@@ -24,99 +24,28 @@
  * THE SOFTWARE.
  */
 
-namespace assegai
+namespace assegai;
+
+class Framework extends EventHandler
 {
-    class Framework
+    protected $container;
+    protected $conf_path;
+
+    function setInjector(injector\Container $container)
     {
-        protected $container;
+        $this->injector = $container;
+    }
 
-        function __construct()
-        {
-            $this->container = new injector\Container();
+    function setConfigPath($conf_path)
+    {
+        $this->conf_path = $conf_path;
+        return $this;
+    }
 
-            //// Setting core dependencies.
-            // Core.
-            $inject_type = injector\DependenciesDefinition::INJECT_BIG_SETTER;
-
-            $this->container->loadConf(array(
-                array(
-                    'name' => 'engine',
-                    'class' => 'assegai\\AppEngine',
-                    'dependencies' => array('server', 'mc', 'security', 'router'),
-                    'type' => $inject_type,
-                ),
-                array(
-                    'name' => 'router',
-                    'class' => 'assegai\\routing\\DefaultRouter',
-                ),
-                array(
-                    'name' => 'server',
-                    'class' => 'assegai\\Server',
-                    'type' => $inject_type,
-                ),
-                array(
-                    'name' => 'request',
-                    'class' => 'assegai\\Request',
-                    'dependencies' => array('server', 'security'),
-                    'type' => $inject_type,
-                ),
-                array(
-                    'name' => 'mc',
-                    'class' => 'assegai\\modules\\ModuleContainer',
-                    'dependencies' => array('server'),
-                    'type' => $inject_type,
-                ),
-                array(
-                    'name' => 'module',
-                    'class' => 'assegai\\modules\\ModuleInjected',
-                    'dependencies' => array('server', 'mc'),
-                    'type' => $inject_type,
-                ),
-                array(
-                    'name' => 'response',
-                    'class' => 'assegai\\Response',
-                ),
-                array(
-                    'name' => 'security',
-                    'class' => 'assegai\\Security',
-                ),
-            ));
-        }
-
-        function setConfigPath($conf_path)
-        {
-            $this->conf_path = $conf_path;
-        }
-
-        function serve($request = null)
-        {
-            $engine = $this->container->give('engine');
-            $engine->setConfiguration($this->conf_path);
-            $engine->serve($request);
-        }
-
-        function run($conf_path = '')
-        {
-            $request = $this->container->give('request');
-            $request->fromGlobals();
-            
-            $this->setConfigPath($conf_path);
-            $this->serve($request);
-        }
-
-        function runuri($uri, $conf_path = '')
-        {
-            if($conf_path) {
-                $this->setConfigPath($conf_path);
-            }
-
-            $request = $this->container->give('request');
-            $request->setRoute($uri);
-            $request->setWholeRoute($uri);
-            $request->setMethod('GET');
-
-            $this->serve($request);
-        }
+    function handle(events\IEvent $event)
+    {
+        $engine = $this->injector->give('engine');
+        $engine->setConfiguration($this->conf_path);
+        $engine->serve($request);
     }
 }
-

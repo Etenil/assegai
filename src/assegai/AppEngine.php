@@ -59,19 +59,36 @@ namespace assegai {
         protected $prefix;  
 
         // Dependency setters.
-        function setDependencies(Server $server, modules\ModuleContainer $container, Security $security, routing\IRouter $router)
+        function dependenciesLoaded()
         {
             $this->root_path = dirname(__DIR__);
-            $this->server = $server;
-            $this->router = $router;
-
-            $this->modules = $container;
-
-            $this->security = $security;
-
             $this->conf_path = $this->getPath('conf.php');
 
             set_error_handler(array($this, 'phpErrorHandler'), E_ALL);
+        }
+        
+        function setMc($modules)
+        {
+            $this->modules = $modules;
+            return $this;
+        }
+        
+        function setServer(Server $server)
+        {
+            $this->server = $server;
+            return $this;
+        }
+        
+        function setRouter(routing\IRouter $router)
+        {
+            $this->router = $router;
+            return $this;
+        }
+        
+        function setSecurity(Security $security)
+        {
+            $this->security = $security;
+            return $this;
         }
 
         function setConfiguration($path)

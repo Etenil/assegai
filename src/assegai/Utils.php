@@ -31,6 +31,18 @@ namespace assegai;
 class Utils
 {
     /**
+     * Instanciates a injection container and preloads assegai's
+     * default dependency definitions.
+     */
+    public static function bootstrapContainer()
+    {
+        $container = new injector\Container();
+        $container->loadConfFile(__DIR__ . '/dependencies.conf');
+        
+        return $container;
+    }
+    
+    /**
      * Joins two paths together. Works for operating system paths
      * or for URLs.
      */

@@ -20,5 +20,6 @@
 
 require('vendor/autoload.php');
 
-$framework = new assegai\Framework();
-$framework->run(__DIR__ . '/conf.php');
+$c = assegai\Utils::bootstrapContainer();
+$framework = $c->give('framework')->setConfigPath(__DIR__ . '/conf.php');
+$framework->run($c->give('httpEvent')->loadGlobals());

@@ -50,14 +50,14 @@ class ModuleContainer
         $this->modules = array();
     }
     
+    function setInjector(\assegai\injector\Container $container)
+    {
+        $this->injector = $container;
+    }
+    
     public function setServer(\assegai\Server $server)
     {
         $this->server = $server;
-    }
-
-    public function setInjector($injector)
-    {
-        $this->injector = $injector;
     }
 
 	/**

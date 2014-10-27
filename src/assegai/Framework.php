@@ -26,14 +26,21 @@
 
 namespace assegai;
 
-class Framework extends EventHandler
+class Framework
 {
     protected $container;
     protected $conf_path;
+    protected $event_system;
+    protected $dispatcher;
 
     function setInjector(injector\Container $container)
     {
         $this->injector = $container;
+    }
+    
+    function setEventDispatcher(eventsystem\Dispatcher $dispatcher)
+    {
+        $this->dispatcher = $dispatcher;
     }
 
     function setConfigPath($conf_path)
@@ -42,10 +49,11 @@ class Framework extends EventHandler
         return $this;
     }
 
-    function handle(events\IEvent $event)
+    function run(eventsystem\events\IEvent $event)
     {
         $engine = $this->injector->give('engine');
         $engine->setConfiguration($this->conf_path);
-        $engine->serve($request);
+        
+        $this->dispatcher->trigger($event);
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace assegai\events;
+namespace assegai\eventsystem\events;
 
 interface IEvent
 {

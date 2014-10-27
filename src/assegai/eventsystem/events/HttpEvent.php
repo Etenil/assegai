@@ -1,35 +1,11 @@
 <?php
 
-/**
- * Request object for Assegai.
- *
- * This file is part of Assegai
- *
- * Copyright (c) 2013 Guillaume Pasquet
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- */
+namespace assegai\eventsystem\events;
 
-namespace assegai;
-
-class Request extends Stateful
+class HttpEvent extends Event implements IEvent
 {
+    protected $type = 'http';
+    
     /** Requested route. */
     protected $route;
     /** Whole route */
@@ -46,31 +22,27 @@ class Request extends Stateful
     /** Security */
     protected $sec;
     protected $server;
-
-    /**
-     * Initialises this request object.
-     * @param $get is a GET associative array.
-     * @param $post is a POST associative array.
-     * @param $sec is an instance of assegai's security class: \assegai\Security.
-     */
-    function __construct()
-    {
-        parent::__construct();
-    }
-
-    function setDependencies(Server $server, Security $sec)
+    
+    function setServer(\assegai\Server $server)
     {
         $this->server = $server;
-        $this->sec = $sec;
+        return $this;
     }
-
-    function fromGlobals()
+    
+    function setSecurity(\assegai\Security $sec)
+    {
+        $this->sec = $sec;
+        return $this;
+    }
+    
+    function loadGlobals()
     {
         $this->route = $this->server->getRoute();
         $this->whole_route = $this->server->getWholeRoute();
         $this->method = $this->server->getMethod();
 		$this->getvars = $_GET;
 		$this->postvars = $_POST;
+        return $this;
     }
 
     public function getRoute() {

@@ -26,6 +26,8 @@
 
 namespace assegai;
 
+use \assegai\eventsystem\events;
+
 /**
 * Applications dispatcher.
 *
@@ -46,6 +48,8 @@ class AppEngine
     protected $modules;
     /** Events dispatcher */
     protected $dispatcher;
+    /** Dependency injector */
+    protected $injector;
 
     /** Callable variable that handles client errors. */
     protected $error40x;
@@ -59,15 +63,17 @@ class AppEngine
     protected $apps_conf;
 
     protected $current_app;
-    protected $prefix;  
+    protected $prefix;
 
     // Dependency setters.
     function dependenciesLoaded()
     {
         $this->root_path = dirname(__DIR__);
-        $this->conf_path = $this->getPath('conf.php');
+        $this->main_conf_path = $this->getPath('conf.php');
         
         $this->dispatcher->register('http', array($this, 'serve'));
+        
+        $this->setHandlers();
 
         set_error_handler(array($this, 'phpErrorHandler'), E_ALL);
     }
@@ -108,7 +114,7 @@ class AppEngine
 
     function setConfiguration($path)
     {
-        $this->conf_path = $path;
+        $this->main_conf_path = $path;
     }
 
     /**
@@ -118,7 +124,7 @@ class AppEngine
     protected function parseconf()
     {
         // Loading the main configuration file first so we can get the paths.
-        $this->conf = Config::fromArray(array(
+        $this->main_conf = Config::fromArray(array(
             'prefix' => '',
             'apps_path' => 'apps',
             'models_path' => 'models',
@@ -128,15 +134,15 @@ class AppEngine
             'apps' => array(),
             'modules' => array(),
         )); // Defaults
-        $this->conf->loadFile($this->conf_path);
+        $this->main_conf->loadFile($this->main_conf_path);
 
-        if($this->conf->get('prefix')) {
+        if($this->main_conf->get('prefix')) {
             $this->server->setPrefix($this->prefix);
         }
 
         // Alright. Now let's load the apps config. We'll merge the apps routes as we go along.
-        foreach($this->conf->get('apps', array()) as $appname) {
-            $path = Utils::joinPaths($this->conf->get('apps_path'), $appname, 'conf.php');
+        foreach($this->main_conf->get('apps', array()) as $appname) {
+            $path = Utils::joinPaths($this->main_conf->get('apps_path'), $appname, 'conf.php');
             
             try {
                 $this->apps_conf[$appname] = Config::fromFile($path, 'app');
@@ -150,20 +156,20 @@ class AppEngine
             $this->router->setRoutes($appname, $app->get('route'));
 
             // Let's merge in the modules, they'll be common to all apps.
-            $modules = $this->conf->get('modules', array());
+            $modules = $this->main_conf->get('modules', array());
             if($app->get('modules')) {
                 foreach($app->get('modules') as $module) {
                     if(!in_array($module, $modules)) {
                         $modules[] = $module;
                         if($app->get($module)) { // Module-specific options.
-                            $this->conf->set($module, $app->get($module));
+                            $this->main_conf->set($module, $app->get($module));
                         }
                     }
                 }
             }
         }
 
-        $this->server->setMainConf($this->conf);
+        $this->server->setMainConf($this->main_conf);
     }
 
     /**
@@ -188,7 +194,7 @@ class AppEngine
      * @param $return_response: whether to process the response or to return it. Default
      * to process (false).
      */
-    public function serve(Request $request = null, $return_response = false)
+    public function serve(events\HttpEvent $request = null, $return_response = false)
     {
         $this->parseconf();
         $this->request = $request;
@@ -199,13 +205,12 @@ class AppEngine
 
         $response = null;
         
-        $autoloader = new Autoloader();
-        $autoloader->setConf($this->conf);
+        $autoloader = $this->injector->give('autoloader');
+        $autoloader->setConf($this->main_conf);
 
         try {
             // We register the dispatcher's autoloader
             spl_autoload_register(array($autoloader, 'autoload'));
-            $this->sethandlers();
             $call = $this->doserve($request);
             $result = $this->process($call, $request);
         }
@@ -277,8 +282,8 @@ class AppEngine
     /**
      * Processes the returned object from a handler.
      */
-    protected function display(Request $request, $response) {
-        $request->saveState();
+    protected function display(events\IEvent $request, $response) {
+        //$request->saveState();
         if(is_object($response)) {
             $response->compile();
         } else {
@@ -289,14 +294,14 @@ class AppEngine
     /**
      * Prepares the error handlers.
      */
-    protected function sethandlers() {
-        if($this->conf->get('handler40x')) {
-            $this->register40x($this->conf->get('handler40x'));
+    protected function setHandlers() {
+        if($this->main_conf && $this->main_conf->get('handler40x')) {
+            $this->register40x($this->main_conf->get('handler40x'));
         } else {
             $this->register40x(array('assegai\ErrorController', 'notFoundHandler'));
         }
-        if($this->conf->get('handler50x')) {
-            $this->register50x($this->conf->get('handler50x'));
+        if($this->main_conf && $this->main_conf->get('handler50x')) {
+            $this->register50x($this->main_conf->get('handler50x'));
         } else {
             $this->register50x(array('assegai\ErrorController', 'errorHandler'));
         }
@@ -331,9 +336,9 @@ class AppEngine
             $this->current_app = $proto->getApp();
             $this->server->setAppName($this->current_app);
 
-            $this->server->setMainConf($this->conf);
+            $this->server->setMainConf($this->main_conf);
             $this->server->setAppConf($this->apps_conf[$this->current_app]);
-            $this->server->setAppPath(Utils::joinPaths($this->conf->get('apps_path'), $this->current_app));
+            $this->server->setAppPath(Utils::joinPaths($this->main_conf->get('apps_path'), $this->current_app));
             if($this->apps_conf[$this->current_app]->get('use_session')) {
                 session_start();
                 $request->setAllSession($_SESSION);
@@ -403,7 +408,8 @@ class AppEngine
                 $obj = new $class(
                     $this->modules,
                     $this->server,
-                    $request, new Security()
+                    $request,
+                    $this->security
                 );
             }
 
@@ -448,17 +454,17 @@ class AppEngine
     }
 
     function loadAppModules($app) {
-        if($this->conf->get('modules')
-        	&& is_array($this->conf->get('modules'))) {
-            foreach($this->conf->get('modules') as $module) {
+        if($this->main_conf->get('modules')
+        	&& is_array($this->main_conf->get('modules'))) {
+            foreach($this->main_conf->get('modules') as $module) {
                 $opts = array();
                 
                 if(isset($this->apps_conf[$app]) && $this->apps_conf[$app]->get($module)) {
                     // We give priority to the app's module configuration.
                     $opts = $this->apps_conf[$app]->get($module);
                 }
-                elseif($this->conf->get($module)) {
-                    $opts = $this->conf->get($module);
+                elseif($this->main_conf->get($module)) {
+                    $opts = $this->main_conf->get($module);
                 }
                 
                 $this->modules->addModule($module, $opts);
@@ -468,7 +474,7 @@ class AppEngine
 			&& is_array($this->apps_conf[$app]->get('modules'))) {
             // Now the app's modules turn.
             foreach($this->apps_conf[$app]->get('modules', array()) as $module) {
-                if(in_array($module, $this->conf->get('modules'))) {
+                if(in_array($module, $this->main_conf->get('modules'))) {
                     continue;
                 }
                 $opts = NULL;
@@ -525,9 +531,13 @@ class AppEngine
         $ignore = array(E_DEPRECATED, E_STRICT, E_NOTICE);
         if(in_array($errno, $ignore)) return;
 
-        $this->request->setException(new \Exception($errstr, $errno));
+        $request = $this->request;
+        if(!$this->request) {
+            $request = $this->injector->give('event');
+        }
+        $request->setException(new \Exception($errstr, $errno));
         $result = $this->process($this->error50x, $request);
-        return $this->display($result['request'], $result['response']);
+        return $this->display($request, $result['response']);
     }
 
     /**

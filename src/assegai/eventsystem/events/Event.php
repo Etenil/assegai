@@ -6,6 +6,7 @@ class Event implements IEvent
 {
     protected $sender;
     protected $type = 'event';
+    protected $exception;
     
     function __construct($sender = null)
     {
@@ -25,5 +26,16 @@ class Event implements IEvent
     function getType()
     {
         return $this->type;
+    }
+    
+    function setException(\Exception $e)
+    {
+        $this->exception = $e;
+        return $this;
+    }
+    
+    function getException()
+    {
+        return $this->exception;
     }
 }

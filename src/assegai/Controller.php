@@ -51,7 +51,7 @@ class Controller implements IController
      */
 	public function __construct(modules\ModuleContainer $modules,
                                 Server $server,
-                                Request $request,
+                                eventsystem\events\IEvent $request,
                                 Security $security)
 	{
 		$this->modules = $modules;

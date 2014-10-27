@@ -29,6 +29,7 @@
 namespace assegai\modules;
 
 use \assegai\injector;
+use \assegai\eventsystem\events;
 
 class ModuleContainer
 {
@@ -189,7 +190,7 @@ class ModuleContainer
      * @param Request $request is the request object that will be
      * processed.
      */
-	public function preRouting($path, $route, \assegai\Request $request)
+	public function preRouting($path, $route, events\IEvent $request)
 	{ return $this->batchRun(true, 'preRouting', func_get_args()); }
 
 	/** Mapped module function call.
@@ -202,7 +203,7 @@ class ModuleContainer
      * @param Response $response is the HTTP response produced by the
      * controller.
      */
-	public function postRouting($path, $route, \assegai\Request $request, \assegai\Response $response)
+	public function postRouting($path, $route, events\IEvent $request, \assegai\Response $response)
 	{ return $this->batchRun(true, 'postRouting', func_get_args()); }
 
 	/** Mapped module function call.
@@ -213,7 +214,7 @@ class ModuleContainer
      * @param Request $request is the request object that will be
      * processed.
      */
-	public function preRequest(\assegai\Controller $controller, \assegai\Request $request)
+	public function preRequest(\assegai\Controller $controller, events\IEvent $request)
 	{ return $this->batchRun(true, 'preRequest', func_get_args()); }
 
 	/** Mapped module function call.
@@ -226,7 +227,7 @@ class ModuleContainer
      * @param Response $response is the HTTP response produced by the
      * controller.
      */
-	public function postRequest(\assegai\Controller $controller, \assegai\Request $request, \assegai\Response $response)
+	public function postRequest(\assegai\Controller $controller, events\IEvent $request, \assegai\Response $response)
 	{ return $this->batchRun(true, 'postRequest', func_get_args()); }
 
 	/** Mapped module function call.
@@ -236,7 +237,7 @@ class ModuleContainer
      * @param Request $request is the HTTP Request object currently
      * being handled.
      */
-	public function preView(\assegai\Request $request, $path, $vars)
+	public function preView(events\IEvent $request, $path, $vars)
 	{ return $this->batchRun(true, 'preView', func_get_args()); }
 
 	/** Mapped module function call.
@@ -248,7 +249,7 @@ class ModuleContainer
      * @param string $result response the HTTP Response produced by the
      * view.
      */
-	public function postView(\assegai\Request $request, $path, $vars, $result)
+	public function postView(events\IEvent $request, $path, $vars, $result)
 	{ return $this->batchRun(true, 'postView', func_get_args()); }
 
    	/** Mapped module function call.

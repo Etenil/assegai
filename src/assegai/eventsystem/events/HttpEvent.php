@@ -16,8 +16,6 @@ class HttpEvent extends Event implements IEvent
 	protected $getvars;
     /** Stores the POST variables. */
 	protected $postvars;
-    /** This is mostly used for error handlers. */
-    protected $exception;
     
     /** Security */
     protected $sec;
@@ -64,16 +62,6 @@ class HttpEvent extends Event implements IEvent
 
     function setWholeRoute($val) {
         $this->whole_route = $val;
-        return $this;
-    }
-
-    public function getException()
-    {
-        return $this->exception;
-    }
-    public function setException($val)
-    {
-        $this->exception = $val;
         return $this;
     }
 

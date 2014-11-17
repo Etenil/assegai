@@ -29,7 +29,12 @@ namespace assegai\modules\mail
             $classname = "\\assegai\\modules\\mail\\services\\Builtin";
             
             if(isset($options['service'])) { // We use the standard email service
-                $classname = "\\assegai\\modules\\mail\\services\\" . ucwords($options['service']);
+                if(class_exists($options['service']) && in_array( '\assegai\modules\mail\Service' ,class_implements($options['service']))) {
+                    $classname = $options['service'];
+                }
+                else {
+                    $classname = "\\assegai\\modules\\mail\\services\\" . ucwords($options['service']);
+                }
             }
 
             $this->svc = new $classname(@$options['options']);

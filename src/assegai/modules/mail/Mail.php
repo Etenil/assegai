@@ -27,9 +27,9 @@ namespace assegai\modules\mail
             $this->default_sender = @$options['sender'];
             
             $classname = "\\assegai\\modules\\mail\\services\\Builtin";
-            
+
             if(isset($options['service'])) { // We use the standard email service
-                if(class_exists($options['service']) && in_array( '\assegai\modules\mail\Service' ,class_implements($options['service']))) {
+                if(class_exists($options['service']) && in_array( 'assegai\modules\mail\Service', class_implements($options['service']))) {
                     $classname = $options['service'];
                 }
                 else {

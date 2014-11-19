@@ -23,26 +23,27 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-namespace assegai\routing
+namespace assegai\routing;
+
+use \assegai\eventsystem\events;
+
+interface IRouter
 {
-    interface IRouter
-    {
-        /**
-         * Sets the routes for this router.
-         * @param $app string is the app's name for the provided routing table.
-         * @param $routes array is the routing table for that particular app.
-         * @return null
-         */
-        function setRoutes($app, array $routes);
-        
-        /**
-         * Attempts to resolve the current request to a workable callback.
-         * @param   Request       $request  The current request being served
-         * @throws  NoHandlerException      Thrown if corresponding class is not found
-         * @throws  NoRouteException        Thrown if no match is found
-         * @throws  BadMethodCallException  Thrown if a corresponding GET,POST is not found
-         * @return  a RouteCall object.
-         */
-        function getRoute(\assegai\Request $request);
-    }
+    /**
+     * Sets the routes for this router.
+     * @param $app string is the app's name for the provided routing table.
+     * @param $routes array is the routing table for that particular app.
+     * @return null
+     */
+    function setRoutes($app, array $routes);
+    
+    /**
+     * Attempts to resolve the current request to a workable callback.
+     * @param   Request       $request  The current request being served
+     * @throws  NoHandlerException      Thrown if corresponding class is not found
+     * @throws  NoRouteException        Thrown if no match is found
+     * @throws  BadMethodCallException  Thrown if a corresponding GET,POST is not found
+     * @return  a RouteCall object.
+     */
+    function getRoute(events\HttpEvent $event);
 }

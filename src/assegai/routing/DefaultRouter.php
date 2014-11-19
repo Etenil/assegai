@@ -23,95 +23,96 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-namespace assegai\routing
+namespace assegai\routing;
+
+use \assegai\eventsystem\events;
+
+class DefaultRouter implements IRouter
 {
-    class DefaultRouter implements IRouter
+    protected $routes;
+
+    public function __construct()
     {
-        protected $routes;
-    
-        public function __construct()
-        {
-            $this->routes = array();
-        }
-    
-        /**
-         * Sets the routes for this router.
-         */
-        function setRoutes($app, array $routes)
-        {
-            foreach($routes as $key => $value) {
-                if(is_array($value) && is_string($key) && $key[0] == '@') { // prefixed routes start with '@'
-                    $prefix = substr($key, 1);
-                    foreach($value as $regex => $action) {
-                        $method = '';
-                        $matches = array();
-                        if(preg_match('%^([A-Za-z]+:)%', $regex, $matches)) { // This caters for specific methods.
-                            $method = $matches[1];
-                            $regex = substr($regex, strlen($method));
-                        }
-                        $this->routes[$method . $prefix . $regex] = new RouteCall($app, $action);
+        $this->routes = array();
+    }
+
+    /**
+     * Sets the routes for this router.
+     */
+    function setRoutes($app, array $routes)
+    {
+        foreach($routes as $key => $value) {
+            if(is_array($value) && is_string($key) && $key[0] == '@') { // prefixed routes start with '@'
+                $prefix = substr($key, 1);
+                foreach($value as $regex => $action) {
+                    $method = '';
+                    $matches = array();
+                    if(preg_match('%^([A-Za-z]+:)%', $regex, $matches)) { // This caters for specific methods.
+                        $method = $matches[1];
+                        $regex = substr($regex, strlen($method));
                     }
-                }
-                else {
-                    $this->routes[$key] = new RouteCall($app, $value);
+                    $this->routes[$method . $prefix . $regex] = new RouteCall($app, $action);
                 }
             }
-            
-            krsort($this->routes);
-            
-            return $this;
+            else {
+                $this->routes[$key] = new RouteCall($app, $value);
+            }
         }
         
-        /**
-         * Searches for a route matching the provided request.
-         */
-        function getRoute(\assegai\Request $request)
-        {
-            $path = $request->getRoute();
+        krsort($this->routes);
+        
+        return $this;
+    }
+    
+    /**
+     * Searches for a route matching the provided request.
+     */
+    function getRoute(events\HttpEvent $request)
+    {
+        $path = $request->getRoute();
 
-            $call = false;        // This will store the controller and method to call
-            $matches = array();   // And this the extracted parameters.
+        $call = false;        // This will store the controller and method to call
+        $matches = array();   // And this the extracted parameters.
 
-            // First we search for specific method routes.
-            $method_routes = preg_grep('%^' . $request->getMethod() . ':%i', array_keys($this->routes));
-            foreach($method_routes as $route) {
-                $method = $request->getMethod() . ':';
-                $clean_route = substr($route, strlen($method));
-                if(preg_match('%^'. $clean_route .'/?$%i', $path, $matches)) {
-                    $call = $this->routes[$route];
+        // First we search for specific method routes.
+        $method_routes = preg_grep('%^' . $request->getMethod() . ':%i', array_keys($this->routes));
+        foreach($method_routes as $route) {
+            $method = $request->getMethod() . ':';
+            $clean_route = substr($route, strlen($method));
+            if(preg_match('%^'. $clean_route .'/?$%i', $path, $matches)) {
+                $call = $this->routes[$route];
+                break;
+            }
+        }
+
+        // Do we need to try generic routes?
+        if(!$call) {
+            foreach($this->routes as $regex => $proto) {
+                if(preg_match('%^'. $regex .'/?$%i', $path, $matches)) {
+                    $call = $proto;
                     break;
                 }
             }
-
-            // Do we need to try generic routes?
-            if(!$call) {
-                foreach($this->routes as $regex => $proto) {
-                    if(preg_match('%^'. $regex .'/?$%i', $path, $matches)) {
-                        $call = $proto;
-                        break;
-                    }
-                }
-            }
-
-            // If we don't have a call at this point, that's a 404.
-            if(!$call) {
-                throw new \assegai\exceptions\NoRouteException(
-                    sprintf('URL %s not found.', $request->getWholeRoute()),
-                    $this->routes
-                );
-            }
-            
-            // Cleaning up the matches. The first one is always the current URL.
-            $params = array_slice($matches, 1);
-            
-            if(is_array($call)) {
-                $params = array_merge(array($call[1]), $params);
-                $call = $call[0];
-            }
-            
-            $call->setParams($params);
-            
-            return $call;
         }
+
+        // If we don't have a call at this point, that's a 404.
+        if(!$call) {
+            throw new \assegai\exceptions\NoRouteException(
+                sprintf('URL %s not found.', $request->getWholeRoute()),
+                $this->routes
+            );
+        }
+        
+        // Cleaning up the matches. The first one is always the current URL.
+        $params = array_slice($matches, 1);
+        
+        if(is_array($call)) {
+            $params = array_merge(array($call[1]), $params);
+            $call = $call[0];
+        }
+        
+        $call->setParams($params);
+        
+        return $call;
     }
 }

@@ -310,7 +310,7 @@ class AppEngine
     /**
      * Actually does the job of serving pages.
      */
-    protected function doserve(Request $request)
+    protected function doserve(events\IEvent $request)
     {
         $route_to_app = "";
         $app = null;

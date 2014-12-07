@@ -108,7 +108,12 @@ class Validator extends modules\Module
                                }
                                // check DNS
                                if ($isValid && !(checkdnsrr($domain,"MX") || checkdnsrr($domain,"A"))) {
-                                   $isValid = false;
+                                   // hmm, the domain has no MX records
+                                   if (checkdnsrr('gmail.com',"MX")) {
+                                       // but Gmail does. the other domain must be dodgy
+                                       $isValid = false;
+                                   }
+                                   // otherwise: probably running off-line or maybe DNS service is not working
                                }
                            }
                            return $isValid;

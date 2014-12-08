@@ -10,15 +10,61 @@ namespace assegai
         {
             $this->conf = $conf;
         }
-        
-        /**
-         * Autoloader for controllers etc.
-         */
-        public function autoload($classname)
+
+        private function getPsr0path( $classname )
+        {
+            // PSR-0 autoloader (before was just backwards-compat...)
+            $psr0path = function($classname, $base = '')
+            {
+                $file = $filename = str_replace('_', DIRECTORY_SEPARATOR, str_replace('\\', DIRECTORY_SEPARATOR, $classname)) . '.php';
+                if($base)
+                {
+                    $file = $base . DIRECTORY_SEPARATOR . $filename;
+                    if(!file_exists($file))
+                    {
+                        $file = $base . DIRECTORY_SEPARATOR . strtolower($filename);
+                    }
+                }
+
+                return $file;
+            };
+
+            if($classname[0] == '\\')
+            {
+                $classname = substr($classname, 1);
+            }
+
+            $token = substr($classname, 0, strpos($classname, '\\'));
+
+            if($token == 'modules') // Global modules
+            {
+                $filename = $psr0path(str_replace('modules\\', '', $classname), $this->conf->get('custom_modules_path'));
+            }
+            else if($token == 'models')
+            {
+                $filename = $psr0path(str_replace('models\\', '', $classname), $this->conf->get('models_path'));
+            }
+            else if($token == 'helpers')
+            {
+                $filename = $psr0path(str_replace('helpers\\', '', $classname), $this->conf->get('helpers_path'));
+            }
+            else if($token == 'exceptions')
+            {
+                $filename = $psr0path(str_replace('exceptions\\', '', $classname), $this->conf->get('exceptions_path'));
+            }
+            else
+            {
+                $filename = $psr0path($classname, $this->conf->get('apps_path'));
+            }
+
+            return $filename && file_exists($filename) ? $filename : false;
+        }
+
+        private function getLegacy($classname)
         {
             $first_split = strpos($classname, '_');
             $filename = "";
-            
+
             if($first_split)
             {
                 $token = substr($classname, 0, $first_split);
@@ -70,64 +116,29 @@ namespace assegai
 
                     $app = substr($classname, 0, $app_splitter);
                     $type = substr($classname, $app_splitter + 1,
-                    $type_splitter - $app_splitter - 1);
+                        $type_splitter - $app_splitter - 1);
                     $class = substr($classname, $type_splitter + 1);
 
                     $paths = array('Controller' => 'controllers',
-                    'Exception' => 'exceptions',
-                    'Model' => 'models',
-                    'View' => 'views');
+                        'Exception' => 'exceptions',
+                        'Model' => 'models',
+                        'View' => 'views');
                     $filename = $this->conf->get('apps_path') . '/' . strtolower($app) . '/'
                         . $paths[$type] . '/' . str_replace('_', '/', strtolower($class)) . '.php';
                 }
             }
-            else
-            {
-                // PSR-0 autoloader (before was just backwards-compat...)
-                $psr0path = function($classname, $base = '')
-                {
-                    $file = $filename = str_replace('_', DIRECTORY_SEPARATOR, str_replace('\\', DIRECTORY_SEPARATOR, $classname)) . '.php';
-                    if($base)
-                    {
-                        $file = $base . DIRECTORY_SEPARATOR . $filename;
-                        if(!file_exists($file))
-                        {
-                            $file = $base . DIRECTORY_SEPARATOR . strtolower($filename);
-                        }
-                    }
-                    
-                    return $file;
-                };
-                
-                if($classname[0] == '\\')
-                {
-                    $classname = substr($classname, 1);
-                }
-                
-                $token = substr($classname, 0, strpos($classname, '\\'));
+            return $filename != "" ? $filename : false;
+        }
 
-                if($token == 'modules') // Global modules
-                {
-                    $filename = $psr0path(str_replace('modules\\', '', $classname), $this->conf->get('custom_modules_path'));
-                }
-                else if($token == 'models')
-                {
-                    $filename = $psr0path(str_replace('models\\', '', $classname), $this->conf->get('models_path'));
-                }
-                else if($token == 'helpers')
-                {
-                    $filename = $psr0path(str_replace('helpers\\', '', $classname), $this->conf->get('helpers_path'));
-                }
-                else if($token == 'exceptions')
-                {
-                    $filename = $psr0path(str_replace('exceptions\\', '', $classname), $this->conf->get('exceptions_path'));
-                }
-                else
-                {
-                    $filename = $psr0path($classname, $this->conf->get('apps_path'));
-                }
+        /**
+         * Autoloader for controllers etc.
+         */
+        public function autoload($classname)
+        {
+            $filename = $this->getPsr0path($classname);
+            if (!$filename) {
+                $filename = $this->getLegacy($classname);
             }
-
             if($filename && file_exists($filename))
             {
                 include($filename);

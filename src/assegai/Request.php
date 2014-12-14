@@ -47,20 +47,22 @@ class Request extends Stateful
     protected $sec;
     protected $server;
 
-    /**
-     * Initialises this request object.
-     * @param $get is a GET associative array.
-     * @param $post is a POST associative array.
-     * @param $sec is an instance of assegai's security class: \assegai\Security.
-     */
-    function __construct()
+    function _init()
     {
-        parent::__construct();
+        $this->route = '';
+        $this->whole_route = '';
+        $this->method = 'GET';
+        $this->getvars = [];
+        $this->postvars = [];
     }
-
-    function setDependencies(Server $server, Security $sec)
+    
+    public function setServer(Server $server)
     {
         $this->server = $server;
+    }
+    
+    public function setSecurity(Security $sec)
+    {
         $this->sec = $sec;
     }
 

@@ -29,31 +29,24 @@
 namespace assegai\modules;
 
 use \assegai\injector;
+use \assegai\Server;
 
-class ModuleContainer
+class ModuleContainer extends injector\Injectable
 {
     /** Contains instanciated modules that extend Module.*/
     protected $modules;
     protected $server;
-    protected $injector;
 
-    /**
-     * Class constructor. Nothing to say here.
-     */
-    public function __construct()
+    public function _init()
     {
+        parent::_init();
+        
         $this->modules = array();
     }
-
-    public function setDependencies(\assegai\Server $server)
+    
+    public function setServer(Server $server)
     {
         $this->server = $server;
-        $this->modules = array();
-    }
-
-    public function setInjector($injector)
-    {
-        $this->injector = $injector;
     }
 
 	/**

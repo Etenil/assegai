@@ -28,10 +28,12 @@
 
 namespace assegai;
 
+use assegai\injector;
+
 /**
  * An object that saves cookie and sessions.
  */
-class Stateful
+class Stateful extends injector\Injectable
 {
     protected $sessionvars;
     protected $cookievars;

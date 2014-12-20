@@ -3,7 +3,7 @@
 /**
  * This file is part of Assegai
  *
- * Copyright (c) 2013 Guillaume Pasquet
+ * Copyright (c) 2013 - 2014 Guillaume Pasquet
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -417,15 +417,16 @@ class AppEngine extends injector\Injectable
 
         // Cleaning up the response...
         if(gettype($response) == 'string') {
-            $response = new Response($response);
+            $resp = $this->container->give('response')->setBody($response);
+            $response = $resp;
         }
         else if($response === null) {
-            $response = new Response();
+            $response = $this->container->give('response'); // A blank response.
         }
         else if(gettype($response) != 'object'
-        || (gettype($response) == 'object'
-        && (get_class($response) != 'assegai\Response'
-        && !is_subclass_of($response, 'assegai\Response')))) {
+            || (gettype($response) == 'object'
+            && (get_class($response) != 'assegai\Response'
+            && !is_subclass_of($response, 'assegai\Response')))) {
             throw new exceptions\IllegalResponseException('Unknown response.');
         }
 

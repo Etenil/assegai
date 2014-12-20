@@ -28,7 +28,11 @@
  
 namespace assegai\modules;
 
-class Module
+use assegai\injector;
+use assegai\Server;
+use assegai\modules\ModuleContainer;
+
+class Module extends injector\Injectable
 {
     protected $server;
     protected $options;
@@ -38,11 +42,15 @@ class Module
      * @param array $options is an associative array whose keys will
      * be mapped to properties for speed populating of the object.
 	 */
-    function setDependencies(\assegai\Server $server, ModuleContainer $modules)
-	{
+    function setServer(Server $server)
+    {
         $this->server = $server;
+    }
+    
+    function setMc(ModuleContainer $modules)
+    {
         $this->modules = $modules;
-	}
+    }
 
     /**
      * Method called when the module gets initialised. Put init code
@@ -62,7 +70,8 @@ class Module
         return false;
     }
 
-    public function model($name) {
+    public function model($name)
+    {
         return new $name($this->modules);
     }
 
@@ -86,7 +95,8 @@ class Module
      * @param Request $request is the request object that will be
      * processed.
      */
-	public function preRouting($path, $route, \assegai\Request $request) {}
+	public function preRouting($path, $route, \assegai\Request $request)
+    {}
 
     /**
      * Post-routing hook. This gets called after the routing
@@ -98,7 +108,8 @@ class Module
      * @param Response $response is the HTTP response produced by the
      * controller.
      */
-	public function postRouting($path, $route, \assegai\Request $request, \assegai\Response $response) {}
+	public function postRouting($path, $route, \assegai\Request $request, \assegai\Response $response)
+    {}
 
     /**
      * Pre-view hook. Gets called just before processing the
@@ -107,7 +118,8 @@ class Module
      * @param Request $request is the HTTP Request object currently
      * being handled.
      */
-	public function preView(\assegai\Request $request, $path, $vars) {}
+	public function preView(\assegai\Request $request, $path, $vars)
+    {}
 
     /**
      * Post-view hook. Gets called just after having processed the
@@ -118,11 +130,11 @@ class Module
      * @param Response response is the HTTP Response produced by the
      * view.
      */
-    public function postView(\assegai\Request $request, $path, $vars, $result) {}
+    public function postView(\assegai\Request $request, $path, $vars, $result)
+    {}
 
     public function setAppName($app_name)
     {
         $this->server->setAppName($app_name);
     }
 }
-

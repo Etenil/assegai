@@ -27,8 +27,10 @@
  */
  
 namespace assegai;
- 
-class Model
+
+use assegai\injector;
+
+class Model extends injector\Injectable
 {
     /** Modules that were loaded by the application. */
     protected $modules;

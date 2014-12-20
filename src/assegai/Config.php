@@ -28,7 +28,9 @@
 
 namespace assegai;
 
-class Config
+use assegai\injector;
+
+class Config extends injector\Injectable
 {
     protected $settings;
 

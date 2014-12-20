@@ -28,7 +28,9 @@
 
 namespace assegai;
 
-class Controller implements IController
+use assegai\injector;
+
+class Controller extends injector\Injectable implements IController
 {
     /** Object that contains loaded modules. */
 	protected $modules;

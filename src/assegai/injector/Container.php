@@ -5,7 +5,7 @@
  *
  * This file is part of Assegai
  *
- * Copyright (c) 2013 Guillaume Pasquet
+ * Copyright (c) 2013 - 2014 Guillaume Pasquet
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal

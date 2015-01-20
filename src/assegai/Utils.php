@@ -28,6 +28,8 @@
 
 namespace assegai;
 
+use assegai\injector;
+
 class Utils
 {
     /**
@@ -54,6 +56,26 @@ class Utils
         } else {
             return $path;
         }
+    }
+    
+    /**
+     * Create and bootstrap the framework.
+     * @param string $conf_path is the main configuration file's path.
+     * @return assegai\Framework a bootstrapped and ready to use framework.
+     */
+    public static function bootstrap($conf_path = '')
+    {
+        // Initialising the dependencies injector.
+        $container = new injector\Container();
+        $container->loadConfFile(__DIR__ . '/dependencies.conf');
+        
+        $framework = $container->give('framework');
+        
+        if($conf_path) {
+            $framework->loadConfig($conf_path);
+        }
+        
+        return $framework;
     }
 
     /**

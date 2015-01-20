@@ -27,49 +27,94 @@
 namespace assegai;
 
 use assegai\injector;
+use assegai\Utils;
+use assegai\Request;
+use assegai\exceptions;
 
-class Framework
+class Framework extends injector\Injectable
 {
     protected $container;
+    protected $conf;
+    protected $apps;
+    protected $loader;
+    
+    // Config things.
+    protected $apps_path = 'apps';
 
     function __construct()
     {
-        $this->container = new injector\Container();
-        $this->container->loadConfFile(__DIR__ . '/dependencies.conf');
+        $this->apps = array();
     }
 
-    function setConfigPath($conf_path)
+    function setConfig(Config $config)
     {
-        $this->conf_path = $conf_path;
+        $this->conf = $config;
     }
-
-    function serve($request = null)
+    
+    function setAutoLoader(Autoloader $loader)
     {
-        $engine = $this->container->give('engine');
-        $engine->setConfiguration($this->conf_path);
-        $engine->serve($request);
+        $this->autoloader = $loader;
     }
 
-    function run($conf_path = '')
+    function loadConfig($conf_path)
+    {
+        $this->conf->reset();
+        $this->conf->loadFile($conf_path);
+        
+        $this->autoloader->setConf($this->conf);
+        $this->autoloader->register();
+        
+        foreach($this->conf->get('apps', array()) as $appname) {
+            $app = $this->container->give('app');
+            $app->setName($appname);
+            $app->setPath(Utils::joinPaths($this->conf->get('apps_path'), $appname));
+            $this->apps[] = $app;
+        }
+    }
+
+    function serve(Request $request = null)
+    {
+        try {
+            $served = false;
+            foreach($this->apps as $app) {
+                if($app->serve($request)) {
+                    break;
+                    $served = true;
+                }
+            }
+            
+            if(!$served) {
+                throw new exceptions\HTTPNotFoundError();
+            }
+        }
+        catch(exceptions\HttpRedirect $r) {
+            die(1);
+        }
+        catch(exceptions\HTTPNotFoundError $e) {
+            die(2);
+        }
+        catch(exceptions\HTTPClientError $e) {
+            die(3);
+        }
+        catch(exceptions\HTTPServerError $e) {
+            die(4);
+        }
+        // Generic HTTP status response.
+        catch(exceptions\HTTPStatus $s) {
+            die(5);
+        }
+        catch(\Exception $e) {
+            die(6);
+        }
+        
+        die(7);
+    }
+
+    function run()
     {
         $request = $this->container->give('request');
         $request->fromGlobals();
         
-        $this->setConfigPath($conf_path);
-        $this->serve($request);
-    }
-
-    function runuri($uri, $conf_path = '')
-    {
-        if($conf_path) {
-            $this->setConfigPath($conf_path);
-        }
-
-        $request = $this->container->give('request');
-        $request->setRoute($uri);
-        $request->setWholeRoute($uri);
-        $request->setMethod('GET');
-
         $this->serve($request);
     }
 }

@@ -38,10 +38,10 @@ class DefaultRouter implements IRouter
     /**
      * Sets the routes for this router.
      */
-    function setRoutes($app, array $routes)
+    function setRoutes(array $routes)
     {
         foreach($routes as $key => $value) {
-            if(is_array($value) && is_string($key) && $key[0] == '@') { // prefixed routes start with '@'
+            if(is_array($value) && is_string($key) && $key[0] == '@') { // prefixed routes start with '@')'
                 $prefix = substr($key, 1);
                 foreach($value as $regex => $action) {
                     $method = '';
@@ -54,7 +54,7 @@ class DefaultRouter implements IRouter
                 }
             }
             else {
-                $this->routes[$key] = new RouteCall($app, $value);
+                $this->routes[$key] = new RouteCall($value);
             }
         }
         

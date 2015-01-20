@@ -83,10 +83,7 @@ class Server
     /** The app that is currently run */
     protected $app_name;
 
-    /** Main configuration */
-    public $main;
-    /** App configuration */
-    public $app;
+    public $conf;
 
     protected static $instance;
 
@@ -334,14 +331,9 @@ class Server
         return Utils::joinPaths($this->apps_path, $file);
     }
 
-    public function setMainConf(Config $main_conf)
+    public function setConf(Config $conf)
     {
-        $this->main = $main_conf;
-    }
-
-    public function setAppConf(Config $app_conf)
-    {
-        $this->app = $app_conf;
+        $this->conf = $conf;
     }
 
     public function setAppName($app)

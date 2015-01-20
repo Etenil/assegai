@@ -33,19 +33,6 @@ use assegai\injector;
 class Config extends injector\Injectable
 {
     protected $settings;
-
-    public static function fromArray(array $definitions)
-    {
-        return new self($definitions);
-    }
-
-    public static function fromFile($path, $varname = 'conf')
-    {
-        $me = new self();
-        $me->loadFile($path, $varname);
-
-        return $me;
-    }
     
     public function loadFile($path, $varname = 'conf') {
         if(!file_exists($path)) {
@@ -63,7 +50,7 @@ class Config extends injector\Injectable
         $this->settings = array_merge($this->settings, $definitions);
     }
 
-    protected function __construct(array $definitions = array())
+    function __construct(array $definitions = array())
     {
         $this->settings = $definitions;
     }
@@ -85,5 +72,10 @@ class Config extends injector\Injectable
     public function getAll()
     {
         return $this->settings;
+    }
+    
+    public function reset()
+    {
+        $this->settings = array();
     }
 }

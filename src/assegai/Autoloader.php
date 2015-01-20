@@ -11,7 +11,7 @@ class Autoloader
         $this->conf = $conf;
     }
 
-    private function getPsr0path( $classname )
+    private function getPsr0path($classname)
     {
         // PSR-0 autoloader (before was just backwards-compat...)
         $psr0path = function($classname, $base = '')
@@ -136,12 +136,21 @@ class Autoloader
     public function autoload($classname)
     {
         $filename = $this->getPsr0path($classname);
-        if (!$filename) {
+        if(!$filename) {
             $filename = $this->getLegacy($classname);
         }
         if($filename && file_exists($filename))
         {
             include($filename);
         }
+    }
+    
+    function register()
+    {
+        if(!$this->conf) {
+            throw new \Exception("Autoloader cannot work, no configuration given.");
+        }
+        
+        spl_autoload_register(array($this, 'autoload'));
     }
 }

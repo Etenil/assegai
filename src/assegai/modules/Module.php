@@ -32,7 +32,7 @@ use etenil\assegai\injector;
 use etenil\assegai\Server;
 use etenil\assegai\modules\ModuleContainer;
 
-class Module extends injector\Injectable
+abstract class Module extends injector\Injectable
 {
     protected $server;
     protected $options;
@@ -59,15 +59,6 @@ class Module extends injector\Injectable
     public function setOptions($options)
     {
         $this->options = $options;
-    }
-
-    /**
-     * Whether to instanciate and attach the module upon loading.
-     * @return bool true if instanciation is needed, or false.
-     */
-    public static function instanciate()
-    {
-        return false;
     }
 
     public function model($name)
@@ -136,5 +127,13 @@ class Module extends injector\Injectable
     public function setAppName($app_name)
     {
         $this->server->setAppName($app_name);
+    }
+    
+    /**
+     * Return the configuration for the dependency injector.
+     */
+    static function dependencies()
+    {
+        return;
     }
 }

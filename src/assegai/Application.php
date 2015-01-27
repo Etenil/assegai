@@ -119,10 +119,15 @@ class Application extends injector\Injectable
      */
     protected function parseconf()
     {
-        $this->conf->loadFile(Utils::joinPaths($this->path, 'conf.php'), 'app');
+        $this->conf->loadFile(Utils::joinPaths($this->path, 'conf.php'), 'conf');
         
         // Little shortcut to help readability
         $this->router->setRoutes($this->conf->get('route', array()));
+        
+        // Loading modules
+        foreach($this->conf->get('modules', array()) as $module) {
+            $this->modules->addModule($module, $this->conf->get($module));
+        }
     }
 
     /**

@@ -1,8 +1,6 @@
 <?php
 
-namespace etenil\assegai\modules\validator;
-
-use \etenil\assegai\modules;
+namespace etenil\modules\ValidatorModule\controllers;
 
 /**
  * Form validation library.
@@ -13,7 +11,7 @@ use \etenil\assegai\modules;
  * @see https://github.com/blackbelt/php-validation
  * @see Based on idea: http://brettic.us/2010/06/18/form-validation-class-using-php-5-3/
  */
-class Validator extends modules\Module
+class Validator
 {
     protected $messages = array();
     protected $errors = array();
@@ -24,11 +22,6 @@ class Validator extends modules\Module
     protected $filters = array();
     protected $data = null;
 	protected $validData = array();
-
-    public static function instanciate()
-    {
-        return false;
-    }
 
     /**
      * Constructor.

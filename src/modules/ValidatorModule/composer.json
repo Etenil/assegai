@@ -1,7 +1,7 @@
 {
-    "name": "etenil/assegai",
-    "description": "A full MVC framework for PHP.",
-    "keywords": ["framework"],
+    "name": "etenil/modules/ValidatorModule",
+    "description": "An input validator module for Assegai.",
+    "keywords": ["forms", "validation"],
     "homepage": "http://github.com/Etenil/assegai",
     "type": "library",
     "license": "MIT",
@@ -16,7 +16,7 @@
     },
     "autoload": {
         "psr-0": {
-            "etenil\\": "src/"
+            "etenil\\modules\\ValidatorModule": "."
         }
     }
 }

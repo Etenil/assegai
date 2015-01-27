@@ -68,39 +68,44 @@ class ModuleContainer extends injector\Injectable
 	 * the module's constructor. Default is none.
 	 */
     public function addModule($module, array $options = NULL) {
-        // We need to try the user's modules first, so they can override built-in ones.
-        $full_module = '\\modules\\' . strtolower($module) . '\\' . ucwords($module);
-        if(!class_exists($full_module)) {
-            $full_module = 'etenil\assegai\\modules\\' . $module . '\\' . ucwords($module);
-            if(!class_exists($full_module)) { // Very last chance.
-                $full_module = 'Module_' . $module;
+        // The module loading class has the same name as the last bit of the module namespace.
+        $module_class_name = substr($module, strrpos($module, '\\'));
+        
+        $module_name = strtolower(trim(preg_replace(
+                '%([a-z0-9])([A-Z])%',
+                '$1_$2',
+                substr($module_class_name, 0, strlen($module_class_name) - 6) // works with "bundle" too!
+            ),
+            '\\'
+        ));
+        
+        $full_module = $module . $module_class_name;
+        if(!class_exists($full_module)) { // Backwards compatibility.
+            $full_module = '\\modules\\' . strtolower($module) . '\\' . ucwords($module);
+            if(!class_exists($full_module)) {
+                $full_module = 'etenil\\assegai\\modules\\' . $module . '\\' . ucwords($module);
             }
         }
 
-        if($full_module::instanciate())
-        {
-            $module_instance = null;
-            $module_injector = new injector\Container($this->injector);
-            $deps = array();
-            
-            if(method_exists($full_module, 'dependencies')) {
-                $deps = $full_module::dependencies();
-            } else { // We'll make up a dependency for you.
-                $deps = array(
-                    array(
-                        'name' => 'module_' . $module,
-                        'class' => $full_module,
-                        'mother' => 'module',
-                    ),
-                );
-            }
-
-            $module_injector->loadConf($deps);
-            $module_instance = $module_injector->give('module_' . $module);
-            $module_instance->setOptions($options);
-
-            $this->add_to_list($module, $module_instance);
+        $module_instance = null;
+        $module_container = new injector\Container($this->container);
+        $deps = $full_module::dependencies();
+        
+        if(!$deps) { // We'll make up a dependency for you.
+            $deps = array(
+                array(
+                    'name' => $module_name,
+                    'class' => $full_module,
+                    'mother' => 'module',
+                ),
+            );
         }
+
+        $module_container->loadConf($deps);
+        $module_instance = $module_container->give($module_name);
+        $module_instance->setOptions($options);
+
+        $this->add_to_list($module, $module_instance);
     }
 
 	/**

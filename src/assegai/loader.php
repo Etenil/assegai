@@ -30,9 +30,9 @@ namespace etenil\assegai;
 
 function coreload($classname) {
     $matches = array();
-    if(preg_match('/^\\\\?etenil\assegai\\\\(.+)$/', $classname, $matches)) {
+    if(preg_match('/^\\\\?etenil\\\\(.+)$/', $classname, $matches)) {
         $classname = $matches[1];
-        $dirpath = dirname(__FILE__);
+        $dirpath = dirname(__DIR__);
         $potential_file = $dirpath . '/' . str_replace('_', '/', str_replace('\\', '/', $classname)) . '.php';
         if(file_exists($potential_file)) {
             require($potential_file);

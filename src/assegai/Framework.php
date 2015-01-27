@@ -24,12 +24,12 @@
  * THE SOFTWARE.
  */
 
-namespace assegai;
+namespace etenil\assegai;
 
-use assegai\injector;
-use assegai\Utils;
-use assegai\Request;
-use assegai\exceptions;
+use etenil\assegai\injector;
+use etenil\assegai\Utils;
+use etenil\assegai\Request;
+use etenil\assegai\exceptions;
 
 class Framework extends injector\Injectable
 {

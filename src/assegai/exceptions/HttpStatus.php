@@ -29,7 +29,7 @@
  * THE SOFTWARE.
  */
 
-namespace assegai\exceptions
+namespace etenil\assegai\exceptions
 {
     class HttpStatus extends \Exception
     {

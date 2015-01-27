@@ -24,10 +24,10 @@
  * THE SOFTWARE.
  */
 
-namespace assegai;
+namespace etenil\assegai;
 
-use assegai\injector;
-use assegai\exceptions;
+use etenil\assegai\injector;
+use etenil\assegai\exceptions;
 
 /**
  * Applications dispatcher.
@@ -197,7 +197,7 @@ class Application extends injector\Injectable
         }
 
         if(!$class) {
-            $class = '\\assegai\\Controller';
+            $class = '\\etenil\assegai\\Controller';
         }
         
         $class = '\\' . $class;
@@ -256,8 +256,8 @@ class Application extends injector\Injectable
         }
         else if(gettype($response) != 'object'
             || (gettype($response) == 'object'
-            && (get_class($response) != 'assegai\Response'
-            && !is_subclass_of($response, 'assegai\Response')))) {
+            && (get_class($response) != 'etenil\assegai\Response'
+            && !is_subclass_of($response, 'etenil\assegai\Response')))) {
             throw new exceptions\IllegalResponseException('Unknown response.');
         }
 

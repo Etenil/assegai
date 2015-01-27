@@ -26,10 +26,10 @@
  * THE SOFTWARE.
  */
 
-namespace assegai\modules;
+namespace etenil\assegai\modules;
 
-use \assegai\injector;
-use \assegai\Server;
+use \etenil\assegai\injector;
+use \etenil\assegai\Server;
 
 class ModuleContainer extends injector\Injectable
 {
@@ -71,7 +71,7 @@ class ModuleContainer extends injector\Injectable
         // We need to try the user's modules first, so they can override built-in ones.
         $full_module = '\\modules\\' . strtolower($module) . '\\' . ucwords($module);
         if(!class_exists($full_module)) {
-            $full_module = 'assegai\\modules\\' . $module . '\\' . ucwords($module);
+            $full_module = 'etenil\assegai\\modules\\' . $module . '\\' . ucwords($module);
             if(!class_exists($full_module)) { // Very last chance.
                 $full_module = 'Module_' . $module;
             }
@@ -178,7 +178,7 @@ class ModuleContainer extends injector\Injectable
      * @param Request $request is the request object that will be
      * processed.
      */
-	public function preRouting($path, $route, \assegai\Request $request)
+	public function preRouting($path, $route, \etenil\assegai\Request $request)
 	{ return $this->batchRun(true, 'preRouting', func_get_args()); }
 
 	/** Mapped module function call.
@@ -191,7 +191,7 @@ class ModuleContainer extends injector\Injectable
      * @param Response $response is the HTTP response produced by the
      * controller.
      */
-	public function postRouting($path, $route, \assegai\Request $request, \assegai\Response $response)
+	public function postRouting($path, $route, \etenil\assegai\Request $request, \etenil\assegai\Response $response)
 	{ return $this->batchRun(true, 'postRouting', func_get_args()); }
 
 	/** Mapped module function call.
@@ -202,7 +202,7 @@ class ModuleContainer extends injector\Injectable
      * @param Request $request is the request object that will be
      * processed.
      */
-	public function preRequest(\assegai\Controller $controller, \assegai\Request $request)
+	public function preRequest(\etenil\assegai\Controller $controller, \etenil\assegai\Request $request)
 	{ return $this->batchRun(true, 'preRequest', func_get_args()); }
 
 	/** Mapped module function call.
@@ -215,7 +215,7 @@ class ModuleContainer extends injector\Injectable
      * @param Response $response is the HTTP response produced by the
      * controller.
      */
-	public function postRequest(\assegai\Controller $controller, \assegai\Request $request, \assegai\Response $response)
+	public function postRequest(\etenil\assegai\Controller $controller, \etenil\assegai\Request $request, \etenil\assegai\Response $response)
 	{ return $this->batchRun(true, 'postRequest', func_get_args()); }
 
 	/** Mapped module function call.
@@ -225,7 +225,7 @@ class ModuleContainer extends injector\Injectable
      * @param Request $request is the HTTP Request object currently
      * being handled.
      */
-	public function preView(\assegai\Request $request, $path, $vars)
+	public function preView(\etenil\assegai\Request $request, $path, $vars)
 	{ return $this->batchRun(true, 'preView', func_get_args()); }
 
 	/** Mapped module function call.
@@ -237,7 +237,7 @@ class ModuleContainer extends injector\Injectable
      * @param string $result response the HTTP Response produced by the
      * view.
      */
-	public function postView(\assegai\Request $request, $path, $vars, $result)
+	public function postView(\etenil\assegai\Request $request, $path, $vars, $result)
 	{ return $this->batchRun(true, 'postView', func_get_args()); }
 
    	/** Mapped module function call.

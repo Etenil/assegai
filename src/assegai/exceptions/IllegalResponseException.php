@@ -24,7 +24,7 @@
  * THE SOFTWARE.
  */
 
-namespace assegai\exceptions
+namespace etenil\assegai\exceptions
 {
     /**
      * The object returned by a controller cannot be converted to a

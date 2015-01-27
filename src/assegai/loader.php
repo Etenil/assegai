@@ -26,11 +26,11 @@
  * THE SOFTWARE.
  */
 
-namespace assegai;
+namespace etenil\assegai;
 
 function coreload($classname) {
     $matches = array();
-    if(preg_match('/^\\\\?assegai\\\\(.+)$/', $classname, $matches)) {
+    if(preg_match('/^\\\\?etenil\assegai\\\\(.+)$/', $classname, $matches)) {
         $classname = $matches[1];
         $dirpath = dirname(__FILE__);
         $potential_file = $dirpath . '/' . str_replace('_', '/', str_replace('\\', '/', $classname)) . '.php';
@@ -40,6 +40,6 @@ function coreload($classname) {
     }
 }
 
-spl_autoload_register('\assegai\coreload');
+spl_autoload_register('\etenil\assegai\coreload');
 
 

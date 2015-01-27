@@ -1,8 +1,8 @@
 <?php
 
-namespace assegai\injector;
+namespace etenil\assegai\injector;
 
-use \assegai\exceptions;
+use \etenil\assegai\exceptions;
 
 class DependenciesDefinition
 {

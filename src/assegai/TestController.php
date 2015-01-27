@@ -26,7 +26,7 @@
  * THE SOFTWARE.
  */
 
-namespace assegai;
+namespace etenil\assegai;
 
 class TestController extends \PHPUnit_Framework_TestCase implements IController
 {
@@ -134,7 +134,7 @@ class TestController extends \PHPUnit_Framework_TestCase implements IController
         };
         
         $clean = function($val, $placeholder='-') {
-            return \assegai\Utils::cleanFilename($val, $placeholder);
+            return \etenil\assegai\Utils::cleanFilename($val, $placeholder);
         };
 
         $template_path = false;

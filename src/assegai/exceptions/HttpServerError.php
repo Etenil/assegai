@@ -24,7 +24,7 @@
  * THE SOFTWARE.
  */
 
-namespace assegai\exceptions
+namespace etenil\assegai\exceptions
 {
     /**
      * Server-side Http error.

@@ -26,9 +26,9 @@
  * THE SOFTWARE.
  */
 
-namespace assegai;
+namespace etenil\assegai;
 
-use assegai\injector;
+use etenil\assegai\injector;
 
 /**
  * An object that saves cookie and sessions.

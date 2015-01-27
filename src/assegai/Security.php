@@ -31,7 +31,7 @@
  * THE SOFTWARE.
  */
 
-namespace assegai;
+namespace etenil\assegai;
 
 class Security
 {

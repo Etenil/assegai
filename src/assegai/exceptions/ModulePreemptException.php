@@ -24,7 +24,7 @@
  * THE SOFTWARE.
  */
 
-namespace assegai\exceptions
+namespace etenil\assegai\exceptions
 {
     /**
      * Pre-empts execution of other modules.

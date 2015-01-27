@@ -26,11 +26,11 @@
  * THE SOFTWARE.
  */
  
-namespace assegai\modules;
+namespace etenil\assegai\modules;
 
-use assegai\injector;
-use assegai\Server;
-use assegai\modules\ModuleContainer;
+use etenil\assegai\injector;
+use etenil\assegai\Server;
+use etenil\assegai\modules\ModuleContainer;
 
 class Module extends injector\Injectable
 {
@@ -95,7 +95,7 @@ class Module extends injector\Injectable
      * @param Request $request is the request object that will be
      * processed.
      */
-	public function preRouting($path, $route, \assegai\Request $request)
+	public function preRouting($path, $route, \etenil\assegai\Request $request)
     {}
 
     /**
@@ -108,7 +108,7 @@ class Module extends injector\Injectable
      * @param Response $response is the HTTP response produced by the
      * controller.
      */
-	public function postRouting($path, $route, \assegai\Request $request, \assegai\Response $response)
+	public function postRouting($path, $route, \etenil\assegai\Request $request, \etenil\assegai\Response $response)
     {}
 
     /**
@@ -118,7 +118,7 @@ class Module extends injector\Injectable
      * @param Request $request is the HTTP Request object currently
      * being handled.
      */
-	public function preView(\assegai\Request $request, $path, $vars)
+	public function preView(\etenil\assegai\Request $request, $path, $vars)
     {}
 
     /**
@@ -130,7 +130,7 @@ class Module extends injector\Injectable
      * @param Response response is the HTTP Response produced by the
      * view.
      */
-    public function postView(\assegai\Request $request, $path, $vars, $result)
+    public function postView(\etenil\assegai\Request $request, $path, $vars, $result)
     {}
 
     public function setAppName($app_name)

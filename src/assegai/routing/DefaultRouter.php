@@ -24,7 +24,7 @@
  * THE SOFTWARE.
  */
 
-namespace assegai\routing;
+namespace etenil\assegai\routing;
 
 class DefaultRouter implements IRouter
 {
@@ -66,7 +66,7 @@ class DefaultRouter implements IRouter
     /**
      * Searches for a route matching the provided request.
      */
-    function getRoute(\assegai\Request $request)
+    function getRoute(\etenil\assegai\Request $request)
     {
         $path = $request->getRoute();
 
@@ -96,7 +96,7 @@ class DefaultRouter implements IRouter
 
         // If we don't have a call at this point, that's a 404.
         if(!$call) {
-            throw new \assegai\exceptions\NoRouteException(
+            throw new \etenil\assegai\exceptions\NoRouteException(
                 sprintf('URL %s not found.', $request->getWholeRoute()),
                 $this->routes
             );

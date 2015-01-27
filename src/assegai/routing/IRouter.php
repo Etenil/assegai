@@ -23,7 +23,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-namespace assegai\routing
+namespace etenil\assegai\routing
 {
     interface IRouter
     {
@@ -42,6 +42,6 @@ namespace assegai\routing
          * @throws  BadMethodCallException  Thrown if a corresponding GET,POST is not found
          * @return  a RouteCall object.
          */
-        function getRoute(\assegai\Request $request);
+        function getRoute(\etenil\assegai\Request $request);
     }
 }

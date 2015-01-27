@@ -1,6 +1,6 @@
 <?php
 
-namespace assegai;
+namespace etenil\assegai;
 
 class ErrorController extends Controller
 {
@@ -48,7 +48,7 @@ class ErrorController extends Controller
         $formatted_trace = array();
         for($i = 0; $i < count($trace); $i++) {
             $line = '';
-            if(true || strpos($trace[$i]['class'], 'assegai\\') === false) {
+            if(true || strpos($trace[$i]['class'], 'etenil\assegai\\') === false) {
                 $line = "$i - ";
                 if($trace[$i]['class']) {
                     $line.= "at " . $trace[$i]['class'] . "::";

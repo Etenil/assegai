@@ -26,9 +26,9 @@
  * THE SOFTWARE.
  */
 
-namespace assegai;
+namespace etenil\assegai;
 
-use assegai\injector;
+use etenil\assegai\injector;
 
 class Utils
 {
@@ -61,7 +61,7 @@ class Utils
     /**
      * Create and bootstrap the framework.
      * @param string $conf_path is the main configuration file's path.
-     * @return assegai\Framework a bootstrapped and ready to use framework.
+     * @return etenil\assegai\Framework a bootstrapped and ready to use framework.
      */
     public static function bootstrap($conf_path = '')
     {

@@ -26,7 +26,7 @@
  * THE SOFTWARE.
  */
 
-namespace assegai\injector;
+namespace etenil\assegai\injector;
 
 /**
  * Dependency injector for assegai.

@@ -26,9 +26,9 @@
  * THE SOFTWARE.
  */
 
-namespace assegai;
+namespace etenil\assegai;
 
-use assegai\injector;
+use etenil\assegai\injector;
 
 class Controller extends injector\Injectable implements IController
 {
@@ -182,7 +182,7 @@ class Controller extends injector\Injectable implements IController
         };
         
         $clean = function($val, $placeholder='-') {
-            return \assegai\Utils::cleanFilename($val, $placeholder);
+            return \etenil\assegai\Utils::cleanFilename($val, $placeholder);
         };
 
         $template_path = false;

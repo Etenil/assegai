@@ -1,0 +1,22 @@
+{
+    "name": "etenil/modules/AuthModule",
+    "description": "An Auth module for Assegai.",
+    "keywords": ["forms", "validation"],
+    "homepage": "http://github.com/Etenil/assegai",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Guillaume 'Etenil' Pasquet",
+            "email": "boss@etenil.net",
+            "homepage": "http://blog.etenil.net"
+        }
+    ],
+    "require": {
+    },
+    "autoload": {
+        "psr-0": {
+            "etenil\\modules\\AuthModule": "."
+        }
+    }
+}

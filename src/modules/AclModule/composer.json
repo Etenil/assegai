@@ -1,0 +1,22 @@
+{
+    "name": "etenil/modules/AclModule",
+    "description": "An ACL (access control lists) module for Assegai.",
+    "keywords": ["forms", "validation"],
+    "homepage": "http://github.com/Etenil/assegai",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Guillaume 'Etenil' Pasquet",
+            "email": "boss@etenil.net",
+            "homepage": "http://blog.etenil.net"
+        }
+    ],
+    "require": {
+    },
+    "autoload": {
+        "psr-0": {
+            "etenil\\modules\\AclModule": "."
+        }
+    }
+}

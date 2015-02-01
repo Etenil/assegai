@@ -84,23 +84,23 @@ class Framework extends injector\Injectable
             }
             
             if(!$served) {
-                throw new exceptions\HTTPNotFoundError();
+                throw new exceptions\HttpNotFoundError();
             }
         }
         catch(exceptions\HttpRedirect $r) {
             die(1);
         }
-        catch(exceptions\HTTPNotFoundError $e) {
+        catch(exceptions\HttpNotFoundError $e) {
             die(2);
         }
-        catch(exceptions\HTTPClientError $e) {
+        catch(exceptions\HttpClientError $e) {
             die(3);
         }
-        catch(exceptions\HTTPServerError $e) {
+        catch(exceptions\HttpServerError $e) {
             die(4);
         }
         // Generic HTTP status response.
-        catch(exceptions\HTTPStatus $s) {
+        catch(exceptions\HttpStatus $s) {
             die(5);
         }
         catch(\Exception $e) {

@@ -5,14 +5,13 @@ namespace etenil\modules\FormsModule;
 use \etenil\assegai\modules;
 use \etenil\assegai\exceptions;
 
+use \etenil\modules\FormsModule\views\Form;
+use \etenil\modules\FormsModule\views\FormHelper;
+use \etenil\modules\FormsModule\views\renderers;
+
 class FormsModule extends modules\Module
 {
     protected $_renderer;
-
-    public static function instanciate()
-    {
-        return true;
-    }
 
     public function __construct()
     {

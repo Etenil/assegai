@@ -1,7 +1,7 @@
 {
-    "name": "etenil/modules/ValidatorModule",
-    "description": "An input validator module for Assegai.",
-    "keywords": ["forms", "validation"],
+    "name": "etenil/modules/FormModule",
+    "description": "A Form module for Assegai.",
+    "keywords": ["forms"],
     "homepage": "http://github.com/Etenil/assegai",
     "type": "library",
     "license": "MIT",
@@ -16,7 +16,7 @@
     },
     "autoload": {
         "psr-0": {
-            "etenil\\modules\\ValidatorModule": "."
+            "etenil\\modules\\FormModule": "."
         }
     }
 }

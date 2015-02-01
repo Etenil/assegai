@@ -1,26 +1,30 @@
 <?php
 
-namespace etenil\assegai\modules\mustache;
+namespace etenil\modules\MustacheModule;
 
 use \etenil\assegai\modules;
+use \etenil\assegai\Request;
+use \etenil\assegai\exceptions;
+
+use \etenil\modules\MustacheModule\views\MustacheEngine;
 
 /**
  * @package assegai.modules.mustache
  *
  * Mustache templating engine module for PHP.
  */
-class Mustache extends modules\Module
+class MustacheModule extends modules\Module
 {
     public static function instanciate()
     {
         return true;
     }
 
-    public function preView(etenil\assegai\Request $request, $tpl, $vars)
+    public function preView(Request $request, $tpl, $vars)
     {
         $tpl_path = $this->server->getRelAppPath('views/' . $tpl . '.tpl');
         if(!file_exists($tpl_path)) {
-            throw new \etenil\assegai\NoViewException("View `$tpl_path' doesn't exist");
+            throw new exceptions\NoViewException("View `$tpl_path' doesn't exist");
         }
 
         $m = new MustacheEngine($this->server);

@@ -196,7 +196,7 @@ class Controller extends injector\Injectable implements IController
 
         $template_path = $this->server->getRelAppPath('views/' . $view_name . '.phtml');
         if(!file_exists($template_path)) {
-            $template_path = $this->server->main->get('templates_path') . '/' . $view_name . '.phtml';
+            $template_path = $this->server->conf->get('templates_path') . '/' . $view_name . '.phtml';
         }
         
         // Traditional PHP template.

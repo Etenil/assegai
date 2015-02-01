@@ -1,6 +1,6 @@
 <?php
 
-namespace etenil\assegai\modules\mustache;
+namespace etenil\modules\MustacheModule\views;
 
 /**
  * A Mustache implementation in PHP.
@@ -922,7 +922,7 @@ class MustacheEngine {
  *
  * @extends Exception
  */
-class MustacheException extends Exception {
+class MustacheException extends \Exception {
 
 	// An UNKNOWN_VARIABLE exception is thrown when a {{variable}} is not found
 	// in the current context.

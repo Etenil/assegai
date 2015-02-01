@@ -29,6 +29,7 @@
 namespace etenil\assegai;
 
 use etenil\assegai\injector;
+use etenil\assegai\modules\ModuleContainer;
 
 class Controller extends injector\Injectable implements IController
 {
@@ -51,7 +52,7 @@ class Controller extends injector\Injectable implements IController
      * @param Server $server is the current server state.
      * @param Request $request is the current request object.
      */
-	public function __construct(modules\ModuleContainer $modules,
+	public function __construct(ModuleContainer $modules,
                                 Server $server,
                                 Request $request,
                                 Security $security)
@@ -61,6 +62,7 @@ class Controller extends injector\Injectable implements IController
         $this->sec = $security;
         $this->request = $request;
         $this->helpers = array();
+        $this->virtual_methods = array();
 
         // Running the user init.
         $this->_init();

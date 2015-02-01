@@ -1,13 +1,13 @@
 <?php
 
-namespace etenil\assegai\modules\pdo;
+namespace etenil\modules\PdoModule;
 
 use \etenil\assegai\modules;
 
 /**
  * @package assegai.module.pdo
  */
-class Pdo extends modules\Module
+class PdoModule extends modules\Module
 {
     /** Currently-running connections. */
     protected $connections;
@@ -15,17 +15,6 @@ class Pdo extends modules\Module
     public static function instanciate()
     {
         return true;
-    }
-
-    public static function dependencies()
-    {
-        return array(
-            array(
-                'name' => 'module_pdo',
-                'class' => 'etenil\assegai\\modules\\pdo\\Pdo',
-                'mother' => 'module',
-            ),
-        );
     }
 
     function setOptions($options)
@@ -38,8 +27,8 @@ class Pdo extends modules\Module
         foreach($options as $conn => $spec) {
             $this->connections[$conn] = new \PDO(
                 $spec['dsn'],
-                $spec['username'],
-                $spec['password'],
+                @$spec['username'], // Optional stuff
+                @$spec['password'],
                 @$spec['options']
             );
         }

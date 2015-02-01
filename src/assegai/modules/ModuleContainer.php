@@ -30,12 +30,16 @@ namespace etenil\assegai\modules;
 
 use \etenil\assegai\injector;
 use \etenil\assegai\Server;
+use \etenil\assegai\Config;
+use \etenil\assegai\Request;
+use \etenil\assegai\Response;
 
 class ModuleContainer extends injector\Injectable
 {
     /** Contains instanciated modules that extend Module.*/
     protected $modules;
     protected $server;
+    protected $conf;
 
     public function _init()
     {
@@ -47,6 +51,11 @@ class ModuleContainer extends injector\Injectable
     public function setServer(Server $server)
     {
         $this->server = $server;
+    }
+    
+    public function setConfig(Config $conf)
+    {
+        $this->conf = $conf;
     }
 
 	/**
@@ -60,6 +69,19 @@ class ModuleContainer extends injector\Injectable
 			return false;
 		}
 	}
+    
+    public static function moduleClassToModuleName($module_class)
+    {
+        $module_class_name = substr($module_class, strrpos($module_class, '\\'));
+        
+        return strtolower(trim(preg_replace(
+                '%([a-z0-9])([A-Z])%',
+                '$1_$2',
+                substr($module_class_name, 0, strlen($module_class_name) - 6) // works with "bundle" too!
+            ),
+            '\\'
+        ));
+    }
 
 	/**
 	 * Adds a module to the list.
@@ -67,17 +89,11 @@ class ModuleContainer extends injector\Injectable
      * @param array $options is an array of options to be passed to
 	 * the module's constructor. Default is none.
 	 */
-    public function addModule($module, array $options = NULL) {
+    public function addModule($module, array $options = null)
+    {
         // The module loading class has the same name as the last bit of the module namespace.
         $module_class_name = substr($module, strrpos($module, '\\'));
-        
-        $module_name = strtolower(trim(preg_replace(
-                '%([a-z0-9])([A-Z])%',
-                '$1_$2',
-                substr($module_class_name, 0, strlen($module_class_name) - 6) // works with "bundle" too!
-            ),
-            '\\'
-        ));
+        $module_name = self::moduleClassToModuleName($module);
         
         $full_module = $module . $module_class_name;
         if(!class_exists($full_module)) { // Backwards compatibility.
@@ -103,9 +119,9 @@ class ModuleContainer extends injector\Injectable
 
         $module_container->loadConf($deps);
         $module_instance = $module_container->give($module_name);
-        $module_instance->setOptions($options);
+        $module_instance->setOptions($options ?: array());
 
-        $this->add_to_list($module, $module_instance);
+        $this->add_to_list($module_name, $module_instance);
     }
 
 	/**
@@ -123,7 +139,8 @@ class ModuleContainer extends injector\Injectable
 	 * @param string $modname is the module's name.
 	 * @return boolean TRUE if the module is here, FALSE otherwise.
 	 */
-	public function isLoaded($modname) {
+	public function isLoaded($modname)
+    {
 		return isset($this->modules[$modname]);
 	}
 
@@ -183,7 +200,7 @@ class ModuleContainer extends injector\Injectable
      * @param Request $request is the request object that will be
      * processed.
      */
-	public function preRouting($path, $route, \etenil\assegai\Request $request)
+	public function preRouting($path, $route, Request $request)
 	{ return $this->batchRun(true, 'preRouting', func_get_args()); }
 
 	/** Mapped module function call.
@@ -196,7 +213,7 @@ class ModuleContainer extends injector\Injectable
      * @param Response $response is the HTTP response produced by the
      * controller.
      */
-	public function postRouting($path, $route, \etenil\assegai\Request $request, \etenil\assegai\Response $response)
+	public function postRouting($path, $route, Request $request, Response $response)
 	{ return $this->batchRun(true, 'postRouting', func_get_args()); }
 
 	/** Mapped module function call.
@@ -207,7 +224,7 @@ class ModuleContainer extends injector\Injectable
      * @param Request $request is the request object that will be
      * processed.
      */
-	public function preRequest(\etenil\assegai\Controller $controller, \etenil\assegai\Request $request)
+	public function preRequest(\etenil\assegai\Controller $controller, Request $request)
 	{ return $this->batchRun(true, 'preRequest', func_get_args()); }
 
 	/** Mapped module function call.
@@ -220,7 +237,7 @@ class ModuleContainer extends injector\Injectable
      * @param Response $response is the HTTP response produced by the
      * controller.
      */
-	public function postRequest(\etenil\assegai\Controller $controller, \etenil\assegai\Request $request, \etenil\assegai\Response $response)
+	public function postRequest(\etenil\assegai\Controller $controller, Request $request, Response $response)
 	{ return $this->batchRun(true, 'postRequest', func_get_args()); }
 
 	/** Mapped module function call.

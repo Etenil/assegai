@@ -28,6 +28,7 @@ namespace etenil\assegai;
 
 use etenil\assegai\injector;
 use etenil\assegai\exceptions;
+use etenil\assegai\modules\ModuleContainer;
 
 /**
  * Applications dispatcher.
@@ -70,7 +71,7 @@ class Application extends injector\Injectable
         $this->server = $server;
     }
     
-    public function setMc(modules\ModuleContainer $modules)
+    public function setMc(ModuleContainer $modules)
     {
         $this->modules = $modules;
     }
@@ -126,7 +127,8 @@ class Application extends injector\Injectable
         
         // Loading modules
         foreach($this->conf->get('modules', array()) as $module) {
-            $this->modules->addModule($module, $this->conf->get($module));
+            $module_name = ModuleContainer::moduleClassToModuleName($module);
+            $this->modules->addModule($module, $this->conf->get($module_name));
         }
     }
 
@@ -155,9 +157,11 @@ class Application extends injector\Injectable
      */
     protected function display($response) {
         if(is_object($response)) {
-            $response->compile();
-        } else {
+            return $response->compile();
+        }
+        else {
             echo $response;
+            return true;
         }
     }
     

@@ -208,15 +208,17 @@ class Response
 	 */
 	public function compile()
 	{
-            if(!headers_sent()) { // Sanity check.
-		header('HTTP/1.1 ' . $this->httpStatus($this->getStatus()));
-		header('Content-Type: ' . $this->content_type);
-		foreach($this->headers as $hdrkey => $hdrval) {
-			header($hdrkey . ': ' . $hdrval);
-		}
-            }
+        if(!headers_sent()) { // Sanity check.
+    		header('HTTP/1.1 ' . $this->httpStatus($this->getStatus()));
+    		header('Content-Type: ' . $this->content_type);
+    		foreach($this->headers as $hdrkey => $hdrval) {
+    			header($hdrkey . ': ' . $hdrval);
+    		}
+        }
             
-            echo $this->body;
+        echo $this->body;
+        
+        return true;
 	}
 }
 

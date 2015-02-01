@@ -77,9 +77,10 @@ class Framework extends injector\Injectable
         try {
             $served = false;
             foreach($this->apps as $app) {
-                if($app->serve($request)) {
-                    break;
+                $success = $app->serve($request);
+                if($success) {
                     $served = true;
+                    break;
                 }
             }
             
@@ -88,26 +89,26 @@ class Framework extends injector\Injectable
             }
         }
         catch(exceptions\HttpRedirect $r) {
-            die(1);
+            die('1');
         }
         catch(exceptions\HttpNotFoundError $e) {
-            die(2);
+            die('2');
         }
         catch(exceptions\HttpClientError $e) {
-            die(3);
+            die('3');
         }
         catch(exceptions\HttpServerError $e) {
-            die(4);
+            die('4');
         }
         // Generic HTTP status response.
         catch(exceptions\HttpStatus $s) {
-            die(5);
+            die('5');
         }
         catch(\Exception $e) {
-            die(6);
+            die('6');
         }
         
-        die(7);
+        // Well done...
     }
 
     function run()

@@ -72,6 +72,8 @@ namespace assegai {
             $this->conf_path = $this->getPath('conf.php');
 
             set_error_handler(array($this, 'phpErrorHandler'), E_ALL);
+            
+            $this->sethandlers(); // Set the default error handlers.
         }
 
         function setConfiguration($path)
@@ -258,12 +260,12 @@ namespace assegai {
          * Prepares the error handlers.
          */
         protected function sethandlers() {
-            if($this->conf->get('handler40x')) {
+            if(isset($this->conf) && $this->conf->get('handler40x')) {
                 $this->register40x($this->conf->get('handler40x'));
             } else {
                 $this->register40x(array('assegai\ErrorController', 'notFoundHandler'));
             }
-            if($this->conf->get('handler50x')) {
+            if(isset($this->conf) && $this->conf->get('handler50x')) {
                 $this->register50x($this->conf->get('handler50x'));
             } else {
                 $this->register50x(array('assegai\ErrorController', 'errorHandler'));
@@ -494,6 +496,11 @@ namespace assegai {
             if(in_array($errno, $ignore)) return;
 
             $request = $this->request;
+            
+            if(!$request) { // Ouch that's bad.
+                $request = new Request('', array(), array(), new Security(), array(), array());
+            }
+            
             $request->setException(new \Exception($errstr, $errno));
             $result = $this->process($this->error50x, $request);
             return $this->display($result['request'], $result['response']);

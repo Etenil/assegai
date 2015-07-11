@@ -96,9 +96,28 @@ class Controller implements IController
         }
     }
 	
-	function redirect($to) {
+	function redirect($to, $status = 301) {
+        if($this->request->getParams()) { // Attempting to fill the blanks.
+            $params = $this->request->getParams();
+            $to = preg_replace_callback(
+                '%\$(\d+)%',
+                function($matches) use($params) {
+                    $index = $matches[1] - 1;
+                    
+                    if(array_key_exists($index, $params)) {
+                        return $params[$index];
+                    }
+                    else {
+                        return '';
+                    }
+                },
+                $to
+            );
+        }
+        
         $response = new Response();
         $response->redirect($to);
+        $response->setStatus($status);
         
         return $response;
     }

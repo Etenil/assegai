@@ -294,6 +294,8 @@ namespace assegai {
             $method = '';
             $call = $proto->getCall();
             $params = $proto->getParams();
+            
+            $request->setParams($proto->getParams());
 
             if($proto->getApp()) {
                 $this->current_app = $proto->getApp();

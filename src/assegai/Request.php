@@ -43,6 +43,9 @@ class Request extends Stateful
     /** This is mostly used for error handlers. */
     protected $exception;
     
+    /** Route parameters. */
+    protected $params;
+    
     /** Security */
     protected $sec;
     protected $server;
@@ -316,5 +319,23 @@ class Request extends Stateful
         }
 
         return $return;
+    }
+    
+    /**
+     * Sets the parameters after extraction from the route.
+     * @param array $params is an array of parameters.
+     */
+    public function setParams(array $params)
+    {
+        $this->params = $params;
+    }
+    
+    /**
+     * Gets the parameters extracted from the route as an array.
+     * @return array the parameters extracted from the route.
+     */
+    public function getParams()
+    {
+        return $this->params;
     }
 }

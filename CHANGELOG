@@ -1,8 +1,0 @@
-2.0 - Dev
-	* PSR-0        - Ported all the code to PSR-0
-	* Composer     - Composer is now a requirement (CHANGE ME!!!)
-	* Mappers      - The PDO Mappers module provides standard mapper interfaces
-	* Modularity   - Core parts have been split up. Next release will bring alternatives
-	* DI           - DI is fully implemented in the core
-	* Fixes        - More than I can count...
-	* D-Tox        - Atlatl is no longer a dependency for Assegai

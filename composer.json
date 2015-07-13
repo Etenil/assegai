@@ -2,7 +2,7 @@
     "name": "etenil/assegai",
     "description": "A full MVC framework for PHP.",
     "keywords": ["framework"],
-    "homepage": "http://github.com/Etenil/atlatl",
+    "homepage": "http://github.com/Etenil/assegai",
     "type": "library",
     "license": "MIT",
     "authors": [
@@ -16,7 +16,7 @@
     },
     "autoload": {
         "psr-0": {
-            "assegai\\": "src/"
+            "Assegai\\": "src/"
         }
     }
 }

@@ -130,7 +130,7 @@ namespace assegai
                     }
                     else
                     {
-                        $filename = false;
+                        $filename = "";
                     }
 
                 }

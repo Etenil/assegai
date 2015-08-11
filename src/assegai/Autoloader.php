@@ -123,8 +123,16 @@ namespace assegai
                         'Exception' => 'exceptions',
                         'Model' => 'models',
                         'View' => 'views');
-                    $filename = $this->conf->get('apps_path') . '/' . strtolower($app) . '/'
-                        . $paths[$type] . '/' . str_replace('_', '/', strtolower($class)) . '.php';
+                    if(array_key_exists($type, $paths))
+                    {
+                        $filename = $this->conf->get('apps_path') . '/' . strtolower($app) . '/'
+                            . $paths[$type] . '/' . str_replace('_', '/', strtolower($class)) . '.php';
+                    }
+                    else
+                    {
+                        $filename = "";
+                    }
+
                 }
             }
             return $filename != "" ? $filename : false;

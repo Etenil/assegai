@@ -5,3 +5,6 @@ vendor
 conf.php
 apps
 
+/nbproject/private/
+/nbproject/project.xml
+/nbproject/project.properties

@@ -104,6 +104,7 @@ class ModuleContainer
 
             $module_injector->loadConf($deps);
             $module_instance = $module_injector->give('module_' . $module);
+            $module_instance->setDependencies($this->server, $this);
             $module_instance->setOptions($options);
 
             $this->add_to_list($module, $module_instance);

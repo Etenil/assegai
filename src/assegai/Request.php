@@ -175,8 +175,8 @@ class Request extends Stateful
 
     /**
      * Returns an escaped post variable or default.
-     * @param $varname is the variable's name.
-     * @param $default is the default to be returned if the variable
+     * @param string $varname is the variable's name.
+     * @param mixed  $default is the default to be returned if the variable
      * doesn't exist.
      */
     function post($varname, $default = false)
@@ -186,8 +186,8 @@ class Request extends Stateful
 
     /**
      * Returns an escaped get variable or default.
-     * @param $varname is the variable's name.
-     * @param $default is the default to be returned if the variable
+     * @param string $varname is the variable's name.
+     * @param mixed  $default is the default to be returned if the variable
      * doesn't exist.
      */
     function get($varname, $default = false)

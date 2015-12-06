@@ -78,6 +78,38 @@ class Request extends Stateful
 		$this->postvars = $_POST;
     }
 
+    /**
+     * Parses arguments given from command line to make a
+     * GET/POST array.
+     * @param string $route the route to emulate.
+     * @param optional string $method is the HTTP method to emulate,
+     *        default is GET.
+     */
+    function fromCli($route, $method = 'GET')
+    {
+        global $argv;
+
+        // Extract the arguments from the CLI
+        $args = array();
+        for ($argnum = 0; $argnum < count($argv); $argnum++) {
+            // Long argument
+            if (strpos($argv[$argnum], '--') === 0) {
+                $args[substr($argv[$argnum], 2)] = $argv[++$argnum];
+            // Short argument.
+            } elseif (strpos($argv[$argnum], '-') === 0) {
+                $args[substr($argv[$argnum], 1)] = $argv[++$argnum];
+            // Positional argument.
+            } else {
+                $args[] = $argv[$argnum];
+            }
+        }
+
+        $this->route = $route;
+        $this->whole_route = $route;
+        $this->method = $method;
+        $this->getvars = $this->postvars = $args;
+    }
+
     public function getRoute() {
         return $this->route;
     }

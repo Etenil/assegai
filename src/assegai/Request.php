@@ -59,6 +59,8 @@ class Request extends Stateful
     function __construct()
     {
         parent::__construct();
+        $this->getvars = array();
+        $this->postvars = array();
     }
 
     function setDependencies(Server $server, Security $sec)

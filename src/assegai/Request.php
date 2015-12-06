@@ -208,25 +208,41 @@ class Request extends Stateful
     }
 
     /**
-     * Returns an escaped post variable or default.
+     * Returns an escaped post variable or default. Beware, the $default WILL
+     * NOT BE ESCAPED. You must therefore ensure you escape whatever you give
+     * as $default value.
      * @param string $varname is the variable's name.
      * @param mixed  $default is the default to be returned if the variable
      * doesn't exist.
+     * @return the requested POST value or $default.
      */
     function post($varname, $default = false)
     {
-        return $this->sec->clean($this->unsafePost($varname, $default));
+        $postval = $this->sec->clean($this->unsafePost($varname));
+        if ($postval === false) {
+            return $default;
+        }
+
+        return $postval;
     }
 
     /**
-     * Returns an escaped get variable or default.
+     * Returns an escaped get variable or default. Beware, the $default WILL
+     * NOT BE ESCAPED. You must therefore ensure you escape whatever you give
+     * as $default value.
      * @param string $varname is the variable's name.
      * @param mixed  $default is the default to be returned if the variable
      * doesn't exist.
+     * @return the requested GET value or $default.
      */
     function get($varname, $default = false)
     {
-        return $this->sec->clean($this->unsafeGet($varname, $default));
+        $getval = $this->sec->clean($this->unsafeGet($varname, false));
+        if ($getval === false) {
+            return $default;
+        }
+
+        return $getval;
     }
 
     /**

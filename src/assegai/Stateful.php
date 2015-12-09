@@ -247,17 +247,19 @@ class Stateful
             }
         }
 
-        foreach($this->cookievars as $cookiename => $cookiedef) {
-            if($cookiedef['value'] === null) {
-                setcookie($cookiename, null, time() - 3600, '/'); // Expiring the cookie
-            }
-            else {
-                setcookie(
-                    $cookiename,
-                    $cookiedef['value'],
-                    time() + $cookiedef['max_age'],
-                    '/'
-                );
+        if(!headers_sent()) {
+            foreach($this->cookievars as $cookiename => $cookiedef) {
+                if($cookiedef['value'] === null) {
+                    setcookie($cookiename, null, time() - 3600, '/'); // Expiring the cookie
+                }
+                else {
+                    setcookie(
+                        $cookiename,
+                        $cookiedef['value'],
+                        time() + $cookiedef['max_age'],
+                        '/'
+                    );
+                }
             }
         }
 	}

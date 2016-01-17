@@ -187,8 +187,6 @@ class Stateful
      * Gets all cookies.
      */
     function getAllCookies() {
-        return $this->cookievars;
-        
         return array_map(
             function($cookieval) { return $cookiedef['value']; },
             $this->cookievars

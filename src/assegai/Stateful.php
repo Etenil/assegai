@@ -188,7 +188,7 @@ class Stateful
      */
     function getAllCookies() {
         return array_map(
-            function($cookieval) { return $cookiedef['value']; },
+            function($cookiedef) { return $cookiedef['value']; },
             $this->cookievars
         );
     }

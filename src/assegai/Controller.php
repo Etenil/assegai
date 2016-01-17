@@ -49,11 +49,12 @@ class Controller implements IController
      * @param Server $server is the current server state.
      * @param Request $request is the current request object.
      */
-	public function __construct(modules\ModuleContainer $modules,
-                                Server $server,
-                                Request $request,
-                                Security $security)
-	{
+	public function __construct(
+		modules\ModuleContainer $modules,
+		Server $server,
+		Request $request,
+		Security $security
+	) {
 		$this->modules = $modules;
 		$this->server = $server;
         $this->sec = $security;
@@ -86,7 +87,7 @@ class Controller implements IController
      * although I really really hate PHP's magic stuff. Please remove me
      * once PHP will have cleared calls to closures stored in member variables.
      */
-    function __call($method, $args)
+    public function __call($method, $args)
     {
         if(array_key_exists($method, $this->virtual_methods)) {
             return call_user_func_array($this->virtual_methods[$method], $args);
@@ -96,7 +97,8 @@ class Controller implements IController
         }
     }
 	
-	function redirect($to, $status = 301) {
+	public function redirect($to, $status = 301)
+	{
         if($this->request->getParams()) { // Attempting to fill the blanks.
             $params = $this->request->getParams();
             $to = preg_replace_callback(

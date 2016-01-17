@@ -104,6 +104,16 @@ namespace assegai
             $this->serve($request);
         }
 
+        /**
+         * Triggers the run of a URI from the command line. The
+         * GET and POST data in the request will be set to the value
+         * of the command line arguments. See Request::fromCli() for
+         * more details on command line arguments parsing.
+         *
+         * @param string $uri the URI to trigger the run for.
+         * @param optional string $conf_path where to find the
+         *        framework configuration.
+         */
         function runuri($uri, $conf_path = '')
         {
             if($conf_path) {
@@ -111,9 +121,7 @@ namespace assegai
             }
 
             $request = $this->container->give('request');
-            $request->setRoute($uri);
-            $request->setWholeRoute($uri);
-            $request->setMethod('GET');
+            $request->fromCli($uri);
 
             $this->serve($request);
         }

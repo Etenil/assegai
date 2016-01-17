@@ -43,6 +43,9 @@ class Request extends Stateful
     /** This is mostly used for error handlers. */
     protected $exception;
     
+    /** Route parameters. */
+    protected $params;
+    
     /** Security */
     protected $sec;
     protected $server;
@@ -56,6 +59,8 @@ class Request extends Stateful
     function __construct()
     {
         parent::__construct();
+        $this->getvars = array();
+        $this->postvars = array();
     }
 
     function setDependencies(Server $server, Security $sec)
@@ -71,6 +76,38 @@ class Request extends Stateful
         $this->method = $this->server->getMethod();
 		$this->getvars = $_GET;
 		$this->postvars = $_POST;
+    }
+
+    /**
+     * Parses arguments given from command line to make a
+     * GET/POST array.
+     * @param string $route the route to emulate.
+     * @param optional string $method is the HTTP method to emulate,
+     *        default is GET.
+     */
+    function fromCli($route, $method = 'GET')
+    {
+        global $argv;
+
+        // Extract the arguments from the CLI
+        $args = array();
+        for ($argnum = 0; $argnum < count($argv); $argnum++) {
+            // Long argument
+            if (strpos($argv[$argnum], '--') === 0) {
+                $args[substr($argv[$argnum], 2)] = $argv[++$argnum];
+            // Short argument.
+            } elseif (strpos($argv[$argnum], '-') === 0) {
+                $args[substr($argv[$argnum], 1)] = $argv[++$argnum];
+            // Positional argument.
+            } else {
+                $args[] = $argv[$argnum];
+            }
+        }
+
+        $this->route = $route;
+        $this->whole_route = $route;
+        $this->method = $method;
+        $this->getvars = $this->postvars = $args;
     }
 
     public function getRoute() {
@@ -171,25 +208,41 @@ class Request extends Stateful
     }
 
     /**
-     * Returns an escaped post variable or default.
-     * @param $varname is the variable's name.
-     * @param $default is the default to be returned if the variable
+     * Returns an escaped post variable or default. Beware, the $default WILL
+     * NOT BE ESCAPED. You must therefore ensure you escape whatever you give
+     * as $default value.
+     * @param string $varname is the variable's name.
+     * @param mixed  $default is the default to be returned if the variable
      * doesn't exist.
+     * @return the requested POST value or $default.
      */
     function post($varname, $default = false)
     {
-        return $this->sec->clean($this->unsafePost($varname, $default));
+        $postval = $this->sec->clean($this->unsafePost($varname));
+        if ($postval === false) {
+            return $default;
+        }
+
+        return $postval;
     }
 
     /**
-     * Returns an escaped get variable or default.
-     * @param $varname is the variable's name.
-     * @param $default is the default to be returned if the variable
+     * Returns an escaped get variable or default. Beware, the $default WILL
+     * NOT BE ESCAPED. You must therefore ensure you escape whatever you give
+     * as $default value.
+     * @param string $varname is the variable's name.
+     * @param mixed  $default is the default to be returned if the variable
      * doesn't exist.
+     * @return the requested GET value or $default.
      */
     function get($varname, $default = false)
     {
-        return $this->sec->clean($this->unsafeGet($varname, $default));
+        $getval = $this->sec->clean($this->unsafeGet($varname, false));
+        if ($getval === false) {
+            return $default;
+        }
+
+        return $getval;
     }
 
     /**
@@ -316,5 +369,23 @@ class Request extends Stateful
         }
 
         return $return;
+    }
+    
+    /**
+     * Sets the parameters after extraction from the route.
+     * @param array $params is an array of parameters.
+     */
+    public function setParams(array $params)
+    {
+        $this->params = $params;
+    }
+    
+    /**
+     * Gets the parameters extracted from the route as an array.
+     * @return array the parameters extracted from the route.
+     */
+    public function getParams()
+    {
+        return $this->params;
     }
 }

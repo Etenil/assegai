@@ -52,11 +52,7 @@ class Stateful
             $this->sessionvars = $session ?: array();
         }
 
-        if(!$cookies) {
-            $this->cookievars = $_COOKIE;
-        } else {
-            $this->cookievars = $cookies ?: array();
-        }
+        $this->setAllCookies($cookies ?: $_COOKIE);
     }
     
     function sessionEnabled()
@@ -162,11 +158,15 @@ class Stateful
      * Sets a COOKIE variable.
      * @param varname is the variable's name.
      * @param varval is the value to assign to the variable.
+     * @param int $max_age the number of seconds before the cookie expires, defaults to $cookies_max_age.
      */
-    public function setCookie($varname, $varval)
+    public function setCookie($varname, $varval, $max_age = false)
     {
         $this->alteredcookies = true;
-        $this->cookievars[$varname] = $varval;
+        $this->cookievars[$varname] = array(
+            'value' => $varval,
+            'max_age' => ($max_age !== false ? $max_age : $this->cookies_max_age),
+        );
     }
 
     /**
@@ -177,7 +177,7 @@ class Stateful
     public function getCookie($varname, $default = false)
     {
         if(isset($this->cookievars[$varname])) {
-            return $this->cookievars[$varname];
+            return $this->cookievars[$varname]['value'];
         } else {
             return $default;
         }
@@ -187,7 +187,28 @@ class Stateful
      * Gets all cookies.
      */
     function getAllCookies() {
-        return $this->cookievars;
+        return array_map(
+            function($cookiedef) { return $cookiedef['value']; },
+            $this->cookievars
+        );
+    }
+    
+    /**
+     * Sets all cookies.
+     * @param array $cookies is the list of cookies as key, value pairs
+     */
+    function setAllCookies(array $cookies)
+    {
+        $this->cookievars = array_map(
+            function($cookieval) {
+                return array(
+                    'value' => $cookieval,
+                    'max_age' => $this->cookies_max_age,
+                );
+            },
+            $cookies
+        );
+        return $this;
     }
 
     /**
@@ -203,14 +224,7 @@ class Stateful
     public function setAllSession(array $session) {
         $this->sessionvars = $session;
     }
-
-    /**
-     * Sets all cookie variables.
-     */
-    public function setAllCookies(array $cookies) {
-        $this->cookievars = $cookies;
-    }
-
+    
 	/**
 	 * Generates the page.
 	 */
@@ -231,12 +245,19 @@ class Stateful
             }
         }
 
-        foreach($this->cookievars as $cookiename => $cookieval) {
-            if($cookieval === null) {
-                setcookie($cookiename, $cookieval, time() - $this->cookies_max_age, '/');
-            }
-            else {
-                setcookie($cookiename, $cookieval, time() + $this->cookies_max_age, '/');
+        if(!headers_sent()) {
+            foreach($this->cookievars as $cookiename => $cookiedef) {
+                if($cookiedef['value'] === null) {
+                    setcookie($cookiename, null, time() - 3600, '/'); // Expiring the cookie
+                }
+                else {
+                    setcookie(
+                        $cookiename,
+                        $cookiedef['value'],
+                        time() + $cookiedef['max_age'],
+                        '/'
+                    );
+                }
             }
         }
 	}

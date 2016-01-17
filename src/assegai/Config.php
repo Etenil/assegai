@@ -37,15 +37,15 @@ class Config
         return new self($definitions);
     }
 
-    public static function fromFile($path, $varname = 'conf')
+    public static function fromFile($path)
     {
         $me = new self();
-        $me->loadFile($path, $varname);
+        $me->loadFile($path);
 
         return $me;
     }
     
-    public function loadFile($path, $varname = 'conf') {
+    public function loadFile($path) {
         if(!file_exists($path)) {
             throw new \Exception("File `$path' doesn't exist.");
         }
@@ -53,7 +53,7 @@ class Config
         $conf = array();
         require($path);
 
-        return $this->addArray($$varname);
+        return $this->addArray($conf);
     }
 
     public function addArray(array $definitions)

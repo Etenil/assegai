@@ -26,17 +26,16 @@
 
 namespace assegai;
 
-use \assegai\{Request, Server, Security};
+use \assegai\Request;
+use \assegai\Server;
+use \assegai\Security;
 use \assegai\modules\ModuleContainer;
 use \assegai\routing\IRouter;
-
-use \assegai\exceptions\{
-    HTTPRedirect,
-    HTTPNotFoundError,
-    HTTPClientError,
-    HTTPServerError,
-    HTTPStatus,
-};
+use \assegai\exceptions\HTTPRedirect;
+use \assegai\exceptions\HTTPNotFoundError;
+use \assegai\exceptions\HTTPClientError;
+use \assegai\exceptions\HTTPServerError;
+use \assegai\exceptions\HTTPStatus;
 
 /**
  * Applications dispatcher.
@@ -69,7 +68,7 @@ class AppEngine
     protected $apps_conf;
 
     protected $current_app;
-    protected $prefix; 
+    protected $prefix;
 
     // Dependency setters.
     public function setDependencies(
@@ -115,32 +114,31 @@ class AppEngine
         )); // Defaults
         $this->conf->loadFile($this->conf_path);
 
-        if($this->conf->get('prefix')) {
+        if ($this->conf->get('prefix')) {
             $this->server->setPrefix($this->prefix);
         }
 
         // Alright. Now let's load the apps config. We'll merge the apps routes as we go along.
-        foreach($this->conf->get('apps', array()) as $appname) {
+        foreach ($this->conf->get('apps', array()) as $appname) {
             $path = Utils::joinPaths($this->conf->get('apps_path'), $appname, 'conf.php');
-                
+
             try {
                 $this->apps_conf[$appname] = Config::fromFile($path, 'app');
-            }
-            catch(\Exception $e) {
+            } catch (\Exception $e) {
                 continue;
             }
-                
+
             // Little shortcut to help readability
             $app = $this->apps_conf[$appname];
             $this->router->setRoutes($appname, $app->get('route'));
 
             // Let's merge in the modules, they'll be common to all apps.
             $modules = $this->conf->get('modules', array());
-            if($app->get('modules')) {
-                foreach($app->get('modules') as $module) {
-                    if(!in_array($module, $modules)) {
+            if ($app->get('modules')) {
+                foreach ($app->get('modules') as $module) {
+                    if (!in_array($module, $modules)) {
                         $modules[] = $module;
-                        if($app->get($module)) { // Module-specific options.
+                        if ($app->get($module)) { // Module-specific options.
                             $this->conf->set($module, $app->get($module));
                         }
                     }
@@ -158,7 +156,7 @@ class AppEngine
     protected function getPath(string $relpath) : string
     {
         // Is this a relative path?
-        if($relpath[0] == '/'
+        if ($relpath[0] == '/'
            || preg_match('/^[a-z]:/i', $relpath)) {
             return $relpath;
         } else {
@@ -179,12 +177,12 @@ class AppEngine
         $this->parseconf();
         $this->request = $request;
 
-        if(!$request) {
+        if (!$request) {
             $request = $this->request;
         }
 
         $response = null;
-            
+
         $autoloader = new Autoloader();
         $autoloader->setConf($this->conf);
 
@@ -194,41 +192,35 @@ class AppEngine
             $this->sethandlers();
             $call = $this->doserve($request);
             $result = $this->process($call, $request);
-        }
-        catch(\assegai\exceptions\HttpRedirect $r) {
+        } catch (\assegai\exceptions\HttpRedirect $r) {
             $result = array(
                 'request' => $request,
                 'response' => new Response());
             $result['response']->setHeader('Location', $r->getUrl());
-        }
-        catch(\assegai\exceptions\HTTPNotFoundError $e) {
+        } catch (\assegai\exceptions\HTTPNotFoundError $e) {
             $request->setException($e);
             $result = $this->process($this->error40x, $request);
-        }
-        catch(\assegai\exceptions\HTTPClientError $e) {
+        } catch (\assegai\exceptions\HTTPClientError $e) {
             $request->setException($e);
             $result = $this->process($this->error40x, $request);
-        }
-        catch(\assegai\exceptions\HTTPServerError $e) {
+        } catch (\assegai\exceptions\HTTPServerError $e) {
             $request->setException($e);
             $result = $this->process($this->error50x, $request);
-        }
-        // Generic HTTP status response.
-        catch(\assegai\exceptions\HTTPStatus $s) {
+        } catch (\assegai\exceptions\HTTPStatus $s) {
+            // Generic HTTP status response.
             $result = array(
                 'request' => $request,
                 'response' => new Response($s->getMessage(), $s->getCode()));
-        }
-        catch(\Exception $e) {
+        } catch (\Exception $e) {
             $request->setException($e);
             $result = $this->process($this->error50x, $request);
         }
 
-        if(!$result['request']) {
+        if (!$result['request']) {
             $result['request'] = $request;
         }
 
-        if($return_response) {
+        if ($return_response) {
             return $result;
         } else {
             return $this->display($result['request'], @$result['response']);
@@ -240,18 +232,21 @@ class AppEngine
      * permits using Assegai within something else or to run it as a CLI
      * app.
      */
-    public function execute($url = '',
-                            array $get = array(),
-                            array $post = array(),
-                            array $session = array(),
-                            array $cookies = array()) {
+    public function execute(
+        $url = '',
+        array $get = array(),
+        array $post = array(),
+        array $session = array(),
+        array $cookies = array()
+    ) {
         $request = new Request($url, $get, $post, new Security(), $session, $cookies);
         $result = $this->serve($request, true);
 
-        $answer = new \StdClass(); 
+        $answer = new \StdClass();
         $answer->session = $result['request']->getAllSession();
         $answer->cookies = $result['request']->getAllCookies();
-        if(is_object($result['response'])) {
+
+        if (is_object($result['response'])) {
             $answer->result = $result['response']->getBody();
         } else {
             $answer->result = $response;
@@ -263,9 +258,10 @@ class AppEngine
     /**
      * Processes the returned object from a handler.
      */
-    protected function display(Request $request, $response) {
+    protected function display(Request $request, $response)
+    {
         $request->saveState();
-        if(is_object($response)) {
+        if (is_object($response)) {
             $response->compile();
         } else {
             echo $response;
@@ -275,13 +271,14 @@ class AppEngine
     /**
      * Prepares the error handlers.
      */
-    protected function sethandlers() {
-        if($this->conf->get('handler40x')) {
+    protected function sethandlers()
+    {
+        if ($this->conf->get('handler40x')) {
             $this->register40x($this->conf->get('handler40x'));
         } else {
             $this->register40x(array('assegai\ErrorController', 'notFoundHandler'));
         }
-        if($this->conf->get('handler50x')) {
+        if ($this->conf->get('handler50x')) {
             $this->register50x($this->conf->get('handler50x'));
         } else {
             $this->register50x(array('assegai\ErrorController', 'errorHandler'));
@@ -295,9 +292,9 @@ class AppEngine
     {
         $route_to_app = "";
         $app = null;
-            
+
         $call = $this->router->getRoute($request);
-            
+
         return $call;
     }
 
@@ -305,24 +302,25 @@ class AppEngine
      * Processes a route call, something like `stuff::thing' or just a function name
      * or even a closure.
      */
-    protected function process(routing\RouteCall $proto, $request) {
+    protected function process(routing\RouteCall $proto, $request)
+    {
         /* We're accepting different types of handler declarations. It can be
          * anything PHP defines as a 'callable', or in the form class::method. */
         $class = '';
         $method = '';
         $call = $proto->getCall();
         $params = $proto->getParams();
-            
+
         $request->setParams($proto->getParams());
 
-        if($proto->getApp()) {
+        if ($proto->getApp()) {
             $this->current_app = $proto->getApp();
             $this->server->setAppName($this->current_app);
 
             $this->server->setMainConf($this->conf);
             $this->server->setAppConf($this->apps_conf[$this->current_app]);
             $this->server->setAppPath(Utils::joinPaths($this->conf->get('apps_path'), $this->current_app));
-            if($this->apps_conf[$this->current_app]->get('use_session')) {
+            if ($this->apps_conf[$this->current_app]->get('use_session')) {
                 session_start();
                 $request->setAllSession($_SESSION);
                 $this->request = $request;
@@ -332,32 +330,28 @@ class AppEngine
             $this->loadAppModules($this->current_app);
         }
 
-        if(is_string($call) && preg_match('/^.*::.+$/', trim($call))) {
+        if (is_string($call) && preg_match('/^.*::.+$/', trim($call))) {
             list($class, $method) = explode('::', trim($call));
-        }
-        else if(is_array($call)) {
-            if(is_string($call[0]) && preg_match('/^.*::.+$/', trim($call[0]))) {
+        } elseif (is_array($call)) {
+            if (is_string($call[0]) && preg_match('/^.*::.+$/', trim($call[0]))) {
                 list($class, $method) = explode('::', trim($call[0]));
                 $params = array_slice($call, 1);
-            }
-            else {
+            } else {
                 $class = $call[0];
                 $method = $call[1];
             }
-        }
-        else if(is_callable($call)) {
+        } elseif (is_callable($call)) {
             $method = $call;
         }
 
-        if(!$class) {
+        if (!$class) {
             $class = '\\assegai\\Controller';
-        }
-        elseif(!is_object($class)) {
+        } elseif (!is_object($class)) {
             $class = '\\' . $class;
         }
 
         // Detecting simple routes that use implicit namespacing.
-        if(is_string($class) && stripos($class, 'controller') === false) {
+        if (is_string($class) && stripos($class, 'controller') === false) {
             $class = sprintf('%s\\controllers\\%s', strtolower($this->current_app), $class);
         }
 
@@ -372,22 +366,25 @@ class AppEngine
             'response' => $response,
         ));
 
-        if(!$class) { // Just a function call (or a closure?). Less hooks obviously.
+        if (!$class) { // Just a function call (or a closure?). Less hooks obviously.
             // Mounting system stuff into an object and generating the parameters.
-            $params = array_merge(array((object)array(
-                'modules' => $this->modules,
-                'server'  => $this->server,
-                'request' => $request,
-                'sec'     => $this->security)),
-                                  $params);
+            $params = array_merge(
+                array(
+                    (object)array(
+                        'modules' => $this->modules,
+                        'server'  => $this->server,
+                        'request' => $request,
+                        'sec'     => $this->security
+                    )
+                ),
+                $params
+            );
             $response = call_user_func_array($method, $params);
-        }
-        else if(is_object($class) || class_exists($class)) {
+        } elseif (is_object($class) || class_exists($class)) {
             $obj = null;
-            if(is_object($class)) {
+            if (is_object($class)) {
                 $obj = $class;
-            }
-            else {
+            } else {
                 $obj = new $class(
                     $this->modules,
                     $this->server,
@@ -397,14 +394,15 @@ class AppEngine
 
             $this->modules->preRequest($obj, $request);
 
-            if(method_exists($obj, 'preRequest')) {
+            if (method_exists($obj, 'preRequest')) {
                 $obj->preRequest();
-            }   
+            }
 
-            if(method_exists($obj, $method)) {
+            if (method_exists($obj, $method)) {
                 $response = call_user_func_array(array($obj, $method), $params);
-                if(method_exists($obj, 'postRequest'))
+                if (method_exists($obj, 'postRequest')) {
                     $response = $obj->postRequest($response);
+                }
             } else {
                 throw new \BadMethodCallException("Method '$method' not found in class '$class'.");
             }
@@ -413,13 +411,11 @@ class AppEngine
         }
 
         // Cleaning up the response...
-        if(gettype($response) == 'string') {
+        if (gettype($response) == 'string') {
             $response = new Response($response);
-        }
-        else if($response === null) {
+        } elseif ($response === null) {
             $response = new Response();
-        }
-        else if(gettype($response) != 'object'
+        } elseif (gettype($response) != 'object'
                 || (gettype($response) == 'object'
                     && (get_class($response) != 'assegai\Response'
                         && !is_subclass_of($response, 'assegai\Response')))) {
@@ -435,31 +431,31 @@ class AppEngine
         return array('response' => $response, 'request' => $request);
     }
 
-    function loadAppModules($app) {
-        if($this->conf->get('modules')
+    public function loadAppModules($app)
+    {
+        if ($this->conf->get('modules')
            && is_array($this->conf->get('modules'))) {
-            foreach($this->conf->get('modules') as $module) {
+            foreach ($this->conf->get('modules') as $module) {
                 $opts = array();
-                    
-                if(isset($this->apps_conf[$app]) && $this->apps_conf[$app]->get($module)) {
+
+                if (isset($this->apps_conf[$app]) && $this->apps_conf[$app]->get($module)) {
                     // We give priority to the app's module configuration.
                     $opts = $this->apps_conf[$app]->get($module);
-                }
-                elseif($this->conf->get($module)) {
+                } elseif ($this->conf->get($module)) {
                     $opts = $this->conf->get($module);
                 }
-                    
+
                 $this->modules->addModule($module, $opts);
             }
         }
-        if(isset($this->apps_conf[$app]) && $this->apps_conf[$app]->get('modules')
+        if (isset($this->apps_conf[$app]) && $this->apps_conf[$app]->get('modules')
            && is_array($this->apps_conf[$app]->get('modules'))) {
             // Now the app's modules turn.
-            foreach($this->apps_conf[$app]->get('modules', array()) as $module) {
-                if(in_array($module, $this->conf->get('modules'))) {
+            foreach ($this->apps_conf[$app]->get('modules', array()) as $module) {
+                if (in_array($module, $this->conf->get('modules'))) {
                     continue;
                 }
-                $opts = NULL;
+                $opts = null;
                 $opts = $this->apps_conf[$app]->get($module, array());
                 $this->modules->addModule($module, $opts);
             }
@@ -470,12 +466,12 @@ class AppEngine
 
     protected function errorHandlerToCall($handler)
     {
-        if(is_string($handler)) {
+        if (is_string($handler)) {
             $clean_handler = trim($handler, '\\');
-            if(strpos($clean_handler, '::') !== false && strpos($clean_handler, '\\') !== false) {
+            if (strpos($clean_handler, '::') !== false && strpos($clean_handler, '\\') !== false) {
                 // trying to guess the app.
                 $app = substr($clean_handler, 0, strpos($clean_handler, '\\'));
-                if($app) {
+                if ($app) {
                     return new routing\RouteCall($app, $handler);
                 }
             }
@@ -511,7 +507,9 @@ class AppEngine
     public function phpErrorHandler($errno, $errstr, $errfile, $errline)
     {
         $ignore = array(E_DEPRECATED, E_STRICT, E_NOTICE);
-        if(in_array($errno, $ignore)) return;
+        if (in_array($errno, $ignore)) {
+            return;
+        }
 
         $request = $this->request;
         $request->setException(new \Exception($errstr, $errno));
@@ -525,7 +523,7 @@ class AppEngine
      * @param array $options is an array of options passed to the
      * module's constructor.
      */
-    public function loadModule($module, $options = NULL)
+    public function loadModule($module, $options = null)
     {
         $this->modules->addModule($module, $options);
     }
@@ -548,11 +546,11 @@ class AppEngine
     {
         // We ensure that the prefix is properly formatted. It
         // must start with a '/' and end without one.
-        if($prefix != "") {
-            if($prefix[0] != '/') {
+        if ($prefix != "") {
+            if ($prefix[0] != '/') {
                 $prefix = '/' . $prefix;
             }
-            if($prefix[strlen($prefix) - 1] == '/') {
+            if ($prefix[strlen($prefix) - 1] == '/') {
                 $prefix = substr($prefix, 0, strlen($prefix) - 1);
             }
         }
@@ -561,4 +559,3 @@ class AppEngine
         return $this;
     }
 }
-

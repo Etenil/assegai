@@ -6,17 +6,17 @@
  * This file is part of Assegai
  *
  * Copyright (c) 2013 Guillaume Pasquet
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -37,16 +37,16 @@ class Stateful
     protected $cookievars;
     protected $alteredsession = false;
     protected $alteredcookies = false;
-    
+
     protected $cookies_max_age = 31557600; // One year.
 
     /**
      * Backwards-compatible constructor, for people who have not
      * migrated to the DI yet.
      */
-    function __construct(array $cookies = null, array $session = null)
+    public function __construct(array $cookies = null, array $session = null)
     {
-        if(!$session && $this->sessionEnabled()) {
+        if (!$session && $this->sessionEnabled()) {
             $this->sessionvars = $_SESSION;
         } else {
             $this->sessionvars = $session ?: array();
@@ -54,19 +54,16 @@ class Stateful
 
         $this->setAllCookies($cookies ?: $_COOKIE);
     }
-    
-    function sessionEnabled()
+
+    public function sessionEnabled()
     {
         // PHP 5.4+ first.
-        if((function_exists('session_status')
-                && session_status() == PHP_SESSION_ACTIVE)
-            || isset($_SESSION)) {
+        $hasSession = function_exists('session_status') && session_status() == PHP_SESSION_ACTIVE;
+        if ($hasSession || isset($_SESSION)) {
             return true;
-        }
-        else if(session_id() && isset($_SESSION)) {
+        } elseif (session_id() && isset($_SESSION)) {
             return true;
-        }
-        else {
+        } else {
             return false;
         }
     }
@@ -74,14 +71,16 @@ class Stateful
     /**
      * Whether the session has been altered.
      */
-    public function alteredSession() {
+    public function alteredSession()
+    {
         return $this->alteredsession;
     }
 
     /**
      * Whether the cookies have been altered.
      */
-    public function alteredCookies() {
+    public function alteredCookies()
+    {
         return $this->alteredcookies;
     }
 
@@ -106,7 +105,7 @@ class Stateful
      */
     public function getSession($varname, $default = false)
     {
-        if(isset($this->sessionvars[$varname])) {
+        if (isset($this->sessionvars[$varname])) {
             return $this->sessionvars[$varname];
         } else {
             return $default;
@@ -134,7 +133,7 @@ class Stateful
         $this->cookievars[$varname] = null;
         return $this;
     }
-    
+
     /**
      * Sets the cookies max age (default is 1 year).
      * @param $val integer the number of seconds of the cookie's lifetime.
@@ -144,7 +143,7 @@ class Stateful
         $this->cookies_max_age = $val;
         return $this;
     }
-    
+
     /**
      * What is the cookies max age?
      * @return integer the cookies max age as a number of seconds.
@@ -176,31 +175,34 @@ class Stateful
      */
     public function getCookie($varname, $default = false)
     {
-        if(isset($this->cookievars[$varname])) {
+        if (isset($this->cookievars[$varname])) {
             return $this->cookievars[$varname]['value'];
         } else {
             return $default;
         }
     }
-    
+
     /**
      * Gets all cookies.
      */
-    function getAllCookies() {
+    public function getAllCookies()
+    {
         return array_map(
-            function($cookiedef) { return $cookiedef['value']; },
+            function ($cookiedef) {
+                return $cookiedef['value'];
+            },
             $this->cookievars
         );
     }
-    
+
     /**
      * Sets all cookies.
      * @param array $cookies is the list of cookies as key, value pairs
      */
-    function setAllCookies(array $cookies)
+    public function setAllCookies(array $cookies)
     {
         $this->cookievars = array_map(
-            function($cookieval) {
+            function ($cookieval) {
                 return array(
                     'value' => $cookieval,
                     'max_age' => $this->cookies_max_age,
@@ -214,43 +216,43 @@ class Stateful
     /**
      * Gets all session.
      */
-    function getAllSession() {
+    public function getAllSession()
+    {
         return $this->sessionvars;
     }
-    
+
     /**
      * Sets all session variables.
      */
-    public function setAllSession(array $session) {
+    public function setAllSession(array $session)
+    {
         $this->sessionvars = $session;
     }
-    
-	/**
-	 * Generates the page.
-	 */
-	public function saveState()
-	{
-        if($this->sessionEnabled()) {
+
+    /**
+     * Generates the page.
+     */
+    public function saveState()
+    {
+        if ($this->sessionEnabled()) {
             // Session handling.
-            if(!is_array($this->sessionvars)) {
+            if (!is_array($this->sessionvars)) {
                 $this->sessionvars = array();
             }
-            foreach($this->sessionvars as $varname => $val) {
-                if($val === null) {
+            foreach ($this->sessionvars as $varname => $val) {
+                if ($val === null) {
                     unset($_SESSION[$varname]);
-                }
-                else {
+                } else {
                     $_SESSION[$varname] = $val;
                 }
             }
         }
 
-        if(!headers_sent()) {
-            foreach($this->cookievars as $cookiename => $cookiedef) {
-                if($cookiedef['value'] === null) {
+        if (!headers_sent()) {
+            foreach ($this->cookievars as $cookiename => $cookiedef) {
+                if ($cookiedef['value'] === null) {
                     setcookie($cookiename, null, time() - 3600, '/'); // Expiring the cookie
-                }
-                else {
+                } else {
                     setcookie(
                         $cookiename,
                         $cookiedef['value'],
@@ -260,5 +262,5 @@ class Stateful
                 }
             }
         }
-	}
+    }
 }

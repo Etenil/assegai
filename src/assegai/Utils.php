@@ -6,17 +6,17 @@
  * This file is part of Assegai
  *
  * Copyright (c) 2013 Guillaume Pasquet
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -40,16 +40,18 @@ class Utils
 
         $paths = array_filter(func_get_args());
 
-        $paths = array_map(function($path) {
+        $paths = array_map(
+            function ($path) {
                 $path = preg_replace('%^/%', '', $path);
                 $path = preg_replace('%/$%', '', $path);
                 return $path;
             },
-            $paths);
+            $paths
+        );
 
         $path = implode('/', $paths);
 
-        if($abspath) {
+        if ($abspath) {
             return '/' . $path;
         } else {
             return $path;
@@ -61,12 +63,12 @@ class Utils
      * @param $filename is the original filename.
      * @return the cleaned-up filename.
      */
-    public static function cleanFilename($filename, $placeholder='_', $convert_html = true)
+    public static function cleanFilename($filename, $placeholder = '_', $convert_html = true)
     {
-        if($convert_html) {
+        if ($convert_html) {
             $filename = html_entity_decode($filename);
         }
-        
+
         $normalizeChars = array(
             'Š'=>'S', 'š'=>'s', 'Ð'=>'Dj','Ž'=>'Z', 'ž'=>'z', 'À'=>'A',
             'Á'=>'A', 'Â'=>'A', 'Ã'=>'A', 'Ä'=>'A', 'Å'=>'A', 'Æ'=>'A',
@@ -82,9 +84,14 @@ class Utils
             'ƒ'=>'f',
             );
 
-        return preg_replace('#[^a-zA-Z0-9._-]#', $placeholder,
-                            strtr($filename,
-                                  $normalizeChars));
+        return preg_replace(
+            '#[^a-zA-Z0-9._-]#',
+            $placeholder,
+            strtr(
+                $filename,
+                $normalizeChars
+            )
+        );
     }
 
     /**
@@ -101,11 +108,15 @@ class Utils
            can have 4.48755316e+23 permutations. */
         $filename = $prefix;
 
-        while($filename == $prefix || file_exists(self::joinPaths($basepath, $filename))) {
-            for($charnum = 0; $charnum < 30; $charnum++) {
+        while ($filename == $prefix || file_exists(self::joinPaths($basepath, $filename))) {
+            for ($charnum = 0; $charnum < 30; $charnum++) {
                 $ascii = 48 + rand(0, 60);
-                if($ascii > 57) $ascii+= 7; // Realigning on A
-                if($ascii > 90) $ascii+= 7; // Realigning on a
+                if ($ascii > 57) {
+                    $ascii+= 7; // Realigning on A
+                }
+                if ($ascii > 90) {
+                    $ascii+= 7; // Realigning on a
+                }
                 $filename.= chr($ascii);
             }
             $filename.= $suffix;
@@ -119,7 +130,7 @@ class Utils
 
         return $filename;
     }
-    
+
     /**
      * Generates a random string.
      * @param $length integer How many characters should the string have.

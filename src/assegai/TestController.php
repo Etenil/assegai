@@ -6,17 +6,17 @@
  * This file is part of Assegai
  *
  * Copyright (c) 2013 Guillaume Pasquet
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -31,13 +31,13 @@ namespace assegai;
 class TestController extends \PHPUnit_Framework_TestCase implements IController
 {
     /** Object that contains loaded modules. */
-	protected $modules;
+    protected $modules;
     /** Server state variable. */
-	protected $server;
+    protected $server;
     /** Current request object. */
-	protected $request;
+    protected $request;
     /** Security provider. */
-	protected $sec;
+    protected $sec;
 
     /**
      * Controller's constructor. This is meant to be called by Core.
@@ -45,35 +45,36 @@ class TestController extends \PHPUnit_Framework_TestCase implements IController
      * @param Server $server is the current server state.
      * @param Request $request is the current request object.
      */
-	public function __construct()
-	{
+    public function __construct()
+    {
         parent::__construct();
         global $container;
 
-		$this->modules = $container->give('mc');
-		$this->server = $container->give('server');
+        $this->modules = $container->give('mc');
+        $this->server = $container->give('server');
         $this->sec = $container->give('security');
         $this->request = $container->give('request');
 
         // Starting modules.
-        foreach($this->server->main->get('modules') as $module) {
+        foreach ($this->server->main->get('modules') as $module) {
             $opts = array();
-            
-            if($this->server->main->get($module)) {
+
+            if ($this->server->main->get($module)) {
                 $opts = $this->server->main->get($module);
             }
-                    
+
             $this->modules->addModule($module, $opts);
         }
 
         // Running the user init.
         $this->_init();
-	}
-	
-	function redirect($to) {
+    }
+
+    public function redirect($to)
+    {
         $response = new Response();
         $response->redirect($to);
-        
+
         return $response;
     }
 
@@ -84,7 +85,8 @@ class TestController extends \PHPUnit_Framework_TestCase implements IController
     {
     }
 
-    function helper($helper_name) {
+    public function helper($helper_name)
+    {
         $classname = 'Helper_' . ucwords($helper_name);
         return new $classname($this->modules, $this->server, $this->request, $this->security);
     }
@@ -92,15 +94,15 @@ class TestController extends \PHPUnit_Framework_TestCase implements IController
     /**
      * Loads a view.
      */
-    function view($view_name, array $var_list = NULL, array $block_list = NULL)
+    public function view($view_name, array $var_list = null, array $block_list = null)
     {
-        if($var_list === NULL) {
+        if ($var_list === null) {
             $var_list = array(); // Avoids notices.
         }
         $vars = (object)$var_list;
         $blocks = (object)$block_list;
 
-        if($hook_data = $this->modules->preView($this->request, $view_name, $vars)) {
+        if ($hook_data = $this->modules->preView($this->request, $view_name, $vars)) {
             return $hook_data;
         }
 
@@ -111,29 +113,29 @@ class TestController extends \PHPUnit_Framework_TestCase implements IController
         $helpers = new \stdClass();
 
         // Little hack to access urls easier.
-        $url = function($url) use($serv) {
+        $url = function ($url) use ($serv) {
             return $serv->siteUrl($url);
         };
 
-        $load_helper = function($helper_name) use(&$helpers, &$me) {
+        $load_helper = function ($helper_name) use (&$helpers, &$me) {
             $helpers->{$helper_name} = $me->helper($helper_name);
         };
 
-        $startblock = function($name) use(&$current_block) {
+        $startblock = function ($name) use (&$current_block) {
             $current_block = $name;
             ob_start();
         };
 
-        $endblock = function() use(&$block_list, &$current_block) {
+        $endblock = function () use (&$block_list, &$current_block) {
             $block_list[$current_block] = ob_get_clean();
             $current_block = false;
         };
 
-        $inherit = function($template) use(&$parent_tpl) {
+        $inherit = function ($template) use (&$parent_tpl) {
             $parent_tpl = $template;
         };
-        
-        $clean = function($val, $placeholder='-') {
+
+        $clean = function ($val, $placeholder = '-') {
             return \assegai\Utils::cleanFilename($val, $placeholder);
         };
 
@@ -145,20 +147,20 @@ class TestController extends \PHPUnit_Framework_TestCase implements IController
         ob_start();
 
         $template_path = $this->server->getRelAppPath('views/' . $view_name . '.phtml');
-        if(!file_exists($template_path)) {
+        if (!file_exists($template_path)) {
             $template_path = $this->server->main->get('templates_path') . '/' . $view_name . '.phtml';
         }
-        
+
         // Traditional PHP template.
         require($template_path);
 
         $data = ob_get_clean();
 
-        if($hook_data = $this->modules->postView($this->request, $view_name, $vars, $data)) {
+        if ($hook_data = $this->modules->postView($this->request, $view_name, $vars, $data)) {
             return $hook_data;
         }
 
-        if($parent_tpl) {
+        if ($parent_tpl) {
             return $this->view($parent_tpl, $var_list, $block_list);
         }
 
@@ -170,17 +172,17 @@ class TestController extends \PHPUnit_Framework_TestCase implements IController
      */
     protected function model($model_name)
     {
-        if($hook_data = $this->modules->preModel($model_name)) {
+        if ($hook_data = $this->modules->preModel($model_name)) {
             return $hook_data;
         }
 
-        if(!class_exists($model_name)) {
+        if (!class_exists($model_name)) {
             throw new exceptions\HttpInternalServerError("Class $model_name not found");
         }
-        
+
         $model = new $model_name($this->modules);
 
-        if($hook_data = $this->modules->postModel($model_name) === true) {
+        if ($hook_data = $this->modules->postModel($model_name) === true) {
             return $hook_data;
         }
 
@@ -205,35 +207,32 @@ class TestController extends \PHPUnit_Framework_TestCase implements IController
      * set to false. Default is false.
      * @return The HTML code of a human representation of the $var.
      */
-	protected function dump($var, $no_html = false)
-	{
-		$dump = var_export($var, true);
-		if($no_html) {
-			return $dump;
-		} else {
-			return '<pre>' . htmlentities($dump) . '</pre>' . PHP_EOL;;
-		}
-	}
+    protected function dump($var, $no_html = false)
+    {
+        $dump = var_export($var, true);
+        if ($no_html) {
+            return $dump;
+        } else {
+            return '<pre>' . htmlentities($dump) . '</pre>' . PHP_EOL;
+        }
+    }
 
-	/**
-	 * Method executed prior to any request handling.
-	 */
-	public function preRequest()
-	{
-	}
+    /**
+     * Method executed prior to any request handling.
+     */
+    public function preRequest()
+    {
+    }
 
-	/**
-	 * Method executed following any request handling. This method is
-	 * expected to return a Response object, which will then be sent
-	 * back to the user.
-	 * @param mixed $returned is the value that was previously returned
-	 * by the routed method.
-	 */
-	public function postRequest($returned)
-	{
-		return $returned;
-	}
+    /**
+     * Method executed following any request handling. This method is
+     * expected to return a Response object, which will then be sent
+     * back to the user.
+     * @param mixed $returned is the value that was previously returned
+     * by the routed method.
+     */
+    public function postRequest($returned)
+    {
+        return $returned;
+    }
 }
-
-
-?>

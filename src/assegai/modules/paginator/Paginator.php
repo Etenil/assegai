@@ -29,7 +29,8 @@ class Paginator extends modules\Module
     /**
      * Generic instanciation method for any type of provider.
      */
-    static function fromProvider($provider, $data) {
+    public static function fromProvider($provider, $data)
+    {
         $providername = __NAMESPACE__ . '\\providers\\' . ucfirst(strtolower($provider)) . 'Provider';
         return new self(new $providername($data));
     }
@@ -37,7 +38,7 @@ class Paginator extends modules\Module
     /**
      * Instanciates a paginator from the given array.
      */
-    static function fromArray(array $data)
+    public static function fromArray(array $data)
     {
         return self::fromProvider('Array', $data);
     }
@@ -45,7 +46,7 @@ class Paginator extends modules\Module
     /**
      * Instanciates a paginator from the provided model.
      */
-    static function fromModel(IPaginatorProvider $data)
+    public static function fromModel(IPaginatorProvider $data)
     {
         return self::fromProvider('Array', $data);
     }
@@ -53,7 +54,7 @@ class Paginator extends modules\Module
     /**
      * Instanciates a paginator from PDO statement.
      */
-    static function fromPDO(PDOStatement $stmt)
+    public static function fromPDO(PDOStatement $stmt)
     {
         return new self(new PdoProvider($stmt));
     }
@@ -92,10 +93,10 @@ class Paginator extends modules\Module
      */
     public function setPage($pagenum)
     {
-        if($pagenum > $this->getPages()) {
+        if ($pagenum > $this->getPages()) {
             $pagenum = $this->getPages();
         }
-        if($pagenum < 1) {
+        if ($pagenum < 1) {
             $pagenum = 1;
         }
 
@@ -143,25 +144,23 @@ class Paginator extends modules\Module
      */
     public function getPagesList($length = 10)
     {
-         // Pages in range
+        // Pages in range
         $pagenum = $this->getPageNum();
         $pagecount  = $this->getPages();
 
-        if($length > $pagecount) {
+        if ($length > $pagecount) {
             $length = $pagecount;
         }
 
         $delta = ceil($length / 2);
 
-        if($pagenum <= 1) {
+        if ($pagenum <= 1) {
             $lowerbound = 1;
             $upperbound = min($pagecount, $length);
-        }
-        else if($pagenum - $delta > $pagecount - $length) {
+        } elseif ($pagenum - $delta > $pagecount - $length) {
             $lowerbound = $pagecount - $length + 1;
             $upperbound = $pagecount;
-        }
-        else {
+        } else {
             if ($pagenum - $delta < 0) {
                 $delta = $pagenum;
             }
@@ -188,15 +187,17 @@ class Paginator extends modules\Module
     public function setGetParams($params)
     {
         // We consider the array is a GET array.
-        if(!is_array($params)) {
+        if (!is_array($params)) {
             $params = explode('&', str_replace('?', '', $params));
         }
 
         $get = array();
-        foreach($params as $varname => $varval) {
-            if($varname == 'p') continue; // We don't want to specify the page twice!
-            if(is_array($varval)) {
-                foreach($varval as $subval) {
+        foreach ($params as $varname => $varval) {
+            if ($varname == 'p') {
+                continue;
+            } // We don't want to specify the page twice!
+            if (is_array($varval)) {
+                foreach ($varval as $subval) {
                     $get[] = "${varname}[]=$subval";
                 }
             } else {
@@ -210,7 +211,7 @@ class Paginator extends modules\Module
      * Displays or returns the HTML list of pages.
      * @param $return returns the html when true. Default is false.
      */
-    function render($class = '', $id = '', $return = false)
+    public function render($class = '', $id = '', $return = false)
     {
         $link = $this->link . ($this->getparams ? '?'.$this->getparams.'&' : '?');
         ?>
@@ -228,5 +229,6 @@ class Paginator extends modules\Module
                 title="End">&nbsp;</a>
         </div>
         <?php
+
     }
 }

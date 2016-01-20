@@ -6,11 +6,11 @@ use \assegai\modules\forms\fields;
 
 interface IRenderer
 {
-    function text(fields\Field $field);
-    function textarea(fields\Field $field);
-    function select(fields\ChoiceField $field);
-    function checkbox(fields\Field $field);
-    function radio(fields\Field $field);
-    function yesno(fields\Field $field);
-    function time(fields\Field $field);
+    public function text(fields\Field $field);
+    public function textarea(fields\Field $field);
+    public function select(fields\ChoiceField $field);
+    public function checkbox(fields\Field $field);
+    public function radio(fields\Field $field);
+    public function yesno(fields\Field $field);
+    public function time(fields\Field $field);
 }

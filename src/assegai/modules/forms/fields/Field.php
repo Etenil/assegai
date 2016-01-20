@@ -22,16 +22,16 @@ class Field
 
     protected $_classes = array();
 
-    function __construct($value = null)
+    public function __construct($value = null)
     {
         $this->_value = $value;
     }
 
-    function validate()
+    public function validate()
     {
         $validator = new Validator($this->_value);
-        
-        if($this->isRequired()) {
+
+        if ($this->isRequired()) {
             $validator->required(sprintf("%s cannot be blank", $this->getName()));
         }
 
@@ -39,7 +39,7 @@ class Field
         return $this->allErrors();
     }
 
-    function name($val)
+    public function name($val)
     {
         $this->_name = $val;
         return $this;
@@ -55,139 +55,135 @@ class Field
         return $this;
     }
 
-    function required($val)
+    public function required($val)
     {
         $this->_required = (bool)$val;
         return $this;
     }
 
-    function defaults($val) 
+    public function defaults($val)
     {
         $this->_default = $val;
         return $this;
     }
 
-    function editable($val) 
+    public function editable($val)
     {
         $this->_editable = (bool)$val;
         return $this;
     }
 
-    function help($val) 
+    public function help($val)
     {
         $this->_help = $val;
         return $this;
     }
-    
-    function value($val)
+
+    public function value($val)
     {
         $this->_value = $val;
         return $this;
     }
 
-    function addClass($myclass)
+    public function addClass($myclass)
     {
         $this->_classes[$myclass]++;
         return $this;
     }
-    function delClass($myclass)
+    public function delClass($myclass)
     {
         unset($this->_classes[$myclass]);
         return $this;
     }
-    function clearClasses()
+    public function clearClasses()
     {
         $this->_classes = array();
         return $this;
     }
-    function getClasses()
+    public function getClasses()
     {
         return array_keys($this->_classes);
     }
-    
+
     /**
      * This essentially returns the field's class name without the "Field" part.
      */
-    function getType()
+    public function getType()
     {
-        if($this->_type) {
+        if ($this->_type) {
             return $this->_type;
-        }
-        else {
+        } else {
             $myclass = get_class($this);
             return strtolower(substr($myclass, strrpos($myclass, '\\') + 1, -5));
         }
     }
 
-    function getInputType()
+    public function getInputType()
     {
         return $this->_input_type;
     }
-    
-    function getName()
+
+    public function getName()
     {
         return $this->_name;
     }
 
-    function setLabel($val)
+    public function setLabel($val)
     {
         $this->_label = $val;
         return $this;
     }
-    
-    function getLabel()
+
+    public function getLabel()
     {
-        if($this->_label) {
+        if ($this->_label) {
             return $this->_label;
-        }
-        else {
+        } else {
             return ucwords($this->getName());
         }
     }
-    
-    function isRequired()
+
+    public function isRequired()
     {
         return $this->_required;
     }
-    
+
     public function getDefault()
     {
         return $this->_default;
     }
-    
-    function getValue()
+
+    public function getValue()
     {
-        if($this->_value !== null) {
+        if ($this->_value !== null) {
             return $this->_value;
-        }
-        else {
+        } else {
             return $this->getDefault();
         }
     }
-    
+
     public function isEditable()
     {
         return $this->_editable;
     }
-    
+
     public function getHelp()
     {
         return $this->_help;
     }
-    
+
     public function hasErrors()
     {
         return count($this->_errors) > 0;
     }
-    
+
     public function isValid()
     {
         return !$this->hasErrors();
     }
-    
+
     public function allErrors()
     {
         return $this->_errors;
     }
 }
-

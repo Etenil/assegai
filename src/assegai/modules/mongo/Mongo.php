@@ -13,19 +13,19 @@ class Mongo extends modules\Module
         return true;
     }
 
-    function _init($options)
+    public function _init($options)
     {
         $this->connections = array();
 
-        foreach($options as $conn => $spec) {
+        foreach ($options as $conn => $spec) {
             $m = new \Mongo($spec['server']);
             $this->connections[$conn] = $m->{$spec['db']};
         }
     }
 
-    function __get($name)
+    public function __get($name)
     {
-        if(isset($this->connections[$name])) {
+        if (isset($this->connections[$name])) {
             return $this->connections[$name];
         } else {
             throw new \Exception("No such connection: `$name'");

@@ -20,7 +20,7 @@ class Controller extends \assegai\Controller
     {
         $response = new \assegai\Response();
 
-        if($this->rest_type == self::REST_JSON) {
+        if ($this->rest_type == self::REST_JSON) {
             $response->setBody(json_encode($returned));
             $response->setHeader('Content-Type', 'application/json');
         }

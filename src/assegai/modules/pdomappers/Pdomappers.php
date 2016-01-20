@@ -27,23 +27,22 @@
  * THE SOFTWARE.
  */
 
-namespace assegai\modules\pdomappers
-{
-    use \assegai\modules;
-    
-	class Pdomappers extends modules\Module
-	{
-		public static final function depends()
-		{
-			return array(
-				'pdo',
-				'paginator',
-			);
-		}
+namespace assegai\modules\pdomappers;
 
-		public static final function instanciate()
-        {
-            return false;
-        }
-	}
+use \assegai\modules;
+
+class Pdomappers extends modules\Module
+{
+    final public static function depends()
+    {
+        return array(
+            'pdo',
+            'paginator',
+        );
+    }
+
+    final public static function instanciate()
+    {
+        return false;
+    }
 }

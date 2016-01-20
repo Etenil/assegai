@@ -1,9 +1,9 @@
 <?php
 
-namespace assegai\modules\auth
+namespace assegai\modules\auth;
+
+interface IAuthGroup
 {
-    interface IAuthGroup {
-        function getName();
-        function setName($name);
-    }
+    public function getName();
+    public function setName($name);
 }

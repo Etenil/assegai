@@ -37,18 +37,18 @@ class Paragraph extends Renderer implements IRenderer
     
     protected function field($field, $input, $prefield = false)
     {
-        if($field->hasErrors()) {
+        if ($field->hasErrors()) {
             $field->addClass('error');
         }
 
         $id = $field->getId() ?: sprintf('input-%s', $field->getName());
 
         $tpl = self::TPL_FIELD;
-        if($prefield) {
+        if ($prefield) {
             $tpl = self::TPL_PREFIELD;
         }
         $help = '';
-        if($field->getHelp()) {
+        if ($field->getHelp()) {
             $help = $this->tpl(self::TPL_HELPTEXT, array(
                 'name' => $field->getName(),
                 'id' => $id,
@@ -65,7 +65,7 @@ class Paragraph extends Renderer implements IRenderer
         ));
     }
     
-    function text(fields\Field $field)
+    public function text(fields\Field $field)
     {
         return $this->field(
             $field,
@@ -80,7 +80,7 @@ class Paragraph extends Renderer implements IRenderer
         );
     }
     
-    function textarea(fields\Field $field)
+    public function textarea(fields\Field $field)
     {
         return $this->field(
             $field,
@@ -94,10 +94,10 @@ class Paragraph extends Renderer implements IRenderer
         );
     }
     
-    function select(fields\ChoiceField $field)
+    public function select(fields\ChoiceField $field)
     {
         $options = '';
-        foreach($field->getChoices() as $choice_lbl => $choice_val) {
+        foreach ($field->getChoices() as $choice_lbl => $choice_val) {
             $options.= $this->tpl(
                 self::TPL_SELECT_OPTION,
                 array(
@@ -120,7 +120,7 @@ class Paragraph extends Renderer implements IRenderer
         );
     }
     
-    function checkbox(fields\Field $field)
+    public function checkbox(fields\Field $field)
     {
         return $this->field(
             $field,
@@ -136,11 +136,11 @@ class Paragraph extends Renderer implements IRenderer
         );
     }
     
-    function radio(fields\Field $field)
+    public function radio(fields\Field $field)
     {
         $options = '';
         $iter = 0;
-        foreach($field->getChoices() as $choice_lbl => $choice_val) {
+        foreach ($field->getChoices() as $choice_lbl => $choice_val) {
             $field->setLabel($choice_val)
                   ->setId(sprintf('radio-%s-%d', $field->getName(), $iter++));
             $options.= $this->field(
@@ -161,12 +161,11 @@ class Paragraph extends Renderer implements IRenderer
         return $options;
     }
     
-    function yesno(fields\Field $field)
+    public function yesno(fields\Field $field)
     {
     }
     
-    function time(fields\Field $field)
+    public function time(fields\Field $field)
     {
     }
 }
-

@@ -19,7 +19,7 @@ class Mustache extends modules\Module
     public function preView(assegai\Request $request, $tpl, $vars)
     {
         $tpl_path = $this->server->getRelAppPath('views/' . $tpl . '.tpl');
-        if(!file_exists($tpl_path)) {
+        if (!file_exists($tpl_path)) {
             throw new \assegai\NoViewException("View `$tpl_path' doesn't exist");
         }
 

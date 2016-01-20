@@ -6,12 +6,12 @@ class TextField extends SizedField
 {
     protected $_multiline = false;
 
-    function validate()
+    public function validate()
     {
         $errors = parent::validate();
         $validator = new Validator($this->_value);
         
-        if(!$this->isMultiline()) {
+        if (!$this->isMultiline()) {
             $validator->notRegexp("/\n/", sprintf("%s must be only one line", $this->getName()));
         }
         
@@ -19,15 +19,14 @@ class TextField extends SizedField
         return $this->allErrors();
     }
     
-    function multiline($val)
+    public function multiline($val)
     {
         $this->_multiline = (bool)$val;
         return $this;
     }
     
-    function isMultiline()
+    public function isMultiline()
     {
         return $this->_multiline;
     }
 }
-

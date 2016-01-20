@@ -23,7 +23,7 @@ class Validator extends modules\Module
     protected $arguments = array();
     protected $filters = array();
     protected $data = null;
-	protected $validData = array();
+    protected $validData = array();
 
     public static function instanciate()
     {
@@ -36,9 +36,11 @@ class Validator extends modules\Module
      *
      * @param array $data
      */
-    function __construct(array $data = null)
+    public function __construct(array $data = null)
     {
-        if (!empty($data)) $this->setData($data);
+        if (!empty($data)) {
+            $this->setData($data);
+        }
     }
 
     /**
@@ -64,9 +66,10 @@ class Validator extends modules\Module
      */
     public function email($message = null)
     {
-        $this->setRule(__FUNCTION__, function($email)
-                       {
-                           if (strlen($email) == 0) return true;
+        $this->setRule(__FUNCTION__, function ($email) {
+                           if (strlen($email) == 0) {
+                               return true;
+                           }
                            $isValid = true;
                            $atIndex = strrpos($email, '@');
                            if (is_bool($atIndex) && !$atIndex) {
@@ -78,38 +81,32 @@ class Validator extends modules\Module
                                $domainLen = strlen($domain);
                                if ($localLen < 1 || $localLen > 64) {
                                    $isValid = false;
-                               }
-                               else if ($domainLen < 1 || $domainLen > 255) {
+                               } elseif ($domainLen < 1 || $domainLen > 255) {
                                    // domain part length exceeded
                                    $isValid = false;
-                               }
-                               else if ($local[0] == '.' || $local[$localLen-1] == '.') {
+                               } elseif ($local[0] == '.' || $local[$localLen-1] == '.') {
                                    // local part starts or ends with '.'
                                    $isValid = false;
-                               }
-                               else if (preg_match('/\\.\\./', $local)) {
+                               } elseif (preg_match('/\\.\\./', $local)) {
                                    // local part has two consecutive dots
                                    $isValid = false;
-                               }
-                               else if (!preg_match('/^[A-Za-z0-9\\-\\.]+$/', $domain)) {
+                               } elseif (!preg_match('/^[A-Za-z0-9\\-\\.]+$/', $domain)) {
                                    // character not valid in domain part
                                    $isValid = false;
-                               }
-                               else if (preg_match('/\\.\\./', $domain)) {
+                               } elseif (preg_match('/\\.\\./', $domain)) {
                                    // domain part has two consecutive dots
                                    $isValid = false;
-                               }
-                               else if (!preg_match('/^(\\\\.|[A-Za-z0-9!#%&`_=\\/$\'*+?^{}|~.-])+$/', str_replace("\\\\","",$local))) {
+                               } elseif (!preg_match('/^(\\\\.|[A-Za-z0-9!#%&`_=\\/$\'*+?^{}|~.-])+$/', str_replace("\\\\", "", $local))) {
                                    // character not valid in local part unless
                                    // local part is quoted
-                                   if (!preg_match('/^"(\\\\"|[^"])+"$/', str_replace("\\\\","",$local))) {
+                                   if (!preg_match('/^"(\\\\"|[^"])+"$/', str_replace("\\\\", "", $local))) {
                                        $isValid = false;
                                    }
                                }
                                // check DNS
-                               if ($isValid && !(checkdnsrr($domain,"MX") || checkdnsrr($domain,"A"))) {
+                               if ($isValid && !(checkdnsrr($domain, "MX") || checkdnsrr($domain, "A"))) {
                                    // hmm, the domain has no MX records
-                                   if (checkdnsrr('gmail.com',"MX")) {
+                                   if (checkdnsrr('gmail.com', "MX")) {
                                        // but Gmail does. the other domain must be dodgy
                                        $isValid = false;
                                    }
@@ -129,8 +126,7 @@ class Validator extends modules\Module
      */
     public function required($message = null)
     {
-        $this->setRule(__FUNCTION__, function($val)
-                       {
+        $this->setRule(__FUNCTION__, function ($val) {
                            if (is_scalar($val)) {
                                $val = trim($val);
                            }
@@ -145,7 +141,7 @@ class Validator extends modules\Module
      * @param null $message
      * @return $this
      */
-    public function exists( $message = null)
+    public function exists($message = null)
     {
         $this->setRule(__FUNCTION__, function ($val) {
             return null !== $val;
@@ -161,9 +157,8 @@ class Validator extends modules\Module
      */
     public function float($message = null)
     {
-        $this->setRule(__FUNCTION__, function($val)
-                       {
-                           return !(filter_var($val, FILTER_VALIDATE_FLOAT) === FALSE);
+        $this->setRule(__FUNCTION__, function ($val) {
+                           return !(filter_var($val, FILTER_VALIDATE_FLOAT) === false);
                        }, $message);
         return $this;
     }
@@ -176,9 +171,8 @@ class Validator extends modules\Module
      */
     public function integer($message = null)
     {
-        $this->setRule(__FUNCTION__, function($val)
-                       {
-                           return !(filter_var($val, FILTER_VALIDATE_INT) === FALSE);
+        $this->setRule(__FUNCTION__, function ($val) {
+                           return !(filter_var($val, FILTER_VALIDATE_INT) === false);
                        }, $message);
         return $this;
     }
@@ -192,8 +186,7 @@ class Validator extends modules\Module
      */
     public function digits($message = null)
     {
-        $this->setRule(__FUNCTION__, function($val)
-                       {
+        $this->setRule(__FUNCTION__, function ($val) {
                            return (strlen($val) === 0 || ctype_digit((string) $val));
                        }, $message);
         return $this;
@@ -207,19 +200,18 @@ class Validator extends modules\Module
      * @param string $message
      * @return FormValidator
      */
-    public function min($limit, $include = TRUE, $message = null)
+    public function min($limit, $include = true, $message = null)
     {
-        $this->setRule(__FUNCTION__, function($val, $args)
-                       {
+        $this->setRule(__FUNCTION__, function ($val, $args) {
                            if (strlen($val) === 0) {
-                               return TRUE;
+                               return true;
                            }
 
                            $val = (float) $val;
                            $limit = (float) $args[0];
                            $inc = (bool) $args[1];
 
-                           return ($val > $limit || ($inc === TRUE && $val === $limit));
+                           return ($val > $limit || ($inc === true && $val === $limit));
                        }, $message, array($limit, $include));
         return $this;
     }
@@ -232,19 +224,18 @@ class Validator extends modules\Module
      * @param string $message
      * @return FormValidator
      */
-    public function max($limit, $include = TRUE, $message = null)
+    public function max($limit, $include = true, $message = null)
     {
-        $this->setRule(__FUNCTION__, function($val, $args)
-                       {
+        $this->setRule(__FUNCTION__, function ($val, $args) {
                            if (strlen($val) === 0) {
-                               return TRUE;
+                               return true;
                            }
 
                            $val = (float) $val;
                            $limit = (float) $args[0];
                            $inc = (bool) $args[1];
 
-                           return ($val < $limit || ($inc === TRUE && $val === $limit));
+                           return ($val < $limit || ($inc === true && $val === $limit));
                        }, $message, array($limit, $include));
         return $this;
     }
@@ -258,7 +249,7 @@ class Validator extends modules\Module
      * @param string $message
      * @return FormValidator
      */
-    public function between($min, $max, $include = TRUE, $message = null)
+    public function between($min, $max, $include = true, $message = null)
     {
         $message = $this->_getDefaultMessage(__FUNCTION__, array($min, $max, $include));
 
@@ -275,8 +266,7 @@ class Validator extends modules\Module
      */
     public function minlength($len, $message = null)
     {
-        $this->setRule(__FUNCTION__, function($val, $args)
-                       {
+        $this->setRule(__FUNCTION__, function ($val, $args) {
                            return !(strlen(trim($val)) < $args[0]);
                        }, $message, array($len));
         return $this;
@@ -291,8 +281,7 @@ class Validator extends modules\Module
      */
     public function maxlength($len, $message = null)
     {
-        $this->setRule(__FUNCTION__, function($val, $args)
-                       {
+        $this->setRule(__FUNCTION__, function ($val, $args) {
                            return !(strlen(trim($val)) > $args[0]);
                        }, $message, array($len));
         return $this;
@@ -307,7 +296,7 @@ class Validator extends modules\Module
      */
     public function betweenlength($minlength, $maxlength, $message = null)
     {
-        $message = empty($message) ? self::getDefaultMessage(__FUNCTION__, array($minlength, $maxlength)) : NULL;
+        $message = empty($message) ? self::getDefaultMessage(__FUNCTION__, array($minlength, $maxlength)) : null;
 
         $this->minlength($minlength, $message)->max($maxlength, $message);
         return $this;
@@ -322,8 +311,7 @@ class Validator extends modules\Module
      */
     public function length($len, $message = null)
     {
-        $this->setRule(__FUNCTION__, function($val, $args)
-                       {
+        $this->setRule(__FUNCTION__, function ($val, $args) {
                            return (strlen(trim($val)) == $args[0]);
                        }, $message, array($len));
         return $this;
@@ -339,8 +327,7 @@ class Validator extends modules\Module
      */
     public function matches($field, $label, $message = null)
     {
-        $this->setRule(__FUNCTION__, function($val, $args)
-                       {
+        $this->setRule(__FUNCTION__, function ($val, $args) {
                            return ((string) $args[0] == (string) $val);
                        }, $message, array($this->_getVal($field), $label));
         return $this;
@@ -356,8 +343,7 @@ class Validator extends modules\Module
      */
     public function notmatches($field, $label, $message = null)
     {
-        $this->setRule(__FUNCTION__, function($val, $args)
-                       {
+        $this->setRule(__FUNCTION__, function ($val, $args) {
                            return ((string) $args[0] != (string) $val);
                        }, $message, array($this->_getVal($field), $label));
         return $this;
@@ -372,8 +358,7 @@ class Validator extends modules\Module
      */
     public function startsWith($sub, $message = null)
     {
-        $this->setRule(__FUNCTION__, function($val, $args)
-                       {
+        $this->setRule(__FUNCTION__, function ($val, $args) {
                            $sub = $args[0];
                            return (strlen($val) === 0 || substr($val, 0, strlen($sub)) === $sub);
                        }, $message, array($sub));
@@ -389,8 +374,7 @@ class Validator extends modules\Module
      */
     public function notstartsWith($sub, $message = null)
     {
-        $this->setRule(__FUNCTION__, function($val, $args)
-                       {
+        $this->setRule(__FUNCTION__, function ($val, $args) {
                            $sub = $args[0];
                            return (strlen($val) === 0 || substr($val, 0, strlen($sub)) !== $sub);
                        }, $message, array($sub));
@@ -406,8 +390,7 @@ class Validator extends modules\Module
      */
     public function endsWith($sub, $message = null)
     {
-        $this->setRule(__FUNCTION__, function($val, $args)
-                       {
+        $this->setRule(__FUNCTION__, function ($val, $args) {
                            $sub = $args[0];
                            return (strlen($val) === 0 || substr($val, -strlen($sub)) === $sub);
                        }, $message, array($sub));
@@ -423,8 +406,7 @@ class Validator extends modules\Module
      */
     public function notendsWith($sub, $message = null)
     {
-        $this->setRule(__FUNCTION__, function($val, $args)
-                       {
+        $this->setRule(__FUNCTION__, function ($val, $args) {
                            $sub = $args[0];
                            return (strlen($val) === 0 || substr($val, -strlen($sub)) !== $sub);
                        }, $message, array($sub));
@@ -439,9 +421,8 @@ class Validator extends modules\Module
      */
     public function ip($message = null)
     {
-        $this->setRule(__FUNCTION__, function($val)
-                       {
-                           return (strlen(trim($val)) === 0 || filter_var($val, FILTER_VALIDATE_IP) !== FALSE);
+        $this->setRule(__FUNCTION__, function ($val) {
+                           return (strlen(trim($val)) === 0 || filter_var($val, FILTER_VALIDATE_IP) !== false);
                        }, $message);
         return $this;
     }
@@ -454,9 +435,8 @@ class Validator extends modules\Module
      */
     public function url($message = null)
     {
-        $this->setRule(__FUNCTION__, function($val)
-                       {
-                           return (strlen(trim($val)) === 0 || filter_var($val, FILTER_VALIDATE_URL) !== FALSE);
+        $this->setRule(__FUNCTION__, function ($val) {
+                           return (strlen(trim($val)) === 0 || filter_var($val, FILTER_VALIDATE_URL) !== false);
                        }, $message);
         return $this;
     }
@@ -466,7 +446,8 @@ class Validator extends modules\Module
      *
      * @return string
      */
-    protected function _getDefaultDateFormat() {
+    protected function _getDefaultDateFormat()
+    {
         return 'd/m/Y';
     }
 
@@ -478,17 +459,16 @@ class Validator extends modules\Module
      */
     public function date($message = null, $format = null, $separator = '')
     {
-        $this->setRule(__FUNCTION__, function($val, $args)
-                       {
+        $this->setRule(__FUNCTION__, function ($val, $args) {
 
                            if (strlen(trim($val)) === 0) {
-                               return TRUE;
+                               return true;
                            }
 
                            try {
                                $dt = new \DateTime($val, new \DateTimeZone("UTC"));
                                return true;
-                           } catch(\Exception $e) {
+                           } catch (\Exception $e) {
                                return false;
                            }
 
@@ -513,17 +493,16 @@ class Validator extends modules\Module
             $date = new \DateTime($date . ' days'); // Days difference from today
         } else {
             $fieldValue = $this->_getVal($date);
-            $date = ($fieldValue == FALSE) ? $date : $fieldValue;
+            $date = ($fieldValue == false) ? $date : $fieldValue;
 
             $date = \DateTime::createFromFormat($format, $date);
         }
 
-        $this->setRule(__FUNCTION__, function($val, $args)
-                       {
+        $this->setRule(__FUNCTION__, function ($val, $args) {
                            $format = $args[1];
                            $limitDate = $args[0];
 
-                           return ($limitDate > \DateTime::createFromFormat($format, $val)) ? FALSE : TRUE;
+                           return ($limitDate > \DateTime::createFromFormat($format, $val)) ? false : true;
                        }, $message, array($date, $format));
         return $this;
     }
@@ -545,13 +524,12 @@ class Validator extends modules\Module
             $date = new \DateTime($date . ' days'); // Days difference from today
         } else {
             $fieldValue = $this->_getVal($date);
-            $date = ($fieldValue == FALSE) ? $date : $fieldValue;
+            $date = ($fieldValue == false) ? $date : $fieldValue;
 
             $date = \DateTime::createFromFormat($format, $date);
         }
 
-        $this->setRule(__FUNCTION__, function($val, $args)
-                       {
+        $this->setRule(__FUNCTION__, function ($val, $args) {
                            $format = $args[1];
                            $limitDate = $args[0];
 
@@ -569,13 +547,12 @@ class Validator extends modules\Module
      */
     public function ccnum($message = null)
     {
-        $this->setRule(__FUNCTION__, function($value)
-                       {
+        $this->setRule(__FUNCTION__, function ($value) {
                            $value = str_replace(' ', '', $value);
                            $length = strlen($value);
 
                            if ($length < 13 || $length > 19) {
-                               return FALSE;
+                               return false;
                            }
 
                            $sum = 0;
@@ -607,10 +584,14 @@ class Validator extends modules\Module
             $allowed = explode(',', $allowed);
         }
 
-        $this->setRule(__FUNCTION__, function($val, $args)
-                       {
-                           return in_array($val, $args[0]);
-                       }, $message, array($allowed));
+        $this->setRule(
+            __FUNCTION__,
+            function ($val, $args) {
+                return in_array($val, $args[0]);
+            },
+            $message,
+            array($allowed)
+        );
         return $this;
     }
 
@@ -624,9 +605,9 @@ class Validator extends modules\Module
      * @param   mixed   $params
      * @return  FormValidator
      */
-    public function callback($callback, $message = '', $params = NULL)
+    public function callback($callback, $message = '', $params = null)
     {
-        if(!is_callable($callback)) {
+        if (!is_callable($callback)) {
             throw new \Exception(sprintf('%s is not callable.', $callback));
         }
 
@@ -634,9 +615,10 @@ class Validator extends modules\Module
         $name = 'callback_' . sha1(uniqid());
         $this->setRule(
             $name,
-            function($value) use ($params, $callback)
-            {
-                if(!$params) $params = array();
+            function ($value) use ($params, $callback) {
+                if (!$params) {
+                    $params = array();
+                }
                 return call_user_func_array(
                     $callback,
                     array_merge(array($value), $params)
@@ -657,7 +639,7 @@ class Validator extends modules\Module
      */
     public function filter($callback)
     {
-        if(is_callable($callback)) {
+        if (is_callable($callback)) {
             $this->filters[] = $callback;
         }
 
@@ -686,11 +668,11 @@ class Validator extends modules\Module
     protected function _applyFilter(&$val)
     {
         if (is_array($val)) {
-            foreach($val as $key => &$item) {
+            foreach ($val as $key => &$item) {
                 $this->_applyFilter($item);
             }
         } else {
-            foreach($this->filters as $filter) {
+            foreach ($this->filters as $filter) {
                 $val = $filter($val);
             }
         }
@@ -738,26 +720,26 @@ class Validator extends modules\Module
                 $args = $this->arguments[$rule]; // Arguments of rule
 
                 $valid = true;
-                if(is_array($val)) {
-                    foreach($val as $v) {
+                if (is_array($val)) {
+                    foreach ($val as $v) {
                         $valid = $valid && (empty($args)) ? $function($v) : $function($v, $args);
                     }
                 } else {
                     $valid = (empty($args)) ? $function($val) : $function($val, $args);
                 }
 
-                if ($valid === FALSE) {
+                if ($valid === false) {
                     $this->registerError($rule, $key);
 
                     $this->rules = array();  // reset rules
                     $this->filters = array();
-                    return FALSE;
+                    return false;
                 }
             }
         }
 
         $this->validData[$key] = $val;
-        return TRUE;
+        return true;
     }
 
     /**
@@ -765,7 +747,8 @@ class Validator extends modules\Module
      *
      * @return bool
      */
-    public function hasErrors() {
+    public function hasErrors()
+    {
         return (count($this->errors) > 0);
     }
 
@@ -816,8 +799,8 @@ class Validator extends modules\Module
     protected function _getVal($key)
     {
         // handle multi-dimensional arrays
-        if (strpos($key, '.') !== FALSE) {
-            $arrData = NULL;
+        if (strpos($key, '.') !== false) {
+            $arrData = null;
             $keys = explode('.', $key);
             $keyLen = count($keys);
             for ($i = 0; $i < $keyLen; ++$i) {
@@ -839,7 +822,7 @@ class Validator extends modules\Module
             }
             return $arrData;
         } else {
-            return (isset($this->data[$key])) ? $this->data[$key] : FALSE;
+            return (isset($this->data[$key])) ? $this->data[$key] : false;
         }
     }
 
@@ -870,7 +853,7 @@ class Validator extends modules\Module
     public function setRule($rule, $function, $message = '', $args = array())
     {
         if (!array_key_exists($rule, $this->rules)) {
-            $this->rules[$rule] = TRUE;
+            $this->rules[$rule] = true;
             if (!array_key_exists($rule, $this->functions)) {
                 if (!is_callable($function)) {
                     die('Invalid function for rule: ' . $rule);
@@ -892,121 +875,119 @@ class Validator extends modules\Module
      */
     protected function _getDefaultMessage($rule, $args = null)
     {
-
         switch ($rule) {
-        case 'email':
-            $message = '%s is an invalid email address.';
-            break;
-
-        case 'ip':
-            $message = '%s is an invalid IP address.';
-            break;
-
-        case 'url':
-            $message = '%s is an invalid url.';
-            break;
-
-        case 'required':
-            $message = '%s is required.';
-            break;
-
-        case 'float':
-            $message = '%s must consist of numbers only.';
-            break;
-
-        case 'integer':
-            $message = '%s must consist of integer value.';
-            break;
-
-        case 'digits':
-            $message = '%s must consist only of digits.';
-            break;
-
-        case 'min':
-            $message = '%s must be greater than ';
-            if ($args[1] == TRUE) {
-                $message .= 'or equal to ';
-            }
-            $message .= $args[0] . '.';
-            break;
-
-        case 'max':
-            $message = '%s must be less than ';
-            if ($args[1] == TRUE) {
-                $message .= 'or equal to ';
-            }
-            $message .= $args[0] . '.';
-            break;
-
-        case 'between':
-            $message = '%s must be between ' . $args[0] . ' and ' . $args[1] . '.';
-            if ($args[2] == FALSE) {
-                $message .= '(Without limits)';
-            }
-            break;
-
-        case 'minlength':
-            $message = '%s must be at least ' . $args[0] . ' characters or longer.';
-            break;
-
-        case 'maxlength':
-            $message = '%s must be no longer than ' . $args[0] . ' characters.';
-            break;
-
-        case 'length':
-            $message = '%s must be exactly ' . $args[0] . ' characters in length.';
-            break;
-
-        case 'matches':
-            $message = '%s must match ' . $args[1] . '.';
-            break;
-
-        case 'notmatches':
-            $message = '%s must not match ' . $args[1] . '.';
-            break;
-
-        case 'startsWith':
-            $message = '%s must start with "' . $args[0] . '".';
-            break;
-
-        case 'notstartsWith':
-            $message = '%s must not start with "' . $args[0] . '".';
-            break;
-
-        case 'endsWith':
-            $message = '%s must end with "' . $args[0] . '".';
-            break;
-
-        case 'notendsWith':
-            $message = '%s must not end with "' . $args[0] . '".';
-            break;
-
-        case 'date':
-            $message = '%s is not valid date.';
-            break;
-
-        case 'mindate':
-            $message = '%s must be later than ' . $args[0]->format($args[1]) . '.';
-            break;
-
-        case 'maxdate':
-            $message = '%s must be before ' . $args[0]->format($args[1]) . '.';
-            break;
-
-        case 'oneof':
-            $message = '%s must be one of ' . implode(', ', $args[0]) . '.';
-            break;
-
-        case 'ccnum':
-            $message = '%s must be a valid credit card number.';
-            break;
-
-        default:
-            $message = '%s has an error.';
-            break;
+            case 'email':
+                $message = '%s is an invalid email address.';
+                break;
+    
+            case 'ip':
+                $message = '%s is an invalid IP address.';
+                break;
+    
+            case 'url':
+                $message = '%s is an invalid url.';
+                break;
+    
+            case 'required':
+                $message = '%s is required.';
+                break;
+    
+            case 'float':
+                $message = '%s must consist of numbers only.';
+                break;
+    
+            case 'integer':
+                $message = '%s must consist of integer value.';
+                break;
+    
+            case 'digits':
+                $message = '%s must consist only of digits.';
+                break;
+    
+            case 'min':
+                $message = '%s must be greater than ';
+                if ($args[1] == true) {
+                    $message .= 'or equal to ';
+                }
+                $message .= $args[0] . '.';
+                break;
+    
+            case 'max':
+                $message = '%s must be less than ';
+                if ($args[1] == true) {
+                    $message .= 'or equal to ';
+                }
+                $message .= $args[0] . '.';
+                break;
+    
+            case 'between':
+                $message = '%s must be between ' . $args[0] . ' and ' . $args[1] . '.';
+                if ($args[2] == false) {
+                    $message .= '(Without limits)';
+                }
+                break;
+    
+            case 'minlength':
+                $message = '%s must be at least ' . $args[0] . ' characters or longer.';
+                break;
+    
+            case 'maxlength':
+                $message = '%s must be no longer than ' . $args[0] . ' characters.';
+                break;
+    
+            case 'length':
+                $message = '%s must be exactly ' . $args[0] . ' characters in length.';
+                break;
+    
+            case 'matches':
+                $message = '%s must match ' . $args[1] . '.';
+                break;
+    
+            case 'notmatches':
+                $message = '%s must not match ' . $args[1] . '.';
+                break;
+    
+            case 'startsWith':
+                $message = '%s must start with "' . $args[0] . '".';
+                break;
+    
+            case 'notstartsWith':
+                $message = '%s must not start with "' . $args[0] . '".';
+                break;
+    
+            case 'endsWith':
+                $message = '%s must end with "' . $args[0] . '".';
+                break;
+    
+            case 'notendsWith':
+                $message = '%s must not end with "' . $args[0] . '".';
+                break;
+    
+            case 'date':
+                $message = '%s is not valid date.';
+                break;
+    
+            case 'mindate':
+                $message = '%s must be later than ' . $args[0]->format($args[1]) . '.';
+                break;
+    
+            case 'maxdate':
+                $message = '%s must be before ' . $args[0]->format($args[1]) . '.';
+                break;
+    
+            case 'oneof':
+                $message = '%s must be one of ' . implode(', ', $args[0]) . '.';
+                break;
+    
+            case 'ccnum':
+                $message = '%s must be a valid credit card number.';
+                break;
+    
+            default:
+                $message = '%s has an error.';
+                break;
         }
 
         return $message;
     }
-
 }

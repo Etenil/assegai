@@ -17,12 +17,12 @@ abstract class Renderer implements IRenderer
      */
     protected function tpl($template, array $values)
     {
-        if((!isset($values['id']) || !$values['id']) && isset($values['name'])) {
+        if ((!isset($values['id']) || !$values['id']) && isset($values['name'])) {
             $values['id'] = sprintf('input-%s', $values['name']);
         }
 
         $buffer = $template;
-        foreach($values as $key => $val) {
+        foreach ($values as $key => $val) {
             $buffer = str_replace('{{' . $key . '}}', $val, $buffer);
         }
         

@@ -28,14 +28,14 @@ class Pdo extends modules\Module
         );
     }
 
-    function setOptions($options)
+    public function setOptions($options)
     {
         parent::setOptions($options);
         
         $this->connections = array();
 
         // Opening connections.
-        foreach($options as $conn => $spec) {
+        foreach ($options as $conn => $spec) {
             $this->connections[$conn] = new \PDO(
                 $spec['dsn'],
                 $spec['username'],
@@ -45,9 +45,9 @@ class Pdo extends modules\Module
         }
     }
 
-    function __get($name)
+    public function __get($name)
     {
-        if(isset($this->connections[$name])) {
+        if (isset($this->connections[$name])) {
             return $this->connections[$name];
         } else {
             throw new \Exception("No such connection: `$name'");

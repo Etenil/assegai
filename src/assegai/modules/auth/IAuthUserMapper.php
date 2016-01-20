@@ -1,10 +1,10 @@
 <?php
 
-namespace assegai\modules\auth
+namespace assegai\modules\auth;
+
+interface IAuthUserMapper
 {
-    interface IAuthUserMapper {
-        function saveUser(IAuthUser $user);
-        function loadUser($username);
-        function dropUser(IAuthUser $user);
-    }
+    public function saveUser(IAuthUser $user);
+    public function loadUser($username);
+    public function dropUser(IAuthUser $user);
 }

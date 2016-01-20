@@ -1,19 +1,19 @@
 <?php
 
-namespace assegai\modules\auth
+namespace assegai\modules\auth;
+
+interface IAuthUser
 {
-    interface IAuthUser {
-        function getUsername();
-        function setUsername($username);
-        function getPasswordHash();
-        function setPasswordHash($hash);
-        function getEmail();
-        function setEmail($email);
-        function getFirstname();
-        function setFirstname($firstname);
-        function getLastname();
-        function setLastname($lastname);
-        function getGroup();
-        function setGroup(IAuthGroup $group);
-    }
+    function getUsername();
+    function setUsername($username);
+    function getPasswordHash();
+    function setPasswordHash($hash);
+    function getEmail();
+    function setEmail($email);
+    function getFirstname();
+    function setFirstname($firstname);
+    function getLastname();
+    function setLastname($lastname);
+    function getGroup();
+    function setGroup(IAuthGroup $group);
 }

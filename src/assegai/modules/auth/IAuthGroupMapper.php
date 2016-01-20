@@ -1,10 +1,10 @@
 <?php
 
-namespace assegai\modules\auth
+namespace assegai\modules\auth;
+
+interface IAuthGroupMapper
 {
-    interface IAuthGroupMapper {
-        function saveGroup(IAuthGroup $group);
-        function loadGroup($name);
-        function dropGroup(IAuthGroup $group);
-    }
+    public function saveGroup(IAuthGroup $group);
+    public function loadGroup($name);
+    public function dropGroup(IAuthGroup $group);
 }

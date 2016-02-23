@@ -199,11 +199,13 @@ class Stateful
      */
     function setAllCookies(array $cookies)
     {
+        // Must do this for PHP 5.3 compat.
+        $cookies_max_age = $this->cookies_max_age;
         $this->cookievars = array_map(
-            function($cookieval) {
+            function($cookieval) use ($cookies_max_age) {
                 return array(
                     'value' => $cookieval,
-                    'max_age' => $this->cookies_max_age,
+                    'max_age' => $cookies_max_age,
                 );
             },
             $cookies

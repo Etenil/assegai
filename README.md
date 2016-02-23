@@ -282,6 +282,16 @@ In large routing tables, it is convenient to use route groups. They make the tab
 
 The route table is searched for method-specific routes first, then for other routes if none is found.
 
+#### URL Prefix
+
+If your website runs from a subfolder, then the routes end up having a constant prefix to them e.g. the site will run in the `foo` folder and result in a URL like `http://host.com/foo/myroute`. In this case, set the URL prefix in the configuration like so:
+
+````
+$conf['prefix'] = '/foo'
+````
+
+Then the route will be automatically resolved as `/myroute`.
+
 ### Generic routes
 
 The bundled router features several built-in handlers. Those can be used to perform instant actions on URLs.

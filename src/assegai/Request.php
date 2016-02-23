@@ -50,6 +50,8 @@ class Request extends Stateful
     protected $sec;
     protected $server;
 
+    protected $prefix;
+
     /**
      * Initialises this request object.
      * @param $get is a GET associative array.
@@ -110,8 +112,23 @@ class Request extends Stateful
         $this->getvars = $this->postvars = $args;
     }
 
+    public function setPrefix($prefix)
+    {
+        $this->prefix = $prefix;
+        return $this;
+    }
+
     public function getRoute() {
-        return $this->route;
+        $route = $this->route;
+        if ($this->prefix && stripos($route, $this->prefix) === 0) {
+            $route = substr($route, strlen($this->prefix));
+        }
+
+        if (!$route) {
+            $route = '/';
+        }
+
+        return $route;
     }
     
     public function getMethod() {

@@ -167,6 +167,10 @@ namespace assegai {
                 $request = $this->request;
             }
 
+            if ($this->conf->get('prefix')) {
+                $request->setPrefix($this->conf->get('prefix'));
+            }
+
             $response = null;
             
             $autoloader = new Autoloader();

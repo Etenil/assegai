@@ -306,7 +306,7 @@ namespace assegai {
                 $this->server->setMainConf($this->conf);
                 $this->server->setAppConf($this->apps_conf[$this->current_app]);
                 $this->server->setAppPath(Utils::joinPaths($this->conf->get('apps_path'), $this->current_app));
-                if($this->apps_conf[$this->current_app]->get('use_session')) {
+                if($this->apps_conf[$this->current_app]->get('use_session') && !headers_sent()) {
                     session_start();
                     $request->setAllSession($_SESSION);
                     $this->request = $request;

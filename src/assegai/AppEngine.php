@@ -502,7 +502,9 @@ namespace assegai {
             if(!$request) { // Ouch that's bad.
                 $request = new Request('', array(), array(), new Security(), array(), array());
             }
-            
+
+            $errstr .= " at $errfile:$errline";
+
             $request->setException(new \Exception($errstr, $errno));
             $result = $this->process($this->error50x, $request);
             return $this->display($result['request'], $result['response']);
